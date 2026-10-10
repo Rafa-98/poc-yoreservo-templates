@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Reservación cancelada por falta de pago · YoReservo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style type="text/css">
+    body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+    img { -ms-interpolation-mode: bicubic; border: 0; outline: none; text-decoration: none; }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100% !important;
+      background-color: #F7F5EF;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      color: #24281B;
+      line-height: 1.5;
+    }
+    .email-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #FFFFFF;
+      border-radius: 28px;
+      border: 1px solid #EAE6DB;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(34, 43, 19, 0.05);
+    }
+    .brand-header {
+      background: #1F290F;
+      background: linear-gradient(145deg, #1C260D 0%, #293813 100%);
+      padding: 34px 36px 28px 36px;
+    }
+    .cta-button {
+      background-color: #C6F23B;
+      color: #1F290F !important;
+      text-decoration: none;
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 16px 36px;
+      border-radius: 14px;
+      display: inline-block;
+      text-align: center;
+      box-shadow: 0 4px 14px rgba(198, 242, 59, 0.45);
+      transition: all 0.2s ease;
+    }
+    .cta-button:hover {
+      background-color: #B8EB25;
+      transform: translateY(-1px);
+    }
+    .alert-box {
+      background-color: #FEF2F2;
+      border: 1.5px solid #FCA5A5;
+      border-radius: 18px;
+      padding: 20px 22px;
+      margin: 24px 0;
+    }
+    .info-card {
+      background-color: #FAF9F5;
+      border: 1px solid #ECE7DC;
+      border-radius: 20px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .hour-pill {
+      background-color: #F0EDE4;
+      border: 1px solid #E2DDCF;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #24281B;
+      display: inline-block;
+      margin: 4px 4px 4px 0;
+    }
+    @media only screen and (max-width: 620px) {
+      .email-container {
+        border-radius: 20px !important;
+        margin: 12px !important;
+        width: auto !important;
+      }
+      .brand-header {
+        padding: 26px 20px !important;
+      }
+      .content-body {
+        padding: 26px 20px !important;
+      }
+      .alert-box {
+        padding: 18px 16px !important;
+      }
+      .info-card {
+        padding: 18px 16px !important;
+      }
+      .footer-body {
+        padding: 24px 20px !important;
+      }
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 32px 12px; background-color: #F7F5EF;">
+  <center>
+    <!-- PREHEADER TEXT -->
+    <div style="display: none; font-size: 1px; color: #F7F5EF; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden;">
+      Tu reservación AVT4AZ fue cancelada automáticamente porque no se registró el pago dentro de los 15 minutos de retención.
+    </div>
+
+    <!-- MAIN EMAIL CONTAINER -->
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto;">
+      <tr>
+        <td>
+          <div class="email-container">
+            
+            <!-- HEADER -->
+            <div class="brand-header">
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="left" style="vertical-align: middle;">
+                    <img src="../assets/yoreservo-logo-white.png" alt="YoReservo" width="165" height="21" style="display: block; max-width: 165px; height: auto;" onerror="this.style.display='none'; document.getElementById('text-logo').style.display='block';">
+                    <span id="text-logo" style="display: none; font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; letter-spacing: 0.5px; color: #F7F5EF;">
+                      YO<span style="color: #C6F23B;">RESERVO</span>
+                    </span>
+                  </td>
+                  <td align="right" style="vertical-align: middle;">
+                    <span style="background-color: #FEE2E2; color: #DC2626; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; padding: 6px 12px; border-radius: 999px; text-transform: uppercase;">
+                      ✕ Cancelada
+                    </span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- STATUS HERO -->
+            <div style="text-align: center; padding: 32px 28px 8px 28px;">
+              <!-- Cancelled Icon Circle -->
+              <div style="display: inline-block; width: 68px; height: 68px; border-radius: 50%; background-color: #FEE2E2; margin-bottom: 16px; text-align: center; line-height: 68px;">
+                <span style="font-size: 30px; color: #DC2626; line-height: 68px;">✕</span>
+              </div>
+              <h1 style="margin: 0 0 8px 0; font-family: 'Outfit', sans-serif; font-size: 28px; line-height: 1.25; font-weight: 700; color: #1F290F;">
+                Reservación cancelada
+              </h1>
+              <p style="margin: 0 auto; font-size: 15px; color: #5B664B; max-width: 460px; line-height: 1.5;">
+                El tiempo para pagar de <strong>15 minutos</strong> ha terminado y no recibimos la confirmación de tu pago. Por esta razón, la cancha fue liberada.
+              </p>
+            </div>
+
+            <!-- CONTENT BODY -->
+            <div class="content-body" style="padding: 16px 36px 36px 36px;">
+              
+              <!-- EXPLANATION ALERT BOX -->
+              <div class="alert-box">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td width="36" style="vertical-align: top; padding-right: 14px;">
+                      <div style="background-color: #FCA5A5; color: #7F1D1D; width: 36px; height: 36px; border-radius: 50%; text-align: center; line-height: 36px; font-size: 18px;">
+                        ⏰
+                      </div>
+                    </td>
+                    <td style="vertical-align: top;">
+                      <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 700; color: #991B1B;">
+                        Plazo de retención vencido
+                      </p>
+                      <p style="margin: 0; font-size: 13px; color: #7F1D1D; line-height: 1.5;">
+                        Tu cancha estuvo retenida durante 15 minutos. Al no completarse el pago a tiempo, el horario fue liberado automáticamente y ya se encuentra disponible para otros deportistas. <strong>No se realizó ningún cobro a tu cuenta.</strong>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- MAIN CTA BUTTON: VIEW CANCELLED RESERVATION DETAILS -->
+              <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="margin: 24px 0 16px 0;">
+                <tr>
+                  <td align="center">
+                    <a href="https://yoreservo.com/reservations/AVT4AZ" class="cta-button" target="_blank" style="width: 80%; max-width: 380px;">
+                      Ver detalles de la reservación
+                    </a>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 10px;">
+                    <a href="https://yoreservo.com/home" target="_blank" style="font-size: 13px; font-weight: 600; color: #435420; text-decoration: underline;">
+                      ¿Deseas intentar de nuevo? Reservar otra cancha →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CANCELLED RESERVATION DETAILS CARD -->
+              <div class="info-card">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                  <tr>
+                    <td style="vertical-align: middle;">
+                      <p style="margin: 0; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #7F8A6F;">
+                        Código de reservación
+                      </p>
+                      <p style="margin: 4px 0 0 0; font-family: monospace; font-size: 26px; font-weight: 800; letter-spacing: 0.15em; color: #1F290F;">
+                        AVT4AZ
+                      </p>
+                    </td>
+                    <td align="right" style="vertical-align: middle;">
+                      <span style="background-color: #FEE2E2; color: #DC2626; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 999px;">
+                        Cancelada
+                      </span>
+                    </td>
+                  </tr>
+                </table>
+
+                <div style="margin: 20px 0 16px 0; border-top: 1px solid #ECE7DC; padding-top: 18px;">
+                  <!-- VENUE INFO -->
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td width="72" style="vertical-align: top; padding-right: 16px;">
+                        <img src="../assets/volleyball-court.jpg" alt="Arena Volley San Bernardino" width="72" height="72" style="display: block; border-radius: 12px; object-fit: cover; width: 72px; height: 72px; border: 1px solid #E2DDCF;" onerror="this.style.display='none'">
+                      </td>
+                      <td style="vertical-align: top;">
+                        <h3 style="margin: 0 0 4px 0; font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #1F290F;">
+                          Arena Volley San Bernardino
+                        </h3>
+                        <p style="margin: 0 0 4px 0; font-size: 13.5px; font-weight: 600; color: #78350F;">
+                          Cancha de playa 2 · Voleibol de playa
+                        </p>
+                        <p style="margin: 0; font-size: 12.5px; color: #7F8A6F; line-height: 1.4;">
+                          📍 Av. Principal de San Bernardino, Caracas
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+
+                <!-- DATE & HOURS -->
+                <div style="background-color: #FFFFFF; border: 1px solid #EBE7DC; border-radius: 14px; padding: 16px; margin: 16px 0;">
+                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                    <tr>
+                      <td style="vertical-align: top; padding-bottom: 12px;">
+                        <span style="font-size: 12px; color: #7F8A6F; text-transform: uppercase; font-weight: 600;">Fecha solicitada</span>
+                        <div style="font-size: 15px; font-weight: 700; color: #1F290F; margin-top: 2px;">
+                          Hoy · 09/10/2026
+                        </div>
+                      </td>
+                      <td align="right" style="vertical-align: top;">
+                        <span style="font-size: 12px; color: #7F8A6F; text-transform: uppercase; font-weight: 600;">Horas reservadas</span>
+                        <div style="font-size: 15px; font-weight: 700; color: #1F290F; margin-top: 2px;">
+                          2 horas
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <div>
+                    <span style="font-size: 12px; color: #7F8A6F; display: block; margin-bottom: 6px;">Horarios liberados:</span>
+                    <span class="hour-pill" style="text-decoration: line-through; color: #7F8A6F;">16:00 – 17:00</span>
+                    <span class="hour-pill" style="text-decoration: line-through; color: #7F8A6F;">17:00 – 18:00</span>
+                  </div>
+                </div>
+
+                <!-- BREAKDOWN TABLE -->
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="font-size: 14px; border-top: 1px solid #ECE7DC; padding-top: 14px;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #5B664B;">
+                      Alquiler de cancha · 2 × $15
+                    </td>
+                    <td align="right" style="padding: 6px 0; font-weight: 600; color: #7F8A6F;">
+                      $30.00 USD
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #5B664B;">
+                      Comisión por servicio
+                    </td>
+                    <td align="right" style="padding: 6px 0; font-weight: 600; color: #7F8A6F;">
+                      $1.50 USD
+                    </td>
+                  </tr>
+                  <tr style="border-top: 1px dashed #DDD8CB;">
+                    <td style="padding: 12px 0 2px 0; font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #1F290F;">
+                      Total a pagar
+                    </td>
+                    <td align="right" style="padding: 12px 0 2px 0; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; color: #1F290F;">
+                      $31.50 USD
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colspan="2" align="right" style="padding: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #DC2626;">
+                      Estado final: No cobrado ($0.00)
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- SECONDARY ACTION LINK -->
+              <div style="margin-top: 24px; text-align: center;">
+                <p style="margin: 0 0 6px 0; font-size: 12px; color: #7F8A6F;">
+                  Enlace directo para revisar el estado en la app:
+                </p>
+                <p style="margin: 0; font-size: 12px; word-break: break-all; color: #435420; font-family: monospace;">
+                  https://yoreservo.com/reservations/AVT4AZ
+                </p>
+              </div>
+
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer-body" style="background-color: #FAF8F4; border-top: 1px solid #ECE8DE; padding: 28px 36px; text-align: center;">
+              <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; color: #1F290F;">
+                YoReservo — Canchas disponibles en tiempo real
+              </p>
+              <p style="margin: 0 0 12px 0; font-size: 12px; color: #7F8A6F; line-height: 1.5;">
+                ¿Tuviste algún problema al pagar? Contáctanos a <a href="mailto:soporte@yoreservo.com" style="color: #435420; font-weight: 600;">soporte@yoreservo.com</a> y te ayudaremos con gusto.
+              </p>
+              <p style="margin: 0; font-size: 11px; color: #9DA690;">
+                © 2026 YoReservo. Todos los derechos reservados.
+              </p>
+            </div>
+
+          </div>
+        </td>
+      </tr>
+    </table>
+  </center>
+</body>
+</html>

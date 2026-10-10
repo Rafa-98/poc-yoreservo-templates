@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Términos y Condiciones — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .legal-content h3 {
+      font-size: 16px;
+      margin: 18px 0 8px 0;
+      color: var(--foreground);
+    }
+    .legal-content p {
+      font-size: 13.5px;
+      color: var(--muted-foreground);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="about-app.html" class="back-btn">
+        ‹ Acerca de
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
+        Términos
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <div style="margin-bottom: 20px;">
+        <span class="badge badge-accent" style="margin-bottom: 8px;">Vigente desde: 2026</span>
+        <h1 style="font-size: 24px; line-height: 1.2;">Términos y Condiciones</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          Por favor lee atentamente las condiciones que rigen el uso del servicio YoReservo y las reservaciones en recintos deportivos afiliados.
+        </p>
+      </div>
+
+      <div class="card legal-content">
+        <h3>1. Aceptación de los Términos</h3>
+        <p>
+          Al crear una cuenta, solicitar una pre-reserva o efectuar un pago en la plataforma YoReservo, aceptas estar legalmente vinculado a las presentes cláusulas y regulaciones.
+        </p>
+
+        <h3>2. Pre-reservas y Regla de los 15 Minutos</h3>
+        <p>
+          Al seleccionar un horario en una cancha deportiva, se genera una <strong>pre-reserva temporal con retención exclusiva de 15 minutos</strong>. El usuario dispone exactamente de dicho plazo para completar y validar su pago. Transcurridos los 15 minutos sin confirmación de pago, la cancha queda <strong>automáticamente liberada</strong> y pasa a estar disponible para que cualquier otro usuario la reserve.
+        </p>
+
+        <h3>3. Pagos y Tipos de Cambio</h3>
+        <p>
+          Las tarifas se expresan en Dólares Estadounidenses (USD) y su conversión a Bolívares (VES) para pagos móviles se realiza con base en el tipo de cambio oficial de referencia emitido por el Banco Central de Venezuela (BCV) en la fecha correspondiente.
+        </p>
+
+        <h3>4. Acceso al Recinto con Código QR</h3>
+        <p>
+          Toda reserva confirmada otorga un pase digital con Código QR y código alfanumérico (ejemplo: <code>JFAURX</code>). El titular o su representante debe presentar este código en recepción para su escaneo y validación antes de ingresar a la cancha.
+        </p>
+
+        <h3>5. Normas de los Recintos y Cancelaciones</h3>
+        <p>
+          Los usuarios se comprometen a respetar los reglamentos internos de cada club o complejo deportivo (uso de calzado adecuado, puntualidad y conducta cívica). YoReservo no se hace responsable por retrasos atribuibles al usuario una vez iniciado el turno reservado.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

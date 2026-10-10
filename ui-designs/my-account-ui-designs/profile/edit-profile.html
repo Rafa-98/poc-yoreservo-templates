@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Perfil — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .avatar-upload-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .avatar-preview {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #263211 0%, #465922 100%);
+      color: #C6F23B;
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(38, 50, 17, 0.18);
+      position: relative;
+      cursor: pointer;
+    }
+    .avatar-badge-btn {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: var(--accent);
+      color: var(--accent-foreground);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      border: 2px solid var(--surface);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .sport-pill-choice {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      margin: 4px 4px 4px 0;
+    }
+    .sport-pill-choice.selected {
+      background-color: #EBF8D3;
+      border-color: #A3E635;
+      color: #2D5514;
+    }
+    [data-theme="dark"] .sport-pill-choice.selected {
+      background-color: #243E12;
+      border-color: #C6F23B;
+      color: #C6F23B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="profile-hub.html" class="back-btn">
+        ‹ Volver a Ajustes
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Editar Perfil
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <!-- AVATAR UPLOAD SECTION -->
+      <div class="avatar-upload-wrap">
+        <div class="avatar-preview" onclick="alert('Permite subir una nueva foto de perfil (almacenada en imageUrl según el modelo User de Prisma)')">
+          PS
+          <div class="avatar-badge-btn" title="Cambiar foto">📷</div>
+        </div>
+        <button type="button" class="btn" style="background:none; border:none; color: var(--primary); font-size: 13px; font-weight: 600; margin-top: 8px; cursor: pointer; text-decoration: underline;" onclick="alert('Seleccionar imagen')">
+          Cambiar foto de perfil
+        </button>
+      </div>
+
+      <!-- FORM CARD -->
+      <form id="edit-profile-form" onsubmit="event.preventDefault(); alert('¡Perfil actualizado con éxito!'); window.location.href='profile-hub.html';" class="card">
+        
+        <h3 style="font-size: 17px; margin-bottom: 18px; color: var(--foreground);">
+          Información Personal
+        </h3>
+
+        <!-- FIRST NAME -->
+        <div class="form-group">
+          <label class="form-label" for="firstName">Nombre</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="firstName" class="form-input" value="Peperoni" required>
+            <button type="button" class="input-action" onclick="document.getElementById('firstName').value=''" title="Limpiar">✕</button>
+          </div>
+        </div>
+
+        <!-- LAST NAME -->
+        <div class="form-group">
+          <label class="form-label" for="lastName">Apellido</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="lastName" class="form-input" value="Salerno" required>
+            <button type="button" class="input-action" onclick="document.getElementById('lastName').value=''" title="Limpiar">✕</button>
+          </div>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <label class="form-label" for="email" style="margin: 0;">Correo Electrónico</label>
+            <span class="badge badge-success" style="font-size: 11px;">Verificado</span>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-icon">✉️</span>
+            <input type="email" id="email" class="form-input" value="pepito@gmail.com" required>
+          </div>
+          <span style="font-size: 12px; color: var(--muted-foreground); display: block; margin-top: 4px;">
+            Utilizado para comprobantes de pago y códigos QR.
+          </span>
+        </div>
+
+        <!-- PHONE NUMBER (CRITICAL IN VENEZUELA FOR PAGO MOVIL & SMS) -->
+        <div class="form-group">
+          <label class="form-label" for="phone">Teléfono Móvil (Pago Móvil / WhatsApp)</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📱</span>
+            <input type="tel" id="phone" class="form-input" value="+58 412 5503235" placeholder="+58 4XX XXXXXXX">
+          </div>
+        </div>
+
+        <!-- LOCATION (preferredLocationId in Prisma) -->
+        <div class="form-group">
+          <label class="form-label" for="location">Ciudad / Zona preferida</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📍</span>
+            <select id="location" class="form-input" style="background: transparent; cursor: pointer;">
+              <option value="san-bernardino">Caracas · San Bernardino</option>
+              <option value="chacao">Caracas · Chacao</option>
+              <option value="las-mercedes">Caracas · Las Mercedes</option>
+              <option value="valencia">Valencia · Carabobo</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- PREFERRED SPORTS SELECTION -->
+        <div class="form-group" style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 18px;">
+          <label class="form-label">Deportes de Interés</label>
+          <span style="font-size: 12px; color: var(--muted-foreground); display: block; margin-bottom: 8px;">
+            Personaliza las canchas y sugerencias en tu pantalla de inicio.
+          </span>
+          <div>
+            <span class="sport-pill-choice selected" onclick="this.classList.toggle('selected')">⚽ Fútbol</span>
+            <span class="sport-pill-choice selected" onclick="this.classList.toggle('selected')">🎾 Pádel</span>
+            <span class="sport-pill-choice" onclick="this.classList.toggle('selected')">🎾 Tenis</span>
+            <span class="sport-pill-choice selected" onclick="this.classList.toggle('selected')">🏐 Voleibol</span>
+            <span class="sport-pill-choice" onclick="this.classList.toggle('selected')">🏓 Ping Pong</span>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display: flex; gap: 12px; margin-top: 28px;">
+          <a href="profile-hub.html" class="btn btn-secondary" style="flex: 1;">
+            Volver
+          </a>
+          <button type="submit" class="btn btn-primary" style="flex: 1.5;">
+            Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

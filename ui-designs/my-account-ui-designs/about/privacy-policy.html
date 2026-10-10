@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Políticas de Privacidad — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .legal-content h3 {
+      font-size: 16px;
+      margin: 18px 0 8px 0;
+      color: var(--foreground);
+    }
+    .legal-content p {
+      font-size: 13.5px;
+      color: var(--muted-foreground);
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="about-app.html" class="back-btn">
+        ‹ Acerca de
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
+        Privacidad
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <div style="margin-bottom: 20px;">
+        <span class="badge badge-accent" style="margin-bottom: 8px;">Actualizado: Octubre 2026</span>
+        <h1 style="font-size: 24px; line-height: 1.2;">Políticas de Privacidad</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          En YoReservo nos comprometemos a resguardar y gestionar tus datos personales con los más altos estándares de seguridad.
+        </p>
+      </div>
+
+      <div class="card legal-content">
+        <h3>1. Información que recopilamos</h3>
+        <p>
+          Recopilamos información que nos suministras directamente al registrarte en YoReservo, tales como tu nombre, apellido, correo electrónico, número telefónico y preferencias deportivas.
+        </p>
+
+        <h3>2. Uso de la información</h3>
+        <p>
+          Tus datos son utilizados exclusivamente para: procesar tus pre-reservas y reservas, remitirte confirmaciones y pases QR de acceso, verificar transacciones de pago en bolívares (Pago Móvil) o tarjetas, y prestarte soporte técnico.
+        </p>
+
+        <h3>3. Pasarelas de Pago y Transacciones</h3>
+        <p>
+          YoReservo cumple estrictamente con las directrices de seguridad financiera. No almacenamos números completos de tarjetas de crédito/débito ni códigos CVC en nuestros servidores. Las transferencias vía Pago Móvil se validan contra los registros bancarios mediante referencia y tasa oficial fijada por el Banco Central de Venezuela (BCV).
+        </p>
+
+        <h3>4. Códigos QR y Control de Acceso</h3>
+        <p>
+          El código QR generado para cada reservación confirmada contiene una firma criptográfica única asociada a tu sesión para evitar duplicaciones o falsificaciones en la recepción del recinto deportivo.
+        </p>
+
+        <h3>5. Derechos del usuario</h3>
+        <p>
+          En cualquier momento puedes acceder, corregir o solicitar la eliminación de tu cuenta y datos personales dirigiéndote a la sección de Soporte en esta aplicación o escribiéndonos a <strong>privacidad@yoreservo.com</strong>.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

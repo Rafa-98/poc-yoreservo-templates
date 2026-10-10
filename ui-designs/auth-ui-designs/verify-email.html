@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Correo — YoReservo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Simulation Control Toolbar */
+    .sim-bar {
+      background: var(--brand-deep);
+      color: #FAF8F5;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 12px;
+      border-bottom: 2px solid var(--accent);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .sim-pills {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 9999px;
+      padding: 3px;
+      gap: 4px;
+    }
+
+    .sim-pill-btn {
+      background: transparent;
+      border: none;
+      color: #D4DFCE;
+      font-family: 'Inter', sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sim-pill-btn:hover {
+      color: #FFFFFF;
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .sim-pill-btn.active {
+      background: var(--accent);
+      color: #1F290F;
+      font-weight: 700;
+    }
+
+    /* AuthLayout */
+    .auth-layout {
+      position: relative;
+      min-height: calc(100vh - 42px);
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .auth-layout {
+        grid-template-columns: 5fr 6fr;
+      }
+    }
+
+    /* Brand Panel */
+    .brand-panel {
+      display: none;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--brand-deep) 0%, #151C0A 100%);
+      color: #FAF8F5;
+      padding: 48px 48px 40px 48px;
+      flex-direction: column;
+      justify-content: space-between;
+      isolation: isolate;
+    }
+
+    @media (min-width: 1024px) {
+      .brand-panel {
+        display: flex;
+      }
+    }
+
+    .court-bg-svg {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%) rotate(12deg);
+      height: 44rem;
+      color: #FAF8F5;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .glow-blob {
+      position: absolute;
+      left: -96px;
+      top: -96px;
+      width: 384px;
+      height: 384px;
+      border-radius: 9999px;
+      background: rgba(198, 242, 59, 0.18);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .brand-logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #FFFFFF;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .brand-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 36px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .brand-feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Content Area */
+    .auth-content-pane {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 42px);
+      background-color: var(--background);
+    }
+
+    .ambient-glow-mobile {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(198, 242, 59, 0.18) 0%, rgba(198, 242, 59, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @media (min-width: 1024px) {
+      .ambient-glow-mobile {
+        display: none;
+      }
+    }
+
+    .auth-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .auth-header {
+        padding: 24px 32px;
+      }
+    }
+
+    .header-logo-mobile {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--foreground);
+      text-decoration: none;
+    }
+
+    @media (min-width: 1024px) {
+      .header-logo-mobile {
+        visibility: hidden;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--foreground);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .auth-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 40px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .auth-main {
+        padding: 24px 32px 48px 32px;
+      }
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      animation: fadeUp 0.35s ease-out;
+    }
+
+    @media (min-width: 640px) {
+      .auth-card {
+        padding: 40px 36px;
+      }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* State views container */
+    .state-view {
+      display: none;
+    }
+
+    .state-view.active {
+      display: block;
+    }
+
+    /* 1. LOADING STATE STYLES */
+    .spinner-ring {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 24px auto;
+      border-radius: 9999px;
+      border: 4px solid var(--muted);
+      border-top-color: var(--accent);
+      border-right-color: var(--accent);
+      animation: spin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .api-pill {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: monospace;
+      color: var(--foreground);
+      display: inline-block;
+      margin-top: 14px;
+    }
+
+    /* 2. SUCCESS STATE STYLES */
+    .success-badge-wrapper {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .success-pulse-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      background: rgba(34, 197, 94, 0.15);
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.12); opacity: 0.9; }
+    }
+
+    .success-icon-disc {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #E6FCD9 0%, #C6F23B 100%);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 10px 25px rgba(198, 242, 59, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1F290F;
+    }
+
+    [data-theme="dark"] .success-icon-disc {
+      background: linear-gradient(135deg, #1C3312 0%, #294E1A 100%);
+      border-color: #386B24;
+      color: #C6F23B;
+    }
+
+    .check-svg {
+      width: 40px;
+      height: 40px;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawCheck 0.5s ease-out forwards 0.15s;
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .user-email-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      padding: 6px 14px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--foreground);
+    }
+
+    .verified-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background-color: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .perks-card {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .perk-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 0;
+    }
+
+    .perk-row:not(:last-child) {
+      border-bottom: 1px dashed var(--border-strong);
+    }
+
+    .perk-icon {
+      font-size: 17px;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .perk-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--foreground);
+      margin-bottom: 1px;
+    }
+
+    .perk-sub {
+      font-size: 11.5px;
+      color: var(--muted-foreground);
+    }
+
+    /* 3. ERROR STATE STYLES */
+    .error-badge-wrapper {
+      position: relative;
+      width: 84px;
+      height: 84px;
+      margin: 0 auto 20px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .error-pulse-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      background: rgba(220, 38, 38, 0.14);
+      animation: pulseAlert 2.5s infinite ease-in-out;
+    }
+
+    @keyframes pulseAlert {
+      0%, 100% { transform: scale(0.95); opacity: 0.5; }
+      50% { transform: scale(1.12); opacity: 0.9; }
+    }
+
+    .error-icon-disc {
+      position: relative;
+      width: 76px;
+      height: 76px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #FEE2E2 0%, #FED7AA 100%);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 10px 25px rgba(220, 38, 38, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #991B1B;
+      font-size: 32px;
+    }
+
+    [data-theme="dark"] .error-icon-disc {
+      background: linear-gradient(135deg, #3B1B1B 0%, #4E251A 100%);
+      border-color: #5C2A2A;
+      color: #F87171;
+    }
+
+    .diagnostic-box {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .diag-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+    }
+
+    .diag-item:not(:last-child) {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .diag-icon {
+      font-size: 15px;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .diag-title {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--foreground);
+      margin-bottom: 1px;
+    }
+
+    .diag-desc {
+      font-size: 11.5px;
+      color: var(--muted-foreground);
+      line-height: 1.4;
+    }
+
+    .resend-box {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .resend-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .resend-input-row {
+        flex-direction: column;
+      }
+    }
+
+    .toast-success-banner {
+      display: none;
+      background: var(--success-subtle);
+      border: 1px solid rgba(22, 163, 74, 0.3);
+      color: var(--success);
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIMULATOR CONTROLS (Top Interactive Bar) -->
+  <div class="sim-bar">
+    <div style="display: flex; align-items: center; gap: 8px;">
+      <span style="background: rgba(198, 242, 59, 0.2); color: var(--accent); padding: 2px 8px; border-radius: 999px; font-weight: 700; font-size: 11px;">
+        PoC Interactive Simulator
+      </span>
+      <span>Simular estado:</span>
+    </div>
+
+    <div class="sim-pills">
+      <button id="pill-loading" class="sim-pill-btn" onclick="switchState('loading')">
+        ⏳ 1. Validando GET
+      </button>
+      <button id="pill-success" class="sim-pill-btn active" onclick="switchState('success')">
+        ✓ 2. Correo Confirmado
+      </button>
+      <button id="pill-error" class="sim-pill-btn" onclick="switchState('error')">
+        ⚠️ 3. Enlace Expirado / Usado
+      </button>
+      <button class="sim-pill-btn" style="background: rgba(255,255,255,0.2); color: #FFF;" onclick="simulateFullFlow()">
+        ▶️ Simular Flujo Real (1.8s)
+      </button>
+    </div>
+  </div>
+
+  <div class="auth-layout">
+    
+    <!-- LEFT BRAND PANEL (Matches AuthShell on Desktop) -->
+    <aside class="brand-panel">
+      <!-- Decorative Court Pattern SVG -->
+      <svg class="court-bg-svg" viewBox="0 0 400 600" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="360" height="560" rx="18" />
+        <line x1="20" y1="300" x2="380" y2="300" />
+        <circle cx="200" cy="300" r="64" />
+        <circle cx="200" cy="300" r="4" fill="currentColor" />
+        <rect x="110" y="20" width="180" height="90" />
+        <rect x="150" y="20" width="100" height="40" />
+        <rect x="110" y="490" width="180" height="90" />
+        <rect x="150" y="540" width="100" height="40" />
+        <path d="M150 110a50 50 0 0 0 100 0" />
+        <path d="M150 490a50 50 0 0 1 100 0" />
+      </svg>
+      <div class="glow-blob"></div>
+
+      <!-- Brand Logo -->
+      <div>
+        <a href="index.html" class="brand-logo-text">
+          YO<span style="color: var(--accent);">RESERVO</span>
+        </a>
+      </div>
+
+      <!-- Value Proposition -->
+      <div style="max-width: 440px;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 38px; line-height: 1.15; font-weight: 800; color: #FFFFFF; margin-bottom: 16px;">
+          Reserva tu cancha en segundos.
+        </h2>
+        <p style="font-size: 16px; color: #CCD6BF; line-height: 1.55; margin-bottom: 28px;">
+          Fútbol, pádel, tenis y más. Disponibilidad en tiempo real en los mejores recintos deportivos de Venezuela.
+        </p>
+
+        <ul class="brand-features-list">
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">⚡</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Disponibilidad en tiempo real</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Elige día y hora al instante. Sin llamadas ni esperas.</p>
+            </div>
+          </li>
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">💳</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Paga a tu manera</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Pago Móvil directo en Bs. (tasa BCV) o tarjeta.</p>
+            </div>
+          </li>
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">📲</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Entrada con código QR</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Valida tu reserva en el recinto en segundos con tu móvil.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <p style="font-size: 13px; color: #8F9E7B; margin: 0;">
+        © 2026 YoReservo. Todos los derechos reservados.
+      </p>
+    </aside>
+
+    <!-- RIGHT CONTENT PANE -->
+    <div class="auth-content-pane">
+      <div class="ambient-glow-mobile"></div>
+
+      <!-- HEADER -->
+      <header class="auth-header">
+        <a href="index.html" class="header-logo-mobile">
+          YO<span style="color: var(--accent);">RESERVO</span>
+        </a>
+
+        <div class="header-actions">
+          <div style="font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: var(--radius-sm); background: var(--surface); border: 1px solid var(--border); color: var(--foreground); display: inline-flex; align-items: center; gap: 5px;">
+            <span>🇻🇪</span>
+            <span>ES</span>
+          </div>
+          <button class="theme-btn" onclick="toggleTheme()" title="Modo Claro/Oscuro">
+            🌓
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN CARD AREA -->
+      <main class="auth-main">
+        <section class="auth-card">
+
+          <!-- ==============================================
+               STATE 1: LOADING (Processing the backend GET)
+               ============================================== -->
+          <div id="view-loading" class="state-view">
+            <div class="spinner-ring"></div>
+            
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 800; color: var(--foreground); margin-bottom: 8px;">
+              Verificando tu cuenta...
+            </h1>
+            <p style="font-size: 14.5px; color: var(--muted-foreground); line-height: 1.5; margin-bottom: 16px;">
+              Estamos validando el token de seguridad con el servidor de YoReservo. Esto tomará sólo un instante.
+            </p>
+
+            <div class="api-pill">
+              GET /auth/verify-email?token=welcome_token_sample_883921
+            </div>
+
+            <p style="font-size: 12px; color: var(--muted-foreground); margin-top: 24px;">
+              Por favor, no cierres esta ventana.
+            </p>
+          </div>
+
+          <!-- ==============================================
+               STATE 2: SUCCESS (Email confirmed + Login CTA)
+               ============================================== -->
+          <div id="view-success" class="state-view active">
+            <!-- Animated Checkmark Badge -->
+            <div class="success-badge-wrapper">
+              <div class="success-pulse-ring"></div>
+              <div class="success-icon-disc">
+                <svg class="check-svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+            </div>
+
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: var(--foreground); margin-bottom: 8px; letter-spacing: -0.02em;">
+              ¡Correo verificado con éxito!
+            </h1>
+            <p style="font-size: 14.5px; color: var(--muted-foreground); line-height: 1.55; margin-bottom: 18px;">
+              Tu cuenta de <strong>YoReservo</strong> ya está activa. Tu dirección de correo ha sido confirmada y estás listo para reservar.
+            </p>
+
+            <!-- User Email Verified Chip -->
+            <div class="user-email-chip">
+              <span class="verified-dot"></span>
+              <span id="user-email-text">carlos.mendez98@gmail.com</span>
+              <span style="font-size: 11px; background: rgba(34, 197, 94, 0.15); color: var(--success); padding: 2px 8px; border-radius: 999px; text-transform: uppercase; font-weight: 700;">
+                Confirmado
+              </span>
+            </div>
+
+            <!-- Perks Summary -->
+            <div class="perks-card">
+              <div class="perk-row">
+                <div class="perk-icon">🏟️</div>
+                <div>
+                  <p class="perk-title">Explora recintos deportivos</p>
+                  <p class="perk-sub">Canchas sintéticas, tenis, pádel y voleibol cerca de ti.</p>
+                </div>
+              </div>
+              <div class="perk-row">
+                <div class="perk-icon">⏱️</div>
+                <div>
+                  <p class="perk-title">Pre-reserva de 15 minutos</p>
+                  <p class="perk-sub">Bloquea tu horario mientras realizas tu Pago Móvil.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- MANDATORY USER REQUIREMENT: BUTTON TO REDIRECT TO LOGIN -->
+            <a href="javascript:void(0)" class="btn btn-primary btn-block" style="padding: 15px 24px; font-size: 16px; font-weight: 700; text-decoration: none; justify-content: center; box-shadow: 0 4px 18px rgba(198, 242, 59, 0.45);" onclick="triggerLoginRedirect()">
+              Iniciar Sesión en YoReservo →
+            </a>
+
+            <!-- Auto redirect notice -->
+            <p style="font-size: 12px; color: var(--muted-foreground); margin-top: 14px;">
+              Redirigiendo automáticamente en <strong id="sim-countdown">5</strong>s • <span style="text-decoration: underline; cursor: pointer; color: var(--primary);" onclick="pauseTimer()">Pausar</span>
+            </p>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground);">
+              ¿Dudas o soporte? <a href="../my-account-ui-designs/support/support-hub.html" style="color: var(--primary); text-decoration: underline; font-weight: 600;">Escríbenos</a>
+            </div>
+          </div>
+
+          <!-- ==============================================
+               STATE 3: ERROR (Expired / Already Used Token)
+               ============================================== -->
+          <div id="view-error" class="state-view">
+            <!-- Warning / Expired Icon Badge -->
+            <div class="error-badge-wrapper">
+              <div class="error-pulse-ring"></div>
+              <div class="error-icon-disc">
+                ⌛
+              </div>
+            </div>
+
+            <h1 style="font-family: 'Outfit', sans-serif; font-size: 25px; font-weight: 800; color: var(--foreground); margin-bottom: 8px; letter-spacing: -0.02em;">
+              Enlace no válido o expirado
+            </h1>
+            <p style="font-size: 14px; color: var(--muted-foreground); line-height: 1.55; margin-bottom: 20px;">
+              El enlace de confirmación que abriste ya no se encuentra activo o ya fue utilizado previamente.
+            </p>
+
+            <!-- Diagnostic Information -->
+            <div class="diagnostic-box">
+              <div class="diag-item">
+                <div class="diag-icon">⏱️</div>
+                <div>
+                  <p class="diag-title">Vencimiento de 24 horas</p>
+                  <p class="diag-desc">Por seguridad, los enlaces de bienvenida expiran al transcurrir 24 horas.</p>
+                </div>
+              </div>
+              <div class="diag-item">
+                <div class="diag-icon">✅</div>
+                <div>
+                  <p class="diag-title">¿Ya habías confirmado tu cuenta?</p>
+                  <p class="diag-desc">Si ya habías hecho clic antes, tu cuenta ya está activa y lista para usar.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resend widget -->
+            <div class="resend-box">
+              <label class="form-label" for="resend-email" style="font-size: 13px;">
+                ¿Tu enlace caducó? Solicita uno nuevo:
+              </label>
+              <div class="resend-input-row">
+                <div class="input-wrapper" style="flex: 1;">
+                  <span class="input-icon">✉️</span>
+                  <input type="email" id="resend-email" class="form-input" style="padding: 10px 12px; font-size: 14px;" value="carlos.mendez98@gmail.com" placeholder="tucorreo@ejemplo.com">
+                </div>
+                <button id="resend-action-btn" class="btn btn-secondary" style="padding: 10px 16px; font-size: 13px; font-weight: 700; white-space: nowrap;" onclick="handleResendSim()">
+                  Reenviar enlace
+                </button>
+              </div>
+              
+              <div id="sim-toast" class="toast-success-banner">
+                ✓ ¡Enlace enviado! Hemos emitido un nuevo correo con token válido por 24 horas.
+              </div>
+            </div>
+
+            <!-- BUTTON TO LOGIN -->
+            <a href="javascript:void(0)" class="btn btn-primary btn-block" style="padding: 14px 20px; font-size: 15.5px; font-weight: 700; text-decoration: none; justify-content: center;" onclick="triggerLoginRedirect()">
+              Ir a Iniciar Sesión →
+            </a>
+
+            <div style="margin-top: 12px;">
+              <a href="index.html" class="btn btn-secondary btn-block" style="padding: 11px 18px; font-size: 13.5px; text-decoration: none; justify-content: center;">
+                Volver al inicio
+              </a>
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted-foreground);">
+              ¿Necesitas asistencia? <a href="../my-account-ui-designs/support/support-hub.html" style="color: var(--primary); text-decoration: underline; font-weight: 600;">Contacta a Soporte</a>
+            </div>
+          </div>
+
+        </section>
+      </main>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Theme Switcher
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+    }
+
+    // State Switcher (Simulator)
+    function switchState(stateName) {
+      document.querySelectorAll('.state-view').forEach(view => view.classList.remove('active'));
+      document.querySelectorAll('.sim-pill-btn').forEach(btn => btn.classList.remove('active'));
+
+      const targetView = document.getElementById(`view-${stateName}`);
+      const targetPill = document.getElementById(`pill-${stateName}`);
+
+      if (targetView) targetView.classList.add('active');
+      if (targetPill) targetPill.classList.add('active');
+
+      if (stateName === 'success') {
+        startCountdown();
+      } else {
+        stopCountdown();
+      }
+    }
+
+    // Full Flow Simulation: Loading (1.8s) -> Success
+    function simulateFullFlow() {
+      switchState('loading');
+      setTimeout(() => {
+        switchState('success');
+      }, 1800);
+    }
+
+    // Countdown simulation for success view
+    let timer = null;
+    let count = 5;
+    let isPaused = false;
+
+    function startCountdown() {
+      stopCountdown();
+      count = 5;
+      isPaused = false;
+      const el = document.getElementById('sim-countdown');
+      if (el) el.textContent = count;
+
+      timer = setInterval(() => {
+        if (isPaused) return;
+        count--;
+        if (el) el.textContent = count;
+        if (count <= 0) {
+          stopCountdown();
+          triggerLoginRedirect();
+        }
+      }, 1000);
+    }
+
+    function stopCountdown() {
+      if (timer) clearInterval(timer);
+    }
+
+    function pauseTimer() {
+      isPaused = !isPaused;
+      alert(isPaused ? 'Redirección automática pausada.' : 'Redirección reanudada.');
+    }
+
+    function triggerLoginRedirect() {
+      alert(`[Simulación PoC — Redirección a Login]\n\nRedirigiendo a la pantalla de Inicio de Sesión (/login) de YoReservo.\n\nUsuario: carlos.mendez98@gmail.com\nEstado: Verificado y activo.`);
+    }
+
+    function handleResendSim() {
+      const btn = document.getElementById('resend-action-btn');
+      const toast = document.getElementById('sim-toast');
+      const input = document.getElementById('resend-email');
+
+      if (!input.value.trim() || !input.value.includes('@')) {
+        alert('Por favor introduce un correo válido.');
+        input.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = 'Enviando... ⏳';
+
+      setTimeout(() => {
+        toast.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = 'Reenviar de nuevo';
+      }, 800);
+    }
+
+    // Parse URL params (?state=loading / ?state=error / ?state=success)
+    const urlParams = new URLSearchParams(window.location.search);
+    const stateParam = urlParams.get('state');
+    if (stateParam && ['loading', 'success', 'error'].includes(stateParam)) {
+      switchState(stateParam);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisa tu correo — YoReservo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .auth-layout {
+      position: relative;
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    @media (min-width: 1024px) {
+      .auth-layout {
+        grid-template-columns: 5fr 6fr;
+      }
+    }
+
+    /* Left Brand Panel (Faithful to poc-yoreservo-client-web-app) */
+    .brand-panel {
+      display: none;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, var(--brand-deep) 0%, #151C0A 100%);
+      color: #FAF8F5;
+      padding: 48px 48px 40px 48px;
+      flex-direction: column;
+      justify-content: space-between;
+      isolation: isolate;
+    }
+
+    @media (min-width: 1024px) {
+      .brand-panel {
+        display: flex;
+      }
+    }
+
+    .court-bg-svg {
+      position: absolute;
+      right: -80px;
+      top: 50%;
+      transform: translateY(-50%) rotate(12deg);
+      height: 44rem;
+      color: #FAF8F5;
+      opacity: 0.06;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .glow-blob {
+      position: absolute;
+      left: -96px;
+      top: -96px;
+      width: 384px;
+      height: 384px;
+      border-radius: 9999px;
+      background: rgba(198, 242, 59, 0.18);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .brand-logo-text {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #FFFFFF;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .brand-features-list {
+      list-style: none;
+      padding: 0;
+      margin: 36px 0 0 0;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .brand-feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .brand-feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    /* Content Area */
+    .auth-content-pane {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: var(--background);
+    }
+
+    .ambient-glow-mobile {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 240px;
+      background: radial-gradient(circle, rgba(198, 242, 59, 0.18) 0%, rgba(198, 242, 59, 0) 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @media (min-width: 1024px) {
+      .ambient-glow-mobile {
+        display: none;
+      }
+    }
+
+    .auth-header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .auth-header {
+        padding: 24px 32px;
+      }
+    }
+
+    .header-logo-mobile {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--foreground);
+      text-decoration: none;
+    }
+
+    @media (min-width: 1024px) {
+      .header-logo-mobile {
+        visibility: hidden;
+      }
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lang-pill {
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--foreground);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+    }
+
+    .theme-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--foreground);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .auth-main {
+      position: relative;
+      z-index: 10;
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 20px 40px 20px;
+    }
+
+    @media (min-width: 640px) {
+      .auth-main {
+        padding: 24px 32px 48px 32px;
+      }
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 490px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 28px;
+      padding: 32px 24px;
+      box-shadow: var(--card-shadow);
+      text-align: center;
+      animation: fadeUp 0.35s ease-out;
+    }
+
+    @media (min-width: 640px) {
+      .auth-card {
+        padding: 40px 36px;
+      }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Animated Mail / Envelope Badge */
+    .mail-badge-wrapper {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      margin: 0 auto 22px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mail-pulse-ring {
+      position: absolute;
+      inset: -6px;
+      border-radius: 9999px;
+      background: rgba(198, 242, 59, 0.2);
+      animation: mailPulse 2.4s infinite ease-in-out;
+    }
+
+    @keyframes mailPulse {
+      0%, 100% { transform: scale(0.95); opacity: 0.4; }
+      50% { transform: scale(1.12); opacity: 0.85; }
+    }
+
+    .mail-icon-disc {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #1C260D 0%, #2A3B12 100%);
+      border: 3px solid #FFFFFF;
+      box-shadow: 0 10px 25px rgba(31, 41, 15, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-size: 34px;
+    }
+
+    [data-theme="dark"] .mail-icon-disc {
+      background: linear-gradient(135deg, #223512 0%, #2F4D18 100%);
+      border-color: #385E1E;
+      box-shadow: 0 10px 25px rgba(198, 242, 59, 0.2);
+    }
+
+    /* Target Email Pill */
+    .target-email-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--muted);
+      border: 1px solid var(--border-strong);
+      border-radius: 9999px;
+      padding: 8px 18px;
+      margin: 16px 0 24px 0;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--foreground);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      background-color: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Step guide card */
+    .steps-card {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .step-item:not(:last-child) {
+      border-bottom: 1px dashed var(--border-strong);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 9999px;
+      background: var(--brand-deep);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    [data-theme="dark"] .step-num {
+      background: var(--surface);
+      color: var(--accent);
+    }
+
+    .step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--foreground);
+      margin-bottom: 2px;
+    }
+
+    .step-desc {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      line-height: 1.45;
+    }
+
+    /* Quick Mail Providers Row */
+    .quick-open-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .provider-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      color: var(--foreground);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      font-size: 13.5px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .provider-btn:hover {
+      background: var(--muted);
+      border-color: var(--ring);
+      transform: translateY(-1px);
+    }
+
+    /* Resend Section */
+    .resend-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 22px;
+      text-align: center;
+    }
+
+    .toast-sent {
+      display: none;
+      background: var(--success-subtle);
+      border: 1px solid rgba(22, 163, 74, 0.3);
+      color: var(--success);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-top: 10px;
+      animation: fadeIn 0.2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-layout">
+    
+    <!-- LEFT BRAND PANEL (Matches AuthShell on Desktop) -->
+    <aside class="brand-panel">
+      <!-- Decorative Court Pattern SVG -->
+      <svg class="court-bg-svg" viewBox="0 0 400 600" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="20" width="360" height="560" rx="18" />
+        <line x1="20" y1="300" x2="380" y2="300" />
+        <circle cx="200" cy="300" r="64" />
+        <circle cx="200" cy="300" r="4" fill="currentColor" />
+        <rect x="110" y="20" width="180" height="90" />
+        <rect x="150" y="20" width="100" height="40" />
+        <rect x="110" y="490" width="180" height="90" />
+        <rect x="150" y="540" width="100" height="40" />
+        <path d="M150 110a50 50 0 0 0 100 0" />
+        <path d="M150 490a50 50 0 0 1 100 0" />
+      </svg>
+      <div class="glow-blob"></div>
+
+      <!-- Brand Logo -->
+      <div>
+        <a href="index.html" class="brand-logo-text">
+          YO<span style="color: var(--accent);">RESERVO</span>
+        </a>
+      </div>
+
+      <!-- Value Proposition -->
+      <div style="max-width: 440px;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 38px; line-height: 1.15; font-weight: 800; color: #FFFFFF; margin-bottom: 16px;">
+          Reserva tu cancha en segundos.
+        </h2>
+        <p style="font-size: 16px; color: #CCD6BF; line-height: 1.55; margin-bottom: 28px;">
+          Fútbol, pádel, tenis y más. Disponibilidad en tiempo real en los mejores recintos deportivos de Venezuela.
+        </p>
+
+        <ul class="brand-features-list">
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">⚡</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Disponibilidad en tiempo real</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Elige día y hora al instante. Sin llamadas ni esperas.</p>
+            </div>
+          </li>
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">💳</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Paga a tu manera</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Pago Móvil directo en Bs. (tasa BCV) o tarjeta.</p>
+            </div>
+          </li>
+          <li class="brand-feature-item">
+            <div class="brand-feature-icon">📲</div>
+            <div>
+              <p style="font-weight: 700; font-size: 15px; margin-bottom: 2px;">Entrada con código QR</p>
+              <p style="font-size: 13px; color: #B2BD9F;">Valida tu reserva en el recinto en segundos con tu móvil.</p>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Copyright -->
+      <p style="font-size: 13px; color: #8F9E7B; margin: 0;">
+        © 2026 YoReservo. Todos los derechos reservados.
+      </p>
+    </aside>
+
+    <!-- RIGHT CONTENT PANE -->
+    <div class="auth-content-pane">
+      <div class="ambient-glow-mobile"></div>
+
+      <!-- HEADER -->
+      <header class="auth-header">
+        <a href="index.html" class="header-logo-mobile">
+          YO<span style="color: var(--accent);">RESERVO</span>
+        </a>
+
+        <div class="header-actions">
+          <div class="lang-pill" title="Idioma">
+            <span>🇻🇪</span>
+            <span>ES</span>
+          </div>
+          <button class="theme-btn" onclick="toggleTheme()" title="Modo Claro/Oscuro">
+            🌓
+          </button>
+        </div>
+      </header>
+
+      <!-- MAIN CARD: CHECK YOUR EMAIL -->
+      <main class="auth-main">
+        <section class="auth-card">
+          
+          <!-- Animated Envelope Badge -->
+          <div class="mail-badge-wrapper">
+            <div class="mail-pulse-ring"></div>
+            <div class="mail-icon-disc">
+              ✉️
+            </div>
+          </div>
+
+          <!-- Titles -->
+          <h1 style="font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: var(--foreground); margin-bottom: 8px; letter-spacing: -0.02em;">
+            ¡Revisa tu correo!
+          </h1>
+          <p style="font-size: 14.5px; color: var(--muted-foreground); line-height: 1.55; margin-bottom: 6px;">
+            Hemos creado tu cuenta de <strong>YoReservo</strong>. Para activarla, te hemos enviado un enlace de confirmación a:
+          </p>
+
+          <!-- Email Chip with animated indicator -->
+          <div class="target-email-chip">
+            <span class="pulse-dot"></span>
+            <span id="registered-email-display">carlos.mendez98@gmail.com</span>
+          </div>
+
+          <!-- Quick Steps Box -->
+          <div class="steps-card">
+            <div class="step-item">
+              <span class="step-num">1</span>
+              <div>
+                <p class="step-title">Abre tu bandeja de entrada</p>
+                <p class="step-desc">Busca el correo de <strong>yoreservo@nivis.cloud</strong> con el asunto <em>"¡Bienvenido a YoReservo! Verifica tu correo"</em>.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">2</span>
+              <div>
+                <p class="step-title">Haz clic en "Verificar mi correo"</p>
+                <p class="step-desc">El botón confirmará tu dirección de inmediato y dejará tu cuenta activa para reservar.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="step-num">3</span>
+              <div>
+                <p class="step-title">Validez de 24 horas</p>
+                <p class="step-desc">Por motivos de seguridad, el enlace temporal caduca transcurridas 24 horas.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Direct Provider Shortcuts -->
+          <div class="quick-open-row">
+            <a href="https://mail.google.com" target="_blank" class="provider-btn">
+              <span>🔴</span> Abrir Gmail ↗
+            </a>
+            <a href="https://outlook.live.com" target="_blank" class="provider-btn">
+              <span>🔵</span> Abrir Outlook ↗
+            </a>
+          </div>
+
+          <!-- RESEND WIDGET WITH COOLDOWN -->
+          <div class="resend-section">
+            <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 10px;">
+              ¿No recibiste el correo? Revisa tu carpeta de <strong>spam o correo no deseado</strong>.
+            </p>
+            <button id="resend-email-btn" class="btn btn-secondary" style="padding: 10px 20px; font-size: 13px; font-weight: 700;" onclick="handleResendSignupEmail()">
+              Reenviar correo de verificación
+            </button>
+            <div id="toast-signup-resent" class="toast-sent">
+              ✓ ¡Correo reenviado con éxito! Revisa tu bandeja de entrada en unos instantes.
+            </div>
+          </div>
+
+          <!-- Change email or Already verified -->
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--muted-foreground);">
+            <p>
+              ¿Te equivocaste de correo? 
+              <a href="../../../poc-yoreservo-client-web-app/app/(auth)/sign-up" style="color: var(--primary); font-weight: 600; text-decoration: underline;" onclick="simulateSignUpAgain(event)">
+                Registrarme con otro correo
+              </a>
+            </p>
+            <p>
+              ¿Ya confirmaste tu correo? 
+              <a href="../../../poc-yoreservo-client-web-app/app/(auth)/login" style="color: #1F290F; font-weight: 700; text-decoration: underline;" onclick="simulateLogin(event)">
+                Iniciar sesión →
+              </a>
+            </p>
+          </div>
+
+        </section>
+      </main>
+
+    </div>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      html.setAttribute('data-theme', next);
+    }
+
+    // Cooldown management for Resend Button (Matches web app pattern)
+    let cooldownSeconds = 0;
+    let timer = null;
+
+    function handleResendSignupEmail() {
+      const btn = document.getElementById('resend-email-btn');
+      const toast = document.getElementById('toast-signup-resent');
+
+      if (cooldownSeconds > 0) return;
+
+      btn.disabled = true;
+      btn.innerHTML = 'Enviando... ⏳';
+
+      setTimeout(() => {
+        toast.style.display = 'block';
+        cooldownSeconds = 30;
+        updateCooldownText();
+
+        timer = setInterval(() => {
+          cooldownSeconds--;
+          if (cooldownSeconds <= 0) {
+            clearInterval(timer);
+            btn.disabled = false;
+            btn.innerHTML = 'Reenviar correo de verificación';
+          } else {
+            updateCooldownText();
+          }
+        }, 1000);
+      }, 800);
+    }
+
+    function updateCooldownText() {
+      const btn = document.getElementById('resend-email-btn');
+      btn.innerHTML = `Reenviar en ${cooldownSeconds}s`;
+    }
+
+    function simulateLogin(e) {
+      if (e) e.preventDefault();
+      alert('[Simulación PoC]\n\nRedirigiendo a la pantalla de Inicio de Sesión (/login).');
+    }
+
+    function simulateSignUpAgain(e) {
+      if (e) e.preventDefault();
+      alert('[Simulación PoC]\n\nVolviendo a la pantalla de Registro (/sign-up) para corregir el correo.');
+    }
+
+    // Parse URL parameter ?email=... if provided
+    const urlParams = new URLSearchParams(window.location.search);
+    const emailParam = urlParams.get('email');
+    if (emailParam) {
+      document.getElementById('registered-email-display').textContent = emailParam;
+    }
+  </script>
+</body>
+</html>

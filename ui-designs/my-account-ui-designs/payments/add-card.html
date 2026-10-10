@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Tarjeta — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .card-preview-live {
+      background: linear-gradient(135deg, #1C260D 0%, #354717 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 12px 28px rgba(31, 41, 15, 0.3);
+      border: 1px solid rgba(198, 242, 59, 0.25);
+      position: relative;
+    }
+    .card-brand-pill {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+    .supported-networks {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .network-badge {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted-foreground);
+      transition: all 0.2s ease;
+    }
+    .network-badge.active {
+      background-color: var(--surface);
+      border-color: var(--ring);
+      color: var(--foreground);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="payment-methods.html" class="back-btn">
+        ‹ Métodos de pago
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Nueva Tarjeta
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <!-- SUPPORTED NETWORKS -->
+      <div style="text-align: center; margin-bottom: 14px;">
+        <span style="font-size: 12px; color: var(--muted-foreground); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Tarjetas Aceptadas</span>
+      </div>
+      <div class="supported-networks" style="justify-content: center;">
+        <div id="badge-visa" class="network-badge active">VISA</div>
+        <div id="badge-mc" class="network-badge">Mastercard</div>
+        <div id="badge-amex" class="network-badge">Amex</div>
+      </div>
+
+      <!-- INTERACTIVE LIVE CARD VISUALIZER -->
+      <div class="card-preview-live">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+          <div style="width: 38px; height: 26px; background: linear-gradient(135deg, #FFE29F 0%, #FFAE34 100%); border-radius: 5px;"></div>
+          <div id="live-brand" class="card-brand-pill">VISA</div>
+        </div>
+
+        <div id="live-number" style="font-family: monospace; font-size: 20px; letter-spacing: 0.16em; margin-bottom: 22px;">
+          •••• •••• •••• ••••
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 12px;">
+          <div>
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Titular</span>
+            <span id="live-holder" style="font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 0.04em;">
+              NOMBRE EN TARJETA
+            </span>
+          </div>
+          <div style="text-align: right;">
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Expira</span>
+            <span id="live-expiry" style="font-weight: 700; font-size: 14px;">
+              MM / AA
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD REGISTRATION FORM -->
+      <form id="add-card-form" onsubmit="handleCardSubmit(event)" class="card">
+        
+        <h3 style="font-size: 18px; margin-bottom: 16px;">
+          Detalles de la Tarjeta
+        </h3>
+
+        <!-- CARD NUMBER -->
+        <div class="form-group">
+          <label class="form-label" for="cardNumber">Número de tarjeta</label>
+          <div class="input-wrapper">
+            <span class="input-icon">💳</span>
+            <input type="text" id="cardNumber" class="form-input" placeholder="4505 8875 4995 4215" maxlength="19" oninput="formatCardNumber(this)" required>
+          </div>
+        </div>
+
+        <!-- EXPIRY & CVC IN 2 COLUMNS -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <!-- EXPIRY -->
+          <div class="form-group">
+            <label class="form-label" for="cardExpiry">Vencimiento</label>
+            <div class="input-wrapper">
+              <span class="input-icon">📅</span>
+              <input type="text" id="cardExpiry" class="form-input" placeholder="MM/AA" maxlength="5" oninput="formatExpiry(this)" required>
+            </div>
+          </div>
+
+          <!-- CVC -->
+          <div class="form-group">
+            <label class="form-label" for="cardCvc">CVC / Seguridad</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input type="password" id="cardCvc" class="form-input" placeholder="3 o 4 dígitos" maxlength="4" required>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARDHOLDER NAME -->
+        <div class="form-group">
+          <label class="form-label" for="cardHolder">Nombre en la tarjeta</label>
+          <div class="input-wrapper">
+            <span class="input-icon">👤</span>
+            <input type="text" id="cardHolder" class="form-input" placeholder="Como aparece impreso" oninput="updateHolder(this)" required>
+          </div>
+        </div>
+
+        <!-- DEFAULT CHECKBOX -->
+        <div style="display: flex; align-items: center; gap: 10px; margin: 18px 0 24px 0;">
+          <input type="checkbox" id="setAsDefault" checked style="width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer;">
+          <label for="setAsDefault" style="font-size: 13.5px; font-weight: 500; cursor: pointer;">
+            Usar como tarjeta predeterminada para mis reservas
+          </label>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display: flex; gap: 12px;">
+          <a href="payment-methods.html" class="btn btn-secondary" style="flex: 1;">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary" style="flex: 1.5;">
+            Registrar Tarjeta
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+
+    function formatCardNumber(input) {
+      let val = input.value.replace(/\D/g, '');
+      let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
+      input.value = formatted;
+
+      const liveNum = document.getElementById('live-number');
+      liveNum.textContent = formatted || '•••• •••• •••• ••••';
+
+      // Detect card type
+      const badgeVisa = document.getElementById('badge-visa');
+      const badgeMc = document.getElementById('badge-mc');
+      const badgeAmex = document.getElementById('badge-amex');
+      const liveBrand = document.getElementById('live-brand');
+
+      badgeVisa.classList.remove('active');
+      badgeMc.classList.remove('active');
+      badgeAmex.classList.remove('active');
+
+      if (val.startsWith('4')) {
+        badgeVisa.classList.add('active');
+        liveBrand.textContent = 'VISA';
+      } else if (val.startsWith('5') || val.startsWith('2')) {
+        badgeMc.classList.add('active');
+        liveBrand.textContent = 'Mastercard';
+      } else if (val.startsWith('3')) {
+        badgeAmex.classList.add('active');
+        liveBrand.textContent = 'AMEX';
+      } else {
+        liveBrand.textContent = 'CARD';
+      }
+    }
+
+    function formatExpiry(input) {
+      let val = input.value.replace(/\D/g, '');
+      if (val.length >= 2) {
+        val = val.substring(0, 2) + ' / ' + val.substring(2, 4);
+      }
+      input.value = val;
+      document.getElementById('live-expiry').textContent = val || 'MM / AA';
+    }
+
+    function updateHolder(input) {
+      document.getElementById('live-holder').textContent = input.value.toUpperCase() || 'NOMBRE EN TARJETA';
+    }
+
+    function handleCardSubmit(e) {
+      e.preventDefault();
+      alert('¡Tarjeta registrada exitosamente y vinculada a tu cuenta!');
+      window.location.href = 'payment-methods.html';
+    }
+  </script>
+
+</body>
+</html>

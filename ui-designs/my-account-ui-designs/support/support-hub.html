@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centro de Soporte — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .support-channel-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-decoration: none;
+      color: var(--foreground);
+      box-shadow: var(--card-shadow);
+      transition: all 0.15s ease;
+    }
+    .support-channel-card:hover {
+      background: var(--muted);
+      transform: translateY(-1px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="../profile/profile-hub.html" class="back-btn">
+        ‹ Volver a Ajustes
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Soporte
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <div style="margin-bottom: 22px;">
+        <h1 style="font-size: 24px; line-height: 1.2;">¿Cómo podemos ayudarte?</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          Comparte tus ideas para mejorar YoReservo o infórmanos sobre cualquier inconveniente.
+        </p>
+      </div>
+
+      <!-- MAIN ACTIONS -->
+      <div class="nav-group">
+        <div class="nav-group-title">Canales de Ayuda</div>
+        <div class="nav-list">
+          <a href="feedback.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon" style="background-color: #EBF8D3; color: #355314;">
+                💡
+              </div>
+              <div class="nav-item-content">
+                <h4>Enviar Sugerencias</h4>
+                <p>Propón mejoras o solicita nuevas canchas</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+
+          <a href="report-bug.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon" style="background-color: var(--destructive-subtle); color: var(--destructive);">
+                🐛
+              </div>
+              <div class="nav-item-content">
+                <h4>Reportar un Error</h4>
+                <p>Problemas con pagos, códigos QR o reservas</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- DIRECT CONTACT CARDS -->
+      <div class="nav-group" style="margin-top: 28px;">
+        <div class="nav-group-title">Atención Directa</div>
+        
+        <!-- WHATSAPP -->
+        <a href="https://wa.me/584125503235" target="_blank" class="support-channel-card">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background-color: #DCFCE7; color: #15803D; font-size: 22px; display: flex; align-items: center; justify-content: center;">
+              💬
+            </div>
+            <div>
+              <h4 style="font-size: 15px; font-weight: 700;">WhatsApp de Soporte</h4>
+              <p style="font-size: 12.5px; color: var(--muted-foreground);">Atención de lunes a domingo (8am - 10pm)</p>
+            </div>
+          </div>
+          <span class="badge badge-success">En línea</span>
+        </a>
+
+        <!-- EMAIL -->
+        <a href="mailto:soporte@yoreservo.com" class="support-channel-card">
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="width: 42px; height: 42px; border-radius: 50%; background-color: var(--muted); font-size: 20px; display: flex; align-items: center; justify-content: center;">
+              ✉️
+            </div>
+            <div>
+              <h4 style="font-size: 15px; font-weight: 700;">Correo Electrónico</h4>
+              <p style="font-size: 12.5px; color: var(--muted-foreground);">soporte@yoreservo.com</p>
+            </div>
+          </div>
+          <span style="font-size: 18px; color: var(--muted-foreground);">↗</span>
+        </a>
+      </div>
+
+      <!-- FAQS CARD -->
+      <div class="card" style="margin-top: 24px;">
+        <h3 style="font-size: 17px; margin-bottom: 12px;">Preguntas Frecuentes</h3>
+        
+        <details style="margin-bottom: 12px; cursor: pointer; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <summary style="font-size: 13.5px; font-weight: 600; color: var(--foreground);">
+            ¿Qué sucede si expiran los 15 minutos de mi pre-reserva?
+          </summary>
+          <p style="font-size: 13px; color: var(--muted-foreground); margin-top: 6px; line-height: 1.5;">
+            Si el pago no se procesa dentro de los 15 minutos, la cancha se libera automáticamente para otros usuarios y no se efectúa ningún cobro a tu cuenta.
+          </p>
+        </details>
+
+        <details style="margin-bottom: 12px; cursor: pointer; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+          <summary style="font-size: 13.5px; font-weight: 600; color: var(--foreground);">
+            ¿Cómo muestro mi código QR en el recinto?
+          </summary>
+          <p style="font-size: 13px; color: var(--muted-foreground); margin-top: 6px; line-height: 1.5;">
+            Puedes abrir el correo electrónico de confirmación o ingresar a la pestaña "Reservaciones" en la app para abrir tu pase digital con pantalla completa.
+          </p>
+        </details>
+
+        <details style="cursor: pointer;">
+          <summary style="font-size: 13.5px; font-weight: 600; color: var(--foreground);">
+            ¿Cómo se calculan los montos en bolívares?
+          </summary>
+          <p style="font-size: 13px; color: var(--muted-foreground); margin-top: 6px; line-height: 1.5;">
+            Los precios en bolívares se calculan en tiempo real según la tasa oficial publicada por el Banco Central de Venezuela (BCV).
+          </p>
+        </details>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mi Cuenta / Ajustes — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .avatar-circle {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #263211 0%, #465922 100%);
+      color: #C6F23B;
+      font-family: 'Outfit', sans-serif;
+      font-size: 26px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(38, 50, 17, 0.15);
+      border: 3px solid var(--surface);
+    }
+    .profile-hero {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .theme-pill-btn {
+      background: var(--muted);
+      border: 1px solid var(--border);
+      color: var(--foreground);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .theme-pill-btn:hover {
+      background: var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800; letter-spacing: -0.01em;">
+          YO<span style="color: var(--accent);">RESERVO</span>
+        </span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button class="theme-pill-btn" onclick="toggleTheme()" title="Alternar Modo Oscuro/Claro">
+          <span id="theme-icon">🌙</span> <span id="theme-text">Oscuro</span>
+        </button>
+      </div>
+    </header>
+
+    <div style="padding: 20px 18px 0 18px;">
+      
+      <!-- PAGE TITLE -->
+      <div style="margin-bottom: 18px;">
+        <h1 style="font-size: 26px; line-height: 1.2;">Mi Cuenta</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          Administra tu información personal, métodos de pago y preferencias.
+        </p>
+      </div>
+
+      <!-- PROFILE HERO CARD -->
+      <div class="profile-hero">
+        <div class="avatar-circle">
+          PS
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <h2 style="font-size: 18px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              Peperoni Salerno
+            </h2>
+            <span class="badge badge-accent">Cliente</span>
+          </div>
+          <p style="font-size: 13px; color: var(--muted-foreground); margin-top: 3px; word-break: break-all;">
+            pepito@gmail.com
+          </p>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 8px;">
+            <span style="font-size: 11.5px; color: var(--success); font-weight: 600; display: inline-flex; align-items: center; gap: 3px;">
+              ✓ Correo verificado
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GROUP 1: CUENTA Y SEGURIDAD -->
+      <div class="nav-group">
+        <div class="nav-group-title">Cuenta y Seguridad</div>
+        <div class="nav-list">
+          <a href="../profile/edit-profile.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">👤</div>
+              <div class="nav-item-content">
+                <h4>Editar Perfil</h4>
+                <p>Nombre, apellido, correo y teléfono</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+
+          <a href="../security/change-password.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">🔒</div>
+              <div class="nav-item-content">
+                <h4>Seguridad y Contraseña</h4>
+                <p>Actualizar clave y sesiones activas</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- GROUP 2: PAGOS Y PREFERENCIAS -->
+      <div class="nav-group">
+        <div class="nav-group-title">Pagos y Preferencias</div>
+        <div class="nav-list">
+          <a href="../payments/payment-methods.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">💳</div>
+              <div class="nav-item-content">
+                <h4>Métodos de Pago</h4>
+                <p>2 tarjetas guardadas · Pago Móvil</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+
+          <a href="../favorites/favorites.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">⭐</div>
+              <div class="nav-item-content">
+                <h4>Canchas Favoritas</h4>
+                <p>Tus recintos preferidos para reservar rápido</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- GROUP 3: INFORMACIÓN Y SOPORTE -->
+      <div class="nav-group">
+        <div class="nav-group-title">Información y Soporte</div>
+        <div class="nav-list">
+          <a href="../about/about-app.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">ℹ️</div>
+              <div class="nav-item-content">
+                <h4>Acerca de YoReservo</h4>
+                <p>Versión 1.0.12 · Términos y privacidad</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+
+          <a href="../support/support-hub.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">💬</div>
+              <div class="nav-item-content">
+                <h4>Centro de Soporte</h4>
+                <p>Enviar sugerencias o reportar un error</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- GROUP 4: CIERRE DE SESIÓN -->
+      <div class="nav-group">
+        <div class="nav-list">
+          <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-item" style="color: var(--destructive);">
+            <div class="nav-item-left">
+              <div class="nav-item-icon" style="background-color: var(--destructive-subtle); color: var(--destructive);">
+                🚪
+              </div>
+              <div class="nav-item-content">
+                <h4 style="color: var(--destructive);">Cerrar Sesión</h4>
+                <p style="color: var(--muted-foreground);">Salir de tu cuenta en este dispositivo</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron" style="color: var(--destructive);">›</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR (matching client web app MobileTabBar) -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      const newTheme = isDark ? 'light' : 'dark';
+      html.setAttribute('data-theme', newTheme);
+      document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+      document.getElementById('theme-text').textContent = isDark ? 'Oscuro' : 'Claro';
+    }
+
+    function confirmLogout() {
+      if (confirm('¿Estás seguro de que deseas cerrar sesión en este dispositivo?')) {
+        alert('Sesión cerrada con éxito.');
+      }
+    }
+  </script>
+
+</body>
+</html>

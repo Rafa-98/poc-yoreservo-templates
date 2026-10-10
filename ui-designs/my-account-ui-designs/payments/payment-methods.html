@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Métodos de Pago — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .payment-card-visual {
+      background: linear-gradient(135deg, #1C260D 0%, #304015 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(31, 41, 15, 0.25);
+      border: 1px solid rgba(198, 242, 59, 0.2);
+    }
+    .payment-card-visual.secondary-card {
+      background: linear-gradient(135deg, #262A20 0%, #383E31 100%);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      border: 1px solid var(--border);
+    }
+    .card-chip {
+      width: 36px;
+      height: 26px;
+      background: linear-gradient(135deg, #FFE29F 0%, #FFAE34 100%);
+      border-radius: 5px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    .card-number-display {
+      font-family: monospace;
+      font-size: 19px;
+      letter-spacing: 0.18em;
+      margin-bottom: 14px;
+    }
+    .radio-circle {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .radio-circle.checked {
+      border-color: var(--accent);
+      background-color: var(--accent);
+    }
+    .radio-circle.checked::after {
+      content: '✓';
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-foreground);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="../profile/profile-hub.html" class="back-btn">
+        ‹ Volver a Ajustes
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Métodos de Pago
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <!-- EXCHANGE RATE BANNER (FROM CLIENT APP BCV MODULE) -->
+      <div style="background-color: var(--muted); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">🇻🇪</span>
+          <div>
+            <p style="font-size: 12px; font-weight: 700; color: var(--foreground); margin: 0;">Tasa de cambio oficial BCV</p>
+            <p style="font-size: 11px; color: var(--muted-foreground); margin: 0;">1 USD = Bs 875,65</p>
+          </div>
+        </div>
+        <span class="badge badge-accent" style="font-size: 10px;">En vivo</span>
+      </div>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <h2 style="font-size: 19px;">Tarjetas Guardadas</h2>
+        <a href="add-card.html" class="btn btn-primary" style="padding: 8px 14px; font-size: 13px;">
+          + Agregar Tarjeta
+        </a>
+      </div>
+
+      <!-- CARD 1: PRIMARY MASTERCARD -->
+      <div class="payment-card-visual">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div class="card-chip"></div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge" style="background: rgba(198, 242, 59, 0.25); color: #C6F23B; font-size: 10.5px;">Predeterminada</span>
+            <span style="font-size: 22px; font-weight: 800; font-style: italic;">Mastercard</span>
+          </div>
+        </div>
+        <div class="card-number-display">
+          •••• •••• •••• 5874
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 12px;">
+          <div>
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Titular</span>
+            <span style="font-weight: 600; font-size: 13px; text-transform: uppercase;">Peperoni Salerno</span>
+          </div>
+          <div style="text-align: right;">
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Vence</span>
+            <span style="font-weight: 600; font-size: 13px;">09 / 28</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 1 CONTROLS -->
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+          <div class="radio-circle checked"></div>
+          <span>Tarjeta predeterminada</span>
+        </div>
+        <button type="button" class="btn btn-destructive" style="padding: 6px 12px; font-size: 12px;" onclick="alert('No puedes eliminar la tarjeta predeterminada sin designar otra primero.')">
+          Eliminar
+        </button>
+      </div>
+
+      <!-- CARD 2: SECONDARY VISA -->
+      <div class="payment-card-visual secondary-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+          <div class="card-chip"></div>
+          <span style="font-size: 22px; font-weight: 800; font-family: sans-serif; letter-spacing: 0.05em;">VISA</span>
+        </div>
+        <div class="card-number-display">
+          •••• •••• •••• 3354
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; font-size: 12px;">
+          <div>
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Titular</span>
+            <span style="font-weight: 600; font-size: 13px; text-transform: uppercase;">Peperoni Salerno</span>
+          </div>
+          <div style="text-align: right;">
+            <span style="opacity: 0.7; font-size: 10px; display: block; text-transform: uppercase;">Vence</span>
+            <span style="font-weight: 600; font-size: 13px;">11 / 27</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2 CONTROLS -->
+      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 16px; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" onclick="alert('Establecida como tarjeta predeterminada.')">
+          <div class="radio-circle"></div>
+          <span style="color: var(--muted-foreground);">Marcar como predeterminada</span>
+        </div>
+        <button type="button" class="btn btn-destructive" style="padding: 6px 12px; font-size: 12px;" onclick="if(confirm('¿Deseas eliminar la tarjeta que termina en 3354?')) this.closest('.payment-card-visual, div').remove()">
+          Eliminar
+        </button>
+      </div>
+
+      <!-- SECTION: PAGO MOVIL DATA PREFERENCE -->
+      <div class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <h3 style="font-size: 17px;">Datos de Pago Móvil Habitual</h3>
+          <span class="badge badge-accent">Venezuela</span>
+        </div>
+        <p style="font-size: 13px; color: var(--muted-foreground); margin-bottom: 14px;">
+          Guarda tus datos emisores para autocompletar el formulario al pagar tus reservas.
+        </p>
+        
+        <div style="display: grid; gap: 10px; font-size: 13px;">
+          <div class="card-item" style="margin: 0; padding: 12px 14px;">
+            <span style="color: var(--muted-foreground); font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Banco Emisor</span>
+            <span style="font-weight: 600;">Banco Mercantil (0105)</span>
+          </div>
+          <div class="card-item" style="margin: 0; padding: 12px 14px;">
+            <span style="color: var(--muted-foreground); font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Teléfono asociado</span>
+            <span style="font-weight: 600;">0412 5503235</span>
+          </div>
+          <div class="card-item" style="margin: 0; padding: 12px 14px;">
+            <span style="color: var(--muted-foreground); font-size: 11px; text-transform: uppercase; font-weight: 700; display: block;">Cédula / RIF</span>
+            <span style="font-weight: 600;">V-24.892.114</span>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary btn-block" style="margin-top: 14px; font-size: 13px;" onclick="alert('Editar datos de Pago Móvil predeterminados')">
+          Editar datos de Pago Móvil
+        </button>
+      </div>
+
+      <!-- SECURITY NOTE -->
+      <div style="text-align: center; padding: 10px 16px; font-size: 12px; color: var(--muted-foreground); line-height: 1.5;">
+        🔒 Conexión cifrada de 256 bits. YoReservo cumple con los estándares PCI-DSS y nunca almacena el código de seguridad (CVC) de tus tarjetas.
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

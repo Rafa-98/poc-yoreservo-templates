@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Sistema de Diseños UI (Hub Principal)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --background: #F7F5EF;
+      --foreground: #24281B;
+      --surface: #FFFFFF;
+      --muted: #F0EDE5;
+      --muted-foreground: #636C59;
+      --border: #E6E2D8;
+      --brand-deep: #1F290F;
+      --accent: #C6F23B;
+      --card-shadow: 0 4px 20px rgba(34, 43, 19, 0.06);
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background-color: var(--background);
+      color: var(--foreground);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--brand-deep);
+      color: #FFFFFF;
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(198, 242, 59, 0.35);
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 48px 24px;
+      flex: 1;
+    }
+    .title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .subtitle {
+      font-size: 16px;
+      color: var(--muted-foreground);
+      margin-bottom: 40px;
+      max-width: 650px;
+      line-height: 1.5;
+    }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 24px;
+    }
+    .module-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(34, 43, 19, 0.12);
+      border-color: var(--accent);
+    }
+    .module-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(198, 242, 59, 0.2);
+      color: #385012;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      margin-bottom: 18px;
+      align-self: flex-start;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .module-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+    .module-desc {
+      font-size: 14.5px;
+      color: var(--muted-foreground);
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+    .module-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 28px;
+    }
+    .module-list li {
+      font-size: 13.5px;
+      color: var(--foreground);
+      padding: 6px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .module-btn {
+      background-color: var(--accent);
+      color: #1F290F;
+      font-weight: 700;
+      font-size: 14.5px;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-align: center;
+      display: block;
+      box-shadow: 0 4px 14px rgba(198, 242, 59, 0.35);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <span style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; letter-spacing: 0.5px;">
+        YO<span style="color: var(--accent);">RESERVO</span>
+      </span>
+      <span style="background: rgba(198, 242, 59, 0.2); color: var(--accent); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">
+        UI Designs Workspace
+      </span>
+    </div>
+    <div style="font-size: 13px; color: #CCD6BF;">
+      Diseños fieles al Design System de <code>poc-yoreservo-client-web-app</code>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="title">Sistemas de Diseños UI</h1>
+    <p class="subtitle">
+      Explora las interfaces de usuario interactivas de YoReservo organizadas por módulos funcionales.
+    </p>
+
+    <div class="modules-grid">
+      
+      <!-- Module 1: My Account -->
+      <a href="my-account-ui-designs/index.html" class="module-card">
+        <div>
+          <span class="module-badge">Módulo 1</span>
+          <h2 class="module-title">Mi Cuenta & Perfil</h2>
+          <p class="module-desc">
+            Vistas de configuración de usuario, datos personales, gestión de contraseñas, métodos de pago, recintos favoritos, términos y centro de soporte.
+          </p>
+          <ul class="module-list">
+            <li><span>👤</span> Mi Cuenta / Ajustes (Hub)</li>
+            <li><span>✏️</span> Editar Perfil de Usuario</li>
+            <li><span>🔒</span> Cambiar Contraseña & Sesiones</li>
+            <li><span>💳</span> Métodos de Pago & Agregar Tarjeta</li>
+            <li><span>⭐</span> Canchas Favoritas</li>
+            <li><span>💬</span> Soporte, Feedback y Reporte de Bugs</li>
+          </ul>
+        </div>
+        <div class="module-btn">
+          Abrir Diseños de Mi Cuenta →
+        </div>
+      </a>
+
+      <!-- Module 2: Auth & Verification -->
+      <a href="auth-ui-designs/index.html" class="module-card">
+        <div>
+          <span class="module-badge" style="background: rgba(59, 130, 246, 0.15); color: #1D4ED8;">Módulo 2</span>
+          <h2 class="module-title">Autenticación & Recuperación</h2>
+          <p class="module-desc">
+            Vistas de verificación de correo electrónico tras registro, y flujo completo de recuperación y cambio de contraseña con validación de seguridad.
+          </p>
+          <ul class="module-list">
+            <li><span>🔑</span> Restablecer Contraseña (Inputs, Reglas en Vivo)</li>
+            <li><span>⚠️</span> Error: Misma Contraseña que la Anterior</li>
+            <li><span>✅</span> Contraseña Actualizada con Éxito (CTA Login)</li>
+            <li><span>❌</span> Token Inválido o Expirado (Diagnóstico & Reenvío)</li>
+            <li><span>⚡</span> Verificación de Correo (Éxito, Error & Simulador)</li>
+          </ul>
+        </div>
+        <div class="module-btn">
+          Abrir Diseños de Autenticación →
+        </div>
+      </a>
+
+    </div>
+  </main>
+
+</body>
+</html>

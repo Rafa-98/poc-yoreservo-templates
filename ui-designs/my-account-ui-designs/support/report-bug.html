@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reportar un Error — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .diagnostic-box {
+      background-color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 16px;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="support-hub.html" class="back-btn">
+        ‹ Soporte
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Reportar Error
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <div style="margin-bottom: 20px;">
+        <h1 style="font-size: 24px; line-height: 1.2;">Reportar un problema técnico</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          Lamentamos los inconvenientes. Danos los detalles para que nuestro equipo técnico lo resuelva de inmediato.
+        </p>
+      </div>
+
+      <!-- FORM CARD -->
+      <form id="bug-form" onsubmit="event.preventDefault(); alert('¡Reporte enviado exitosamente! Ticket de soporte generado: #TKT-8924.'); window.location.href='support-hub.html';" class="card">
+        
+        <!-- BUG CATEGORY -->
+        <div class="form-group">
+          <label class="form-label" for="bugCategory">Tipo de problema</label>
+          <div class="input-wrapper">
+            <span class="input-icon">⚠️</span>
+            <select id="bugCategory" class="form-input" style="background: transparent; cursor: pointer;" required>
+              <option value="">Selecciona el área afectada...</option>
+              <option value="payment">Problema al pagar con Pago Móvil o Tarjeta</option>
+              <option value="qr">Error al generar o mostrar el Código QR</option>
+              <option value="schedule">Horario no disponible o retenido incorrectamente</option>
+              <option value="login">Error de inicio de sesión o cuenta</option>
+              <option value="other">Otro error visual o técnico</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RESERVATION CODE (OPTIONAL) -->
+        <div class="form-group">
+          <label class="form-label" for="resCode">Código de reserva afectado (opcional)</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎫</span>
+            <input type="text" id="resCode" class="form-input" placeholder="Ej: JFAURX o AVT4AZ" style="text-transform: uppercase;">
+          </div>
+        </div>
+
+        <!-- DESCRIPTION -->
+        <div class="form-group">
+          <label class="form-label" for="bugDescription">¿Qué ocurrió exactamente?</label>
+          <div class="input-wrapper">
+            <textarea id="bugDescription" class="form-input" rows="4" style="resize: vertical;" placeholder="Describe qué estabas haciendo y qué mensaje o comportamiento inesperado ocurrió..." required></textarea>
+          </div>
+        </div>
+
+        <!-- ATTACHMENT DROPZONE -->
+        <div class="form-group">
+          <label class="form-label">Adjuntar captura de pantalla (recomendado)</label>
+          <div style="border: 2px dashed var(--border-strong); border-radius: var(--radius-md); padding: 18px; text-align: center; background: var(--muted); cursor: pointer;" onclick="alert('Permite subir una captura de pantalla del error')">
+            <span style="font-size: 24px; display: block; margin-bottom: 4px;">📸</span>
+            <p style="font-size: 13px; font-weight: 600; color: var(--foreground); margin: 0;">Subir captura del error</p>
+            <p style="font-size: 11px; color: var(--muted-foreground); margin: 2px 0 0 0;">Una imagen nos ayuda a solucionarlo mucho más rápido</p>
+          </div>
+        </div>
+
+        <!-- DIAGNOSTIC AUTO INFO -->
+        <div class="diagnostic-box">
+          <p style="font-weight: 700; color: var(--foreground); margin-bottom: 4px;">Información técnica detectada:</p>
+          <p style="color: var(--muted-foreground); margin: 0;">• Navegador: Google Chrome</p>
+          <p style="color: var(--muted-foreground); margin: 0;">• Plataforma: Windows / Web App Client</p>
+          <p style="color: var(--muted-foreground); margin: 0;">• Versión PoC: 1.0.12</p>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <a href="support-hub.html" class="btn btn-secondary" style="flex: 1;">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary" style="flex: 1.5;">
+            Enviar Reporte
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

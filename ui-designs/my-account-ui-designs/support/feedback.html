@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enviar Sugerencias — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      margin: 4px 4px 4px 0;
+    }
+    .category-pill.selected {
+      background-color: #EBF8D3;
+      border-color: #A3E635;
+      color: #2D5514;
+    }
+    [data-theme="dark"] .category-pill.selected {
+      background-color: #243E12;
+      border-color: #C6F23B;
+      color: #C6F23B;
+    }
+    .star-rating {
+      display: flex;
+      gap: 8px;
+      font-size: 28px;
+      cursor: pointer;
+    }
+    .star-rating span {
+      color: var(--border-strong);
+      transition: color 0.15s ease;
+    }
+    .star-rating span.active {
+      color: #F59E0B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="support-hub.html" class="back-btn">
+        ‹ Soporte
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Sugerencias
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <div style="margin-bottom: 20px;">
+        <h1 style="font-size: 24px; line-height: 1.2;">Tu opinión nos hace mejores</h1>
+        <p style="font-size: 13.5px; color: var(--muted-foreground); margin-top: 4px;">
+          Indícanos qué funciones te gustaría ver en YoReservo o qué podemos mejorar.
+        </p>
+      </div>
+
+      <!-- FORM CARD -->
+      <form id="feedback-form" onsubmit="event.preventDefault(); alert('¡Gracias por tus comentarios! Nuestro equipo de producto los revisará.'); window.location.href='support-hub.html';" class="card">
+        
+        <!-- CATEGORY SELECTOR -->
+        <div class="form-group">
+          <label class="form-label">¿Sobre qué trata tu sugerencia?</label>
+          <div>
+            <span class="category-pill selected" onclick="selectCategory(this)">✨ Experiencia en la App</span>
+            <span class="category-pill" onclick="selectCategory(this)">💳 Métodos de Pago</span>
+            <span class="category-pill" onclick="selectCategory(this)">🏟️ Nueva Cancha / Recinto</span>
+            <span class="category-pill" onclick="selectCategory(this)">📱 Funcionalidad Móvil</span>
+            <span class="category-pill" onclick="selectCategory(this)">💬 Otro</span>
+          </div>
+        </div>
+
+        <!-- EXPERIENCE RATING -->
+        <div class="form-group" style="margin-top: 18px;">
+          <label class="form-label">¿Cómo calificarías tu experiencia general?</label>
+          <div class="star-rating" id="stars-container">
+            <span onclick="rateStars(1)" class="active">★</span>
+            <span onclick="rateStars(2)" class="active">★</span>
+            <span onclick="rateStars(3)" class="active">★</span>
+            <span onclick="rateStars(4)" class="active">★</span>
+            <span onclick="rateStars(5)" class="active">★</span>
+          </div>
+        </div>
+
+        <!-- SUBJECT -->
+        <div class="form-group" style="margin-top: 18px;">
+          <label class="form-label" for="feedbackTitle">Título breve</label>
+          <div class="input-wrapper">
+            <input type="text" id="feedbackTitle" class="form-input" placeholder="Ej: Agregar recordatorios por WhatsApp" required>
+          </div>
+        </div>
+
+        <!-- DETAILS TEXTAREA -->
+        <div class="form-group">
+          <label class="form-label" for="feedbackText">Describe tu idea o recomendación</label>
+          <div class="input-wrapper" style="border-radius: var(--radius-md);">
+            <textarea id="feedbackText" class="form-input" rows="5" style="resize: vertical;" placeholder="Cuéntanos en detalle qué te gustaría que implementáramos o cambiáramos..." required></textarea>
+          </div>
+          <span style="font-size: 12px; color: var(--muted-foreground); margin-top: 4px; display: block;">
+            Leemos cada una de las propuestas para priorizar el desarrollo de YoReservo.
+          </span>
+        </div>
+
+        <!-- ATTACHMENT UPLOAD (OPTIONAL) -->
+        <div class="form-group">
+          <label class="form-label">Adjuntar captura o imagen (opcional)</label>
+          <div style="border: 2px dashed var(--border-strong); border-radius: var(--radius-md); padding: 18px; text-align: center; background: var(--muted); cursor: pointer;" onclick="alert('Permite adjuntar una imagen PNG o JPG')">
+            <span style="font-size: 24px; display: block; margin-bottom: 4px;">📎</span>
+            <p style="font-size: 13px; font-weight: 600; color: var(--foreground); margin: 0;">Haz clic para adjuntar archivo</p>
+            <p style="font-size: 11px; color: var(--muted-foreground); margin: 2px 0 0 0;">PNG, JPG hasta 5MB</p>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div style="display: flex; gap: 12px; margin-top: 24px;">
+          <a href="support-hub.html" class="btn btn-secondary" style="flex: 1;">
+            Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary" style="flex: 1.5;">
+            Enviar Sugerencia
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+
+    function selectCategory(el) {
+      document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+
+    function rateStars(count) {
+      const stars = document.querySelectorAll('#stars-container span');
+      stars.forEach((s, idx) => {
+        s.classList.toggle('active', idx < count);
+      });
+    }
+  </script>
+
+</body>
+</html>

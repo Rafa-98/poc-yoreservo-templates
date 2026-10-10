@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acerca de YoReservo — YoReservo UI</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <style>
+    .brand-hero-about {
+      background: linear-gradient(145deg, #1C260D 0%, #293813 100%);
+      color: #FFFFFF;
+      border-radius: var(--radius-xl);
+      padding: 36px 24px 28px 24px;
+      text-align: center;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 24px rgba(31, 41, 15, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+    
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="../profile/profile-hub.html" class="back-btn">
+        ‹ Volver a Ajustes
+      </a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700;">
+        Acerca de
+      </span>
+      <button class="back-btn" onclick="toggleTheme()" style="padding: 6px 10px;" title="Modo Oscuro/Claro">
+        🌓
+      </button>
+    </header>
+
+    <div style="padding: 24px 20px;">
+      
+      <!-- HERO BRAND BANNER -->
+      <div class="brand-hero-about">
+        <div style="margin-bottom: 12px;">
+          <img src="../assets/yoreservo-logo-white.png" alt="YoReservo" width="180" height="23" style="display: inline-block; max-width: 180px; height: auto;" onerror="this.style.display='none'; document.getElementById('text-logo-about').style.display='inline-block';">
+          <span id="text-logo-about" style="display: none; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.5px;">
+            YO<span style="color: #C6F23B;">RESERVO</span>
+          </span>
+        </div>
+        <p style="font-size: 14px; color: #CCD6BF; margin-bottom: 14px;">
+          Reserva tu cancha en segundos.
+        </p>
+        <span class="badge" style="background: rgba(198, 242, 59, 0.2); color: #C6F23B; font-size: 11.5px;">
+          Versión 1.0.12 (Build 2026.10)
+        </span>
+      </div>
+
+      <!-- ABOUT DESCRIPTION CARD -->
+      <div class="card">
+        <h3 style="font-size: 18px; margin-bottom: 8px;">¿Qué es YoReservo?</h3>
+        <p style="font-size: 14px; color: var(--muted-foreground); line-height: 1.6; margin-bottom: 16px;">
+          YoReservo es la plataforma digital líder que permite a los deportistas en Venezuela descubrir, consultar disponibilidad en tiempo real y reservar canchas deportivas (fútbol, pádel, tenis, voleibol y más) de forma 100% independiente, 24/7.
+        </p>
+
+        <h4 style="font-size: 15px; margin-bottom: 10px; color: var(--foreground);">Ventajas principales:</h4>
+        <ul style="padding-left: 20px; font-size: 13.5px; color: var(--muted-foreground); line-height: 1.7;">
+          <li><strong>Disponibilidad inmediata:</strong> Sin intermediarios, sin llamadas telefónicas ni tiempos de espera.</li>
+          <li><strong>Múltiples métodos de pago:</strong> Pago Móvil en bolívares a tasa oficial BCV, tarjetas y pagos directos.</li>
+          <li><strong>Acceso con Código QR:</strong> Valida tu entrada en recepción en segundos con tu pase digital.</li>
+          <li><strong>Retención garantizada de 15 minutos:</strong> Tu horario queda protegido mientras completas tu pago.</li>
+        </ul>
+      </div>
+
+      <!-- LEGAL NAV LIST -->
+      <div class="nav-group">
+        <div class="nav-group-title">Documentos Legales y Políticas</div>
+        <div class="nav-list">
+          <a href="privacy-policy.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">🔒</div>
+              <div class="nav-item-content">
+                <h4>Políticas de Privacidad</h4>
+                <p>Protección y uso responsable de tus datos</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+
+          <a href="terms-conditions.html" class="nav-item">
+            <div class="nav-item-left">
+              <div class="nav-item-icon">📄</div>
+              <div class="nav-item-content">
+                <h4>Términos y Condiciones de Uso</h4>
+                <p>Reglas de servicio, cancelaciones y recintos</p>
+              </div>
+            </div>
+            <span class="nav-item-chevron">›</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- FOOTER NOTE -->
+      <div style="text-align: center; padding: 12px 16px; font-size: 12px; color: var(--muted-foreground);">
+        <p style="margin-bottom: 4px;">Hecho con pasión por el deporte en Caracas, Venezuela.</p>
+        <p>© 2026 YoReservo C.A. Todos los derechos reservados.</p>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM TAB BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="javascript:void(0)" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Reservaciones</span>
+      </a>
+      <a href="../profile/profile-hub.html" class="nav-tab active">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.getAttribute('data-theme') === 'dark';
+      html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    }
+  </script>
+
+</body>
+</html>

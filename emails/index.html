@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Visor de Plantillas de Email</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F7F5EF;
+      --surface: #FFFFFF;
+      --brand: #1F290F;
+      --accent: #C6F23B;
+      --accent-dark: #1F290F;
+      --border: #E6E2D8;
+      --text: #24281B;
+      --muted: #5B664B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+    }
+    header {
+      background-color: var(--brand);
+      color: #FFFFFF;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid rgba(198, 242, 59, 0.3);
+      flex-shrink: 0;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .badge {
+      background-color: rgba(198, 242, 59, 0.2);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .toolbar {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .btn-group {
+      display: inline-flex;
+      background-color: #EFECE3;
+      border-radius: 12px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .tab-btn {
+      border: none;
+      background: transparent;
+      padding: 8px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+    }
+    .tab-btn.active {
+      background-color: var(--surface);
+      color: var(--brand);
+      font-weight: 700;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    }
+    .action-btn {
+      background-color: var(--accent);
+      color: var(--accent-dark);
+      border: none;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .action-btn:hover {
+      background-color: #B8EB25;
+      transform: translateY(-1px);
+    }
+    .main-workspace {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #ECE8DC;
+      padding: 20px;
+      overflow: auto;
+    }
+    .preview-frame-container {
+      background: #FFFFFF;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+      border-radius: 24px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .preview-bar {
+      background: #F4F1E8;
+      border-bottom: 1px solid #E4DFD2;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: monospace;
+    }
+    iframe {
+      border: none;
+      width: 100%;
+      height: 100%;
+      flex: 1;
+      background: #F7F5EF;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header>
+    <div class="brand-title">
+      <span>YO<span style="color: var(--accent);">RESERVO</span></span>
+      <span class="badge">Plantillas de Email PoC</span>
+    </div>
+    <div style="font-size: 13px; color: #CCD6BF;">
+      Diseñadas para Google Chrome & Clientes de Correo
+    </div>
+  </header>
+
+  <!-- CONTROL TOOLBAR -->
+  <div class="toolbar">
+    <!-- Template Selector -->
+    <div class="btn-group">
+      <button class="tab-btn active" onclick="setTemplate('welcome')">
+        👋 Bienvenida
+      </button>
+      <button class="tab-btn" onclick="setTemplate('pre-reservation')">
+        ⏱ Pre-reserva (15 min)
+      </button>
+      <button class="tab-btn" onclick="setTemplate('payment-verified')">
+        ✅ Pago Verificado & QR
+      </button>
+      <button class="tab-btn" onclick="setTemplate('reservation-cancelled')">
+        ❌ Reserva Cancelada
+      </button>
+      <button class="tab-btn" onclick="setTemplate('recover-password')">
+        🔑 Recuperar Clave
+      </button>
+    </div>
+
+    <!-- Language Selector -->
+    <div class="btn-group">
+      <button id="lang-es" class="tab-btn active" onclick="setLang('es')">
+        🇪🇸 Español
+      </button>
+      <button id="lang-en" class="tab-btn" onclick="setLang('en')">
+        🇺🇸 English
+      </button>
+    </div>
+
+    <!-- Viewport Size -->
+    <div class="btn-group">
+      <button id="view-desktop" class="tab-btn active" onclick="setView('desktop')">
+        💻 Desktop (640px)
+      </button>
+      <button id="view-mobile" class="tab-btn" onclick="setView('mobile')">
+        📱 Mobile (380px)
+      </button>
+      <button id="view-full" class="tab-btn" onclick="setView('full')">
+        🖥 Expandido
+      </button>
+    </div>
+
+    <!-- Open in new tab -->
+    <a id="external-link" href="welcome/welcome-es.html" target="_blank" class="action-btn">
+      Abrir en pestaña nueva ↗
+    </a>
+  </div>
+
+  <!-- MAIN PREVIEW WORKSPACE -->
+  <div class="main-workspace">
+    <div id="frame-container" class="preview-frame-container" style="width: 660px;">
+      <div class="preview-bar">
+        <span id="preview-path">./welcome/welcome-es.html</span>
+        <span id="preview-dims">660px × 100%</span>
+      </div>
+      <iframe id="preview-frame" src="welcome/welcome-es.html"></iframe>
+    </div>
+  </div>
+
+  <script>
+    let currentTemplate = 'welcome';
+    let currentLang = 'es';
+    let currentView = 'desktop';
+
+    function updatePreview() {
+      const path = `${currentTemplate}/${currentTemplate}-${currentLang}.html`;
+      const iframe = document.getElementById('preview-frame');
+      const externalLink = document.getElementById('external-link');
+      const previewPath = document.getElementById('preview-path');
+      const previewDims = document.getElementById('preview-dims');
+      const container = document.getElementById('frame-container');
+
+      iframe.src = path;
+      externalLink.href = path;
+      previewPath.textContent = `./${path}`;
+
+      if (currentView === 'mobile') {
+        container.style.width = '390px';
+        container.style.borderRadius = '36px';
+        previewDims.textContent = '390px (Mobile Preview)';
+      } else if (currentView === 'desktop') {
+        container.style.width = '660px';
+        container.style.borderRadius = '24px';
+        previewDims.textContent = '660px (Standard Email)';
+      } else {
+        container.style.width = '100%';
+        container.style.borderRadius = '16px';
+        previewDims.textContent = '100% (Responsive Full)';
+      }
+    }
+
+    function setTemplate(tmpl) {
+      currentTemplate = tmpl;
+      const buttons = document.querySelectorAll('.toolbar .btn-group:first-child .tab-btn');
+      const names = ['welcome', 'pre-reservation', 'payment-verified', 'reservation-cancelled', 'recover-password'];
+      buttons.forEach((btn, index) => {
+        btn.classList.toggle('active', names[index] === tmpl);
+      });
+      updatePreview();
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById('lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+      updatePreview();
+    }
+
+    function setView(view) {
+      currentView = view;
+      document.getElementById('view-desktop').classList.toggle('active', view === 'desktop');
+      document.getElementById('view-mobile').classList.toggle('active', view === 'mobile');
+      document.getElementById('view-full').classList.toggle('active', view === 'full');
+      updatePreview();
+    }
+  </script>
+
+</body>
+</html>
