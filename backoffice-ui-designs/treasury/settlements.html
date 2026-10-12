@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Liquidaciones & Pagos a Aliados | Settlements Hub</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Scoped Settlements Styles */
+    .metric-subtext {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .metric-badge-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .trend-up {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10B981;
+    }
+    [data-theme="dark"] .trend-up {
+      background: rgba(52, 211, 153, 0.2);
+      color: #34D399;
+    }
+
+    /* Filter Chips */
+    .filter-chip {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12.5px;
+      font-weight: 600;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      border-color: var(--text-link);
+      color: var(--text-main);
+    }
+    .filter-chip.active {
+      background: rgba(198, 242, 59, 0.15);
+      border-color: var(--brand-lime);
+      color: var(--text-link);
+      font-weight: 700;
+    }
+    [data-theme="dark"] .filter-chip.active {
+      background: rgba(198, 242, 59, 0.2);
+      color: #C6F23B;
+      border-color: #C6F23B;
+    }
+
+    /* Cycle Progress Card */
+    .cycle-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .progress-bar-container {
+      width: 100%;
+      height: 8px;
+      background: var(--border-subtle);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10B981 0%, #C6F23B 100%);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* Bank Account Pill */
+    .bank-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    /* Flyout Drawer for Statement Breakdown */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 24, 17, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 350;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 680px;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-modal);
+      z-index: 360;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-backdrop.active .drawer-panel {
+      transform: translateX(0);
+    }
+    .drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+    }
+    .drawer-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .drawer-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-muted);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    /* Modal Styles */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 24, 17, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 400;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-box {
+      width: 100%;
+      max-width: 580px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-modal);
+      overflow: hidden;
+      transform: scale(0.96);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-backdrop.active .modal-box {
+      transform: scale(1);
+    }
+
+    /* Breakdown Summary Cards inside Drawer */
+    .breakdown-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .breakdown-box {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111827;
+      color: #FFFFFF;
+      border: 1px solid rgba(198, 242, 59, 0.3);
+      padding: 14px 20px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 500;
+      z-index: 500;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-notification.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    [data-theme="dark"] .toast-notification {
+      background: #1F2D1C;
+      border-color: #C6F23B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="brand-logo-icon">YR</div>
+          <div>
+            <div class="brand-name">YoReservo</div>
+            <div class="brand-role" data-i18n="badge_role">Tesorería & Auditoría</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item active">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">YoReservo Treasury Suite</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">Dispersión Contable & Liquidaciones</div>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="app-main">
+      
+      <!-- TOPBAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Liquidaciones & Pagos a Aliados</h2>
+              <span class="badge badge-confirmed" data-i18n="badge_closing_period">Cierre Q1 Octubre 2026</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
+              Gestor de desembolsos a clubes, auditoría de comisiones 5% y finiquitos quincenales
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Export Statements CTA -->
+          <button type="button" class="btn btn-outline" onclick="exportSettlementsCSV()" style="font-size: 12.5px; padding: 7px 14px;">
+            <span>📥</span>
+            <span data-i18n="btn_export_all">Exportar Lotes (CSV)</span>
+          </button>
+
+          <!-- New Payout CTA -->
+          <button type="button" class="btn btn-primary" onclick="openPayoutModal(null)" style="font-size: 13px; padding: 7px 16px;" id="btn-new-payout">
+            <span>💸</span>
+            <span data-i18n="btn_record_payout">Registrar Desembolso</span>
+          </button>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <div style="padding: 24px; max-width: 1480px; margin: 0 auto; width: 100%;">
+        
+        <!-- FINANCIAL SUMMARY METRICS (RESOLVES PROBLEMS W & X) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          
+          <!-- Metric 1: GMV (Gross Merchandise Value) -->
+          <div class="card" style="padding: 20px; border-left: 4px solid #10B981;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;" data-i18n="kpi_gmv_title">Volumen Bruto (GMV)</span>
+              <span class="metric-badge-trend trend-up">↑ +14.2%</span>
+            </div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-top: 8px;">$48,920.00</div>
+            <div class="metric-subtext">
+              <span>≈ Bs. 1,956,800.00</span>
+              <span>•</span>
+              <span data-i18n="kpi_gmv_sub">682 reservas completadas</span>
+            </div>
+          </div>
+
+          <!-- Metric 2: Platform Commission (5%) -->
+          <div class="card" style="padding: 20px; border-left: 4px solid var(--brand-lime);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;" data-i18n="kpi_fee_title">Comisión YoReservo (5%)</span>
+              <span class="badge badge-available" style="font-size: 11px;">Margen Neto</span>
+            </div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--text-link); margin-top: 8px;">$2,446.00</div>
+            <div class="metric-subtext">
+              <span>≈ Bs. 97,840.00</span>
+              <span>•</span>
+              <span data-i18n="kpi_fee_sub">Retención automática</span>
+            </div>
+          </div>
+
+          <!-- Metric 3: Pending Payouts to Allies -->
+          <div class="card" style="padding: 20px; border-left: 4px solid #F59E0B;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;" data-i18n="kpi_pending_title">Por Liquidar a Aliados</span>
+              <span class="badge badge-hold" id="kpi-pending-badge" style="font-size: 11px;">3 Lotes Pendientes</span>
+            </div>
+            <div style="font-size: 26px; font-weight: 800; color: #F59E0B; margin-top: 8px;" id="kpi-pending-amount">$14,624.00</div>
+            <div class="metric-subtext">
+              <span id="kpi-pending-bs">≈ Bs. 584,960.00</span>
+              <span>•</span>
+              <span data-i18n="kpi_pending_sub">Listos para transferir</span>
+            </div>
+          </div>
+
+          <!-- Metric 4: Disbursed Payouts (Paid) -->
+          <div class="card" style="padding: 20px; border-left: 4px solid #3B82F6;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <span style="font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase;" data-i18n="kpi_paid_title">Liquidados en el Período</span>
+              <span class="badge badge-confirmed" style="font-size: 11px;">15 Lotes</span>
+            </div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-top: 8px;" id="kpi-disbursed-amount">$31,850.00</div>
+            <div class="metric-subtext">
+              <span>≈ Bs. 1,274,000.00</span>
+              <span>•</span>
+              <span data-i18n="kpi_paid_sub">Tasa media: 40.00 Bs/$</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CYCLE PROGRESS & OPERATIONAL RECONCILIATION BAR -->
+        <div class="cycle-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 15px; font-weight: 700; color: var(--text-main);" data-i18n="cycle_title">Progreso del Cierre Quincenal: 01 al 15 de Octubre 2026</span>
+                <span class="badge badge-available" style="font-size: 11px;" data-i18n="badge_on_schedule">En Cronograma</span>
+              </div>
+              <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 3px;" data-i18n="cycle_desc">
+                15 de 18 clubes aliados ya fueron conciliados y transferidos exitosamente. Fecha límite de dispersión: 18 de Octubre.
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <div style="text-align: right;">
+                <div style="font-size: 14px; font-weight: 700; color: var(--text-main);" id="cycle-percentage-text">68.5% Liquidado</div>
+                <div style="font-size: 11.5px; color: var(--text-muted);" id="cycle-count-text">15 / 18 Aliados Procesados</div>
+              </div>
+              <button type="button" class="btn btn-accent" onclick="filterByStatus('PENDING')" style="font-size: 12.5px; padding: 6px 14px;">
+                <span data-i18n="btn_view_pending">Ver 3 Pendientes</span> →
+              </button>
+            </div>
+          </div>
+          
+          <div class="progress-bar-container">
+            <div class="progress-bar-fill" id="cycle-progress-bar" style="width: 68.5%;"></div>
+          </div>
+        </div>
+
+        <!-- FILTER & CONTROLS TOOLBAR -->
+        <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            
+            <!-- Search & Filters -->
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; flex: 1;">
+              
+              <!-- Search Bar -->
+              <div style="position: relative; min-width: 260px;">
+                <span style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 14px; color: var(--text-muted);">🔍</span>
+                <input type="text" id="search-input" class="form-control" placeholder="Buscar por Aliado, RIF o # Lote..." 
+                       style="padding-left: 36px; height: 38px; font-size: 13px;" oninput="applyFilters()" data-i18n-placeholder="search_placeholder">
+              </div>
+
+              <!-- Period Selector -->
+              <div style="min-width: 210px;">
+                <select id="period-filter" class="form-control" style="height: 38px; font-size: 13px; font-weight: 600;" onchange="applyFilters()">
+                  <option value="CURRENT_FORTNIGHT" data-i18n="period_current">Quincena Actual (01 - 15 Oct 2026)</option>
+                  <option value="PREV_FORTNIGHT" data-i18n="period_prev">Quincena Pasada (16 - 30 Sep 2026)</option>
+                  <option value="SEPT_FIRST" data-i18n="period_sept1">Quincena 1 (01 - 15 Sep 2026)</option>
+                  <option value="ALL_PERIODS" data-i18n="period_all">Histórico Completo 2026</option>
+                </select>
+              </div>
+
+              <!-- Venue Filter -->
+              <div style="min-width: 210px;">
+                <select id="venue-filter" class="form-control" style="height: 38px; font-size: 13px;" onchange="applyFilters()">
+                  <option value="ALL" data-i18n="filter_all_venues">Todas las Sedes & Aliados</option>
+                  <option value="Complejo Deportivo Ávila">Complejo Deportivo Ávila</option>
+                  <option value="Padel Pro Las Mercedes">Padel Pro Las Mercedes</option>
+                  <option value="Centro Deportivo Santa Fe">Centro Deportivo Santa Fe</option>
+                  <option value="Tenis Club Altamira">Tenis Club Altamira</option>
+                  <option value="Caracas Sport Club">Caracas Sport Club</option>
+                </select>
+              </div>
+
+            </div>
+
+            <!-- Status Filter Chips -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" class="filter-chip active" id="chip-status-ALL" onclick="filterByStatus('ALL')">
+                <span data-i18n="chip_all">Todos</span> (<span id="count-all">6</span>)
+              </button>
+              <button type="button" class="filter-chip" id="chip-status-PENDING" onclick="filterByStatus('PENDING')">
+                <span data-i18n="chip_pending">Pendientes</span> (<span id="count-pending">3</span>)
+              </button>
+              <button type="button" class="filter-chip" id="chip-status-DISBURSED" onclick="filterByStatus('DISBURSED')">
+                <span data-i18n="chip_disbursed">Liquidados</span> (<span id="count-disbursed">3</span>)
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- MASTER SETTLEMENTS LEDGER TABLE -->
+        <div class="card" style="padding: 0; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; background: var(--bg-surface);">
+            <div>
+              <h3 style="font-size: 15px; font-weight: 700; margin: 0;" data-i18n="table_header_title">Lotes de Liquidación & Cierres Contables</h3>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" data-i18n="table_header_sub">
+                Cálculo automatizado: Total Bruto Reserva - Comisión 5% = Ingreso Neto Aliado
+              </div>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 6px;">
+              <span>💱 Tasa de Cambio BCV:</span>
+              <strong style="color: var(--text-main);">40.00 Bs/USD</strong>
+            </div>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table class="table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;" id="settlements-table">
+              <thead>
+                <tr style="background: var(--bg-muted); border-bottom: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
+                  <th style="padding: 12px 18px;" data-i18n="th_batch">Lote & Aliado</th>
+                  <th style="padding: 12px 14px;" data-i18n="th_period">Período / Reservas</th>
+                  <th style="padding: 12px 14px; text-align: right;" data-i18n="th_gmv">Volumen Bruto (GMV)</th>
+                  <th style="padding: 12px 14px; text-align: right;" data-i18n="th_fee">Comisión (5%)</th>
+                  <th style="padding: 12px 14px; text-align: right;" data-i18n="th_net">Monto Neto a Pagar</th>
+                  <th style="padding: 12px 14px;" data-i18n="th_account">Cuenta Destino</th>
+                  <th style="padding: 12px 14px; text-align: center;" data-i18n="th_status">Estatus</th>
+                  <th style="padding: 12px 18px; text-align: right;" data-i18n="th_actions">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="settlements-tbody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Empty State (hidden by default) -->
+          <div id="table-empty-state" style="display: none; padding: 48px 24px; text-align: center;">
+            <div style="font-size: 36px; margin-bottom: 10px;">🔍</div>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0 0 6px;" data-i18n="empty_title">No se encontraron lotes de liquidación</h4>
+            <p style="font-size: 13px; color: var(--text-muted); max-width: 420px; margin: 0 auto;" data-i18n="empty_desc">
+              Intenta ajustar los filtros de búsqueda, seleccionar otro período o cambiar el estatus del lote.
+            </p>
+          </div>
+
+          <!-- Table Footer Pagination -->
+          <div style="padding: 14px 20px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--text-muted); background: var(--bg-surface);">
+            <div>
+              <span data-i18n="lbl_showing">Mostrando</span> <strong id="lbl-shown-count" style="color: var(--text-main);">6</strong> <span data-i18n="lbl_of">de</span> <strong id="lbl-total-count" style="color: var(--text-main);">6</strong> <span data-i18n="lbl_batches">lotes</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" disabled data-i18n="btn_prev">Anterior</button>
+              <button type="button" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;" disabled data-i18n="btn_next">Siguiente</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- MODAL: EJECUTAR PAGO / DESEMBOLSO BANCARIO (EXECUTE PAYOUT)               -->
+  <!-- ========================================================================= -->
+  <div class="modal-backdrop" id="payout-modal">
+    <div class="modal-box">
+      <div class="modal-header" style="padding: 18px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h3 style="font-size: 17px; font-weight: 700; margin: 0;" data-i18n="modal_payout_title">Ejecutar Desembolso a Aliado</h3>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="modal-payout-subtitle">Lote: #LIQ-2026-10A-001</div>
+        </div>
+        <button type="button" onclick="closePayoutModal()" style="background: none; border: none; font-size: 18px; cursor: pointer; color: var(--text-muted);">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding: 24px; display: flex; flex-direction: column; gap: 18px; max-height: 75vh; overflow-y: auto;">
+        
+        <!-- Payout Overview Card -->
+        <div style="background: var(--bg-muted); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: var(--text-main);" id="modal-ally-name">Complejo Deportivo Ávila</div>
+              <div style="font-size: 12px; color: var(--text-muted);" id="modal-ally-rif">RIF: J-50123890-4 • Período: 01 - 15 Octubre 2026</div>
+            </div>
+            <span class="badge badge-hold" id="modal-status-badge">PENDIENTE</span>
+          </div>
+
+          <div style="border-top: 1px dashed var(--border-subtle); padding-top: 10px; margin-top: 8px; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+              <div style="font-size: 11.5px; color: var(--text-muted);" data-i18n="lbl_net_to_transfer">Monto Neto a Transferir:</div>
+              <div style="font-size: 24px; font-weight: 800; color: #10B981;" id="modal-net-usd">$4,047.00 USD</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 11px; color: var(--text-muted);" data-i18n="lbl_bcv_rate">Tasa Oficial BCV: 40.00 Bs/$</div>
+              <div style="font-size: 14px; font-weight: 700; color: var(--text-main);" id="modal-net-bs">Bs. 161,880.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Destination Account Details (Read-only confirmation) -->
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;" data-i18n="lbl_dest_account">
+            Cuenta Bancaria de Destino del Aliado
+          </label>
+          <div style="padding: 10px 14px; background: var(--bg-app); border: 1px solid var(--border-subtle); border-radius: 6px; font-size: 13px;" id="modal-dest-details">
+            🏦 Banesco Banco Universal (Cuenta Corriente) — 0134-0982-1200-4401-2918<br>
+            <span style="font-size: 11.5px; color: var(--text-muted);">Titular: Inversiones Deportivas Ávila C.A. • RIF: J-50123890-4</span>
+          </div>
+        </div>
+
+        <!-- Originating YoReservo Treasury Account -->
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_origin_account">
+            Cuenta de Origen (Tesorería YoReservo) *
+          </label>
+          <select id="modal-origin-account" class="form-control" style="font-size: 13px;">
+            <option value="BANESCO_0134">Banesco Jurídica — 0134-0001-92-0001298491 (Disponible: $42,900)</option>
+            <option value="MERCANTIL_0105">Mercantil Jurídica — 0105-0024-81-0003918270 (Disponible: $28,450)</option>
+            <option value="ZELLE_CORP">Zelle Corporativo — treasury@yoreservo.app</option>
+          </select>
+        </div>
+
+        <!-- Transfer Reference Input & Date -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_transfer_ref">
+              N° Referencia Bancaria *
+            </label>
+            <input type="text" id="modal-transfer-ref" class="form-control" placeholder="Ej: 013498210398" style="font-size: 13px; font-family: monospace; font-weight: 700;">
+          </div>
+          <div>
+            <label style="font-size: 12px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_payout_date">
+              Fecha de Ejecución *
+            </label>
+            <input type="date" id="modal-payout-date" class="form-control" style="font-size: 13px;">
+          </div>
+        </div>
+
+        <!-- Digital Voucher / Comprobante upload -->
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_upload_voucher">
+            Adjuntar Comprobante Bancario (PDF o Captura)
+          </label>
+          <div style="border: 2px dashed var(--border-medium); border-radius: 8px; padding: 18px; text-align: center; background: var(--bg-muted); cursor: pointer;" onclick="document.getElementById('modal-file-upload').click()">
+            <span style="font-size: 24px;">📄</span>
+            <div style="font-size: 12.5px; font-weight: 600; color: var(--text-main); margin-top: 4px;" data-i18n="upload_voucher_cta">Subir comprobante de transferencia</div>
+            <div style="font-size: 11px; color: var(--text-muted);" id="file-name-preview">Formatos soportados: PNG, JPG, PDF (Máx. 5MB)</div>
+            <input type="file" id="modal-file-upload" style="display: none;" onchange="handleFileUpload(event)">
+          </div>
+        </div>
+
+        <!-- Notes / Observations -->
+        <div>
+          <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 6px;" data-i18n="lbl_notes">
+            Observaciones Contables (Opcional)
+          </label>
+          <textarea id="modal-notes" class="form-control" rows="2" placeholder="Ej: Transferencia interbancaria liquidada en horario BCV..." style="font-size: 12.5px;"></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="padding: 16px 24px; border-top: 1px solid var(--border-subtle); background: var(--bg-muted); display: flex; justify-content: flex-end; gap: 12px;">
+        <button type="button" class="btn btn-outline" onclick="closePayoutModal()" data-i18n="btn_cancel">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="confirmExecutePayout()" id="btn-confirm-payout">
+          <span>✓</span>
+          <span data-i18n="btn_confirm_payout">Confirmar & Registrar Desembolso</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- FLYOUT DRAWER: DESGLOSE DE LOTE & ESTADO DE CUENTA (STATEMENT DRAWER)     -->
+  <!-- ========================================================================= -->
+  <div class="drawer-backdrop" id="statement-drawer" onclick="handleDrawerBackdropClick(event)">
+    <div class="drawer-panel" onclick="event.stopPropagation()">
+      
+      <div class="drawer-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 style="font-size: 17px; font-weight: 700; margin: 0;" data-i18n="drawer_title">Estado de Cuenta & Desglose</h3>
+            <span class="badge" id="drawer-badge">LIQUIDADO</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;" id="drawer-batch-code">
+            Lote #LIQ-2026-10A-001 • Período: 01 - 15 Oct 2026
+          </div>
+        </div>
+        <button type="button" onclick="closeStatementDrawer()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted);">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        
+        <!-- Venue & Ally Legal Info -->
+        <div style="background: var(--bg-muted); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <div style="font-size: 15px; font-weight: 700; color: var(--text-main);" id="drawer-ally-name">Complejo Deportivo Ávila</div>
+              <div style="font-size: 12px; color: var(--text-muted);" id="drawer-ally-rif">RIF: J-50123890-4 • Caracas, Miranda</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 11px; color: var(--text-muted);" data-i18n="lbl_disbursed_on">Fecha de Liquidación:</div>
+              <div style="font-size: 12.5px; font-weight: 600; color: var(--text-main);" id="drawer-payout-date">16 Oct 2026, 10:45 AM</div>
+            </div>
+          </div>
+
+          <!-- Bank Reference Block -->
+          <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; font-size: 12px;">
+            <div>
+              <span style="color: var(--text-muted);" data-i18n="lbl_bank_ref">Ref. Transferencia:</span>
+              <strong style="font-family: monospace; font-size: 13px; color: var(--text-link);" id="drawer-bank-ref">013498210398</strong>
+            </div>
+            <div id="drawer-voucher-link">
+              <a href="javascript:void(0)" onclick="simulateDownloadVoucher()" style="color: var(--text-link); text-decoration: underline; font-weight: 600;" data-i18n="btn_view_voucher">
+                📄 Ver Comprobante
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Financial Breakdown 3-Box Grid -->
+        <div class="breakdown-grid">
+          <div class="breakdown-box">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="drawer_gmv">Volumen Bruto (GMV)</div>
+            <div style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-top: 4px;" id="drawer-gmv">$4,260.00</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="drawer-gmv-bs">Bs. 170,400.00</div>
+          </div>
+          
+          <div class="breakdown-box">
+            <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase;" data-i18n="drawer_fee">Comisión (5%)</div>
+            <div style="font-size: 18px; font-weight: 800; color: #EF4444; margin-top: 4px;" id="drawer-fee">-$213.00</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="drawer-fee-bs">Bs. -8,520.00</div>
+          </div>
+
+          <div class="breakdown-box" style="border-color: #10B981; background: rgba(16, 185, 129, 0.06);">
+            <div style="font-size: 11px; color: #10B981; font-weight: 700; text-transform: uppercase;" data-i18n="drawer_net">Neto Transferido</div>
+            <div style="font-size: 18px; font-weight: 800; color: #10B981; margin-top: 4px;" id="drawer-net">$4,047.00</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;" id="drawer-net-bs">Bs. 161,880.00</div>
+          </div>
+        </div>
+
+        <!-- Itemized Reservation Entries Table -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <div style="font-size: 13.5px; font-weight: 700; color: var(--text-main);" data-i18n="drawer_items_title">
+              Partidos & Reservas Conciliadas (<span id="drawer-items-count">5</span>)
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted);" data-i18n="drawer_items_sub">
+              Liquidación al 95% del valor por turno
+            </div>
+          </div>
+
+          <div style="border: 1px solid var(--border-subtle); border-radius: 8px; overflow: hidden;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12px; text-align: left;">
+              <thead>
+                <tr style="background: var(--bg-muted); border-bottom: 1px solid var(--border-subtle); color: var(--text-muted); text-transform: uppercase; font-size: 10.5px;">
+                  <th style="padding: 10px 12px;">Código & Fecha</th>
+                  <th style="padding: 10px 12px;">Cancha / Deporte</th>
+                  <th style="padding: 10px 12px;">Cliente</th>
+                  <th style="padding: 10px 12px; text-align: right;">Bruto</th>
+                  <th style="padding: 10px 12px; text-align: right;">Fee (5%)</th>
+                  <th style="padding: 10px 12px; text-align: right;">Neto</th>
+                </tr>
+              </thead>
+              <tbody id="drawer-items-tbody">
+                <!-- Dynamically injected item lines -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="drawer-footer">
+        <button type="button" class="btn btn-outline" onclick="closeStatementDrawer()" data-i18n="btn_close">Cerrar</button>
+        <button type="button" class="btn btn-accent" onclick="simulateExportPDF()">
+          <span>🖨️</span>
+          <span data-i18n="btn_print_pdf">Imprimir Finiquito (PDF)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-notification" id="toast">
+    <span style="font-size: 18px;" id="toast-icon">✓</span>
+    <span id="toast-message">Operación realizada con éxito</span>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC & STATE ENGINE                                          -->
+  <!-- ========================================================================= -->
+  <script>
+    // Master Dataset of Settlement Batches
+    const settlementsData = [
+      {
+        id: "LIQ-10A-001",
+        allyName: "Complejo Deportivo Ávila",
+        rif: "J-50123890-4",
+        periodCode: "CURRENT_FORTNIGHT",
+        periodLabel: "01 - 15 Oct 2026",
+        bookingCount: 142,
+        grossUSD: 4260.00,
+        feeUSD: 213.00,
+        netUSD: 4047.00,
+        bankName: "Banesco",
+        bankMask: "0134-****-4401",
+        accountFull: "0134-0982-1200-4401-2918 (Corriente)",
+        status: "DISBURSED", // DISBURSED, PENDING
+        transferRef: "013498210398",
+        payoutDate: "2026-10-15",
+        notes: "Liquidación puntual transferida vía Banesco Online Empresas.",
+        items: [
+          { code: "AB4553", date: "02 Oct 18:00", space: "Cancha 1 - Fútbol 7", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "CD9021", date: "03 Oct 19:00", space: "Cancha 2 - Fútbol 5", client: "Alejandro Silva", gross: 30.00, fee: 1.50, net: 28.50 },
+          { code: "EF3412", date: "05 Oct 20:00", space: "Cancha 3 - Pádel 1", client: "Valentina Gómez", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "GH7823", date: "08 Oct 17:00", space: "Cancha 1 - Fútbol 7", client: "Gabriel Ramos", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "IJ9012", date: "12 Oct 21:00", space: "Cancha 4 - Pádel 2", client: "Roberto Márquez", gross: 40.00, fee: 2.00, net: 38.00 }
+        ]
+      },
+      {
+        id: "LIQ-10A-002",
+        allyName: "Padel Pro Las Mercedes",
+        rif: "J-51209384-1",
+        periodCode: "CURRENT_FORTNIGHT",
+        periodLabel: "01 - 15 Oct 2026",
+        bookingCount: 188,
+        grossUSD: 7520.00,
+        feeUSD: 376.00,
+        netUSD: 7144.00,
+        bankName: "Mercantil",
+        bankMask: "0105-****-9812",
+        accountFull: "0105-0024-8100-9812-7491 (Corriente)",
+        status: "PENDING",
+        transferRef: null,
+        payoutDate: null,
+        notes: null,
+        items: [
+          { code: "PP1001", date: "01 Oct 16:00", space: "Pista Panorámica 1", client: "Diego Morales", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "PP1002", date: "03 Oct 18:00", space: "Pista Panorámica 2", client: "Mariana Rojas", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "PP1003", date: "07 Oct 20:00", space: "Pista Central Indoor", client: "Lucas Ferrara", gross: 45.00, fee: 2.25, net: 42.75 },
+          { code: "PP1004", date: "10 Oct 19:00", space: "Pista Panorámica 1", client: "Enrique Peña", gross: 40.00, fee: 2.00, net: 38.00 }
+        ]
+      },
+      {
+        id: "LIQ-10A-003",
+        allyName: "Centro Deportivo Santa Fe",
+        rif: "J-40918234-9",
+        periodCode: "CURRENT_FORTNIGHT",
+        periodLabel: "01 - 15 Oct 2026",
+        bookingCount: 110,
+        grossUSD: 3850.00,
+        feeUSD: 192.50,
+        netUSD: 3657.50,
+        bankName: "Banesco",
+        bankMask: "0134-****-7719",
+        accountFull: "0134-0182-9900-7719-8321 (Corriente)",
+        status: "PENDING",
+        transferRef: null,
+        payoutDate: null,
+        notes: null,
+        items: [
+          { code: "SF4001", date: "02 Oct 17:00", space: "Cancha Grama 50mm", client: "Daniela Fuentes", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "SF4002", date: "06 Oct 18:00", space: "Cancha Grama 50mm", client: "Victor Carrero", gross: 35.00, fee: 1.75, net: 33.25 }
+        ]
+      },
+      {
+        id: "LIQ-10A-004",
+        allyName: "Tenis Club Altamira",
+        rif: "J-30491820-2",
+        periodCode: "CURRENT_FORTNIGHT",
+        periodLabel: "01 - 15 Oct 2026",
+        bookingCount: 96,
+        grossUSD: 3840.00,
+        feeUSD: 192.00,
+        netUSD: 3648.00,
+        bankName: "BBVA Provincial",
+        bankMask: "0108-****-3310",
+        accountFull: "0108-0012-9300-3310-9281 (Corriente)",
+        status: "DISBURSED",
+        transferRef: "010891820391",
+        payoutDate: "2026-10-15",
+        notes: "Liquidación ejecutada con éxito vía transferencia provincial.",
+        items: [
+          { code: "TC2001", date: "04 Oct 09:00", space: "Pista Arcilla 1", client: "Andrés Benítez", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "TC2002", date: "09 Oct 10:00", space: "Pista Dura 2", client: "Claudia Mendoza", gross: 40.00, fee: 2.00, net: 38.00 }
+        ]
+      },
+      {
+        id: "LIQ-10A-005",
+        allyName: "Caracas Sport Club",
+        rif: "J-40192837-7",
+        periodCode: "CURRENT_FORTNIGHT",
+        periodLabel: "01 - 15 Oct 2026",
+        bookingCount: 104,
+        grossUSD: 4025.00,
+        feeUSD: 201.25,
+        netUSD: 3822.50,
+        bankName: "Banesco",
+        bankMask: "0134-****-5521",
+        accountFull: "0134-0812-4400-5521-9941 (Corriente)",
+        status: "PENDING",
+        transferRef: null,
+        payoutDate: null,
+        notes: null,
+        items: [
+          { code: "CS1001", date: "05 Oct 19:00", space: "Cancha Squash 1", client: "Mauricio Valera", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "CS1002", date: "11 Oct 20:00", space: "Pádel Pista 1", client: "Fernando Prieto", gross: 40.00, fee: 2.00, net: 38.00 }
+        ]
+      },
+      {
+        id: "LIQ-09B-018",
+        allyName: "Complejo Deportivo Ávila",
+        rif: "J-50123890-4",
+        periodCode: "PREV_FORTNIGHT",
+        periodLabel: "16 - 30 Sep 2026",
+        bookingCount: 165,
+        grossUSD: 4950.00,
+        feeUSD: 247.50,
+        netUSD: 4702.50,
+        bankName: "Banesco",
+        bankMask: "0134-****-4401",
+        accountFull: "0134-0982-1200-4401-2918 (Corriente)",
+        status: "DISBURSED",
+        transferRef: "013481729012",
+        payoutDate: "2026-09-30",
+        notes: "Cierre quincenal de Septiembre liquidado.",
+        items: [
+          { code: "AB3911", date: "17 Sep 18:00", space: "Cancha 1 - Fútbol 7", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "AB3912", date: "24 Sep 20:00", space: "Cancha 3 - Pádel 1", client: "Ricardo Quintero", gross: 40.00, fee: 2.00, net: 38.00 }
+        ]
+      }
+    ];
+
+    const BCV_RATE = 40.00; // 40.00 Bs/USD
+    let currentFilterStatus = "ALL";
+    let activePayoutBatchId = null;
+
+    // =========================================================================
+    // I18N DICTIONARY
+    // =========================================================================
+    const i18n = {
+      es: {
+        badge_role: "Tesorería & Auditoría",
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_catalogs: "Catálogos Maestros",
+        nav_hub: "Portal de Módulos",
+        topbar_title: "Liquidaciones & Pagos a Aliados",
+        badge_closing_period: "Cierre Q1 Octubre 2026",
+        topbar_subtitle: "Gestor de desembolsos a clubes, auditoría de comisiones 5% y finiquitos quincenales",
+        btn_export_all: "Exportar Lotes (CSV)",
+        btn_record_payout: "Registrar Desembolso",
+        kpi_gmv_title: "Volumen Bruto (GMV)",
+        kpi_gmv_sub: "682 reservas completadas",
+        kpi_fee_title: "Comisión YoReservo (5%)",
+        kpi_fee_sub: "Retención automática",
+        kpi_pending_title: "Por Liquidar a Aliados",
+        kpi_pending_sub: "Listos para transferir",
+        kpi_paid_title: "Liquidados en el Período",
+        kpi_paid_sub: "Tasa media: 40.00 Bs/$",
+        cycle_title: "Progreso del Cierre Quincenal: 01 al 15 de Octubre 2026",
+        badge_on_schedule: "En Cronograma",
+        cycle_desc: "15 de 18 clubes aliados ya fueron conciliados y transferidos exitosamente. Fecha límite de dispersión: 18 de Octubre.",
+        btn_view_pending: "Ver Pendientes",
+        search_placeholder: "Buscar por Aliado, RIF o # Lote...",
+        period_current: "Quincena Actual (01 - 15 Oct 2026)",
+        period_prev: "Quincena Pasada (16 - 30 Sep 2026)",
+        period_sept1: "Quincena 1 (01 - 15 Sep 2026)",
+        period_all: "Histórico Completo 2026",
+        filter_all_venues: "Todas las Sedes & Aliados",
+        chip_all: "Todos",
+        chip_pending: "Pendientes",
+        chip_disbursed: "Liquidados",
+        table_header_title: "Lotes de Liquidación & Cierres Contables",
+        table_header_sub: "Cálculo automatizado: Total Bruto Reserva - Comisión 5% = Ingreso Neto Aliado",
+        th_batch: "Lote & Aliado",
+        th_period: "Período / Reservas",
+        th_gmv: "Volumen Bruto (GMV)",
+        th_fee: "Comisión (5%)",
+        th_net: "Monto Neto a Pagar",
+        th_account: "Cuenta Destino",
+        th_status: "Estatus",
+        th_actions: "Acciones",
+        lbl_showing: "Mostrando",
+        lbl_of: "de",
+        lbl_batches: "lotes",
+        btn_prev: "Anterior",
+        btn_next: "Siguiente",
+        empty_title: "No se encontraron lotes de liquidación",
+        empty_desc: "Intenta ajustar los filtros de búsqueda, seleccionar otro período o cambiar el estatus del lote.",
+        btn_statement: "Desglose",
+        btn_pay_now: "Pagar Lote",
+        btn_receipt: "Comprobante",
+        modal_payout_title: "Ejecutar Desembolso a Aliado",
+        lbl_net_to_transfer: "Monto Neto a Transferir:",
+        lbl_bcv_rate: "Tasa Oficial BCV: 40.00 Bs/$",
+        lbl_dest_account: "Cuenta Bancaria de Destino del Aliado",
+        lbl_origin_account: "Cuenta de Origen (Tesorería YoReservo) *",
+        lbl_transfer_ref: "N° Referencia Bancaria *",
+        lbl_payout_date: "Fecha de Ejecución *",
+        lbl_upload_voucher: "Adjuntar Comprobante Bancario (PDF o Captura)",
+        upload_voucher_cta: "Subir comprobante de transferencia",
+        lbl_notes: "Observaciones Contables (Opcional)",
+        btn_cancel: "Cancelar",
+        btn_confirm_payout: "Confirmar & Registrar Desembolso",
+        drawer_title: "Estado de Cuenta & Desglose",
+        lbl_disbursed_on: "Fecha de Liquidación:",
+        lbl_bank_ref: "Ref. Transferencia:",
+        btn_view_voucher: "📄 Ver Comprobante",
+        drawer_gmv: "Volumen Bruto (GMV)",
+        drawer_fee: "Comisión (5%)",
+        drawer_net: "Neto Transferido",
+        drawer_items_title: "Partidos & Reservas Conciliadas",
+        drawer_items_sub: "Liquidación al 95% del valor por turno",
+        btn_close: "Cerrar",
+        btn_print_pdf: "Imprimir Finiquito (PDF)",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_profile: "Mi Perfil & Seguridad",
+      },
+      en: {
+        badge_role: "Treasury & Audit",
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rate",
+        nav_reconciliation: "Pago Móvil Reconciliation",
+        nav_rate: "Official BCV Rate",
+        nav_settlements: "Ally Settlements",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Court Configurator",
+        nav_schedules: "Shifts & Hours",
+        nav_staff: "Staff & RBAC",
+        nav_system: "System",
+        nav_catalogs: "Master Catalogs",
+        nav_hub: "Modules Portal",
+        topbar_title: "Ally Settlements & Financial Payouts",
+        badge_closing_period: "Closing Q1 October 2026",
+        topbar_subtitle: "Venue payout manager, 5% fee revenue audit, and bi-weekly settlement statements",
+        btn_export_all: "Export Batches (CSV)",
+        btn_record_payout: "Record Payout",
+        kpi_gmv_title: "Gross Volume (GMV)",
+        kpi_gmv_sub: "682 completed bookings",
+        kpi_fee_title: "YoReservo Fee (5%)",
+        kpi_fee_sub: "Automated retention",
+        kpi_pending_title: "Pending Ally Payouts",
+        kpi_pending_sub: "Ready for disbursement",
+        kpi_paid_title: "Disbursed in Period",
+        kpi_paid_sub: "Avg exchange: 40.00 Bs/$",
+        cycle_title: "Fortnightly Settlement Progress: Oct 01 - Oct 15, 2026",
+        badge_on_schedule: "On Schedule",
+        cycle_desc: "15 of 18 partner clubs have been reconciled and disbursed. Cycle disbursement deadline: Oct 18.",
+        btn_view_pending: "View Pending",
+        search_placeholder: "Search by Ally, Tax ID or Batch ID...",
+        period_current: "Current Fortnight (01 - 15 Oct 2026)",
+        period_prev: "Previous Fortnight (16 - 30 Sep 2026)",
+        period_sept1: "Fortnight 1 (01 - 15 Sep 2026)",
+        period_all: "Full 2026 Ledger",
+        filter_all_venues: "All Venues & Allies",
+        chip_all: "All",
+        chip_pending: "Pending",
+        chip_disbursed: "Disbursed",
+        table_header_title: "Settlement Batches & Financial Statements",
+        table_header_sub: "Automated calculation: Gross Booking Value - 5% Platform Fee = Net Ally Payout",
+        th_batch: "Batch & Ally",
+        th_period: "Period / Bookings",
+        th_gmv: "Gross Volume (GMV)",
+        th_fee: "Fee (5%)",
+        th_net: "Net Payout",
+        th_account: "Target Account",
+        th_status: "Status",
+        th_actions: "Actions",
+        lbl_showing: "Showing",
+        lbl_of: "of",
+        lbl_batches: "batches",
+        btn_prev: "Previous",
+        btn_next: "Next",
+        empty_title: "No settlement batches found",
+        empty_desc: "Try adjusting search filters, selecting another period or toggling status chips.",
+        btn_statement: "Statement",
+        btn_pay_now: "Execute Payout",
+        btn_receipt: "Receipt",
+        modal_payout_title: "Disburse Payout to Ally",
+        lbl_net_to_transfer: "Net Amount to Transfer:",
+        lbl_bcv_rate: "Official BCV Rate: 40.00 Bs/$",
+        lbl_dest_account: "Ally Destination Bank Account",
+        lbl_origin_account: "Originating Treasury Account (YoReservo) *",
+        lbl_transfer_ref: "Bank Transfer Reference # *",
+        lbl_payout_date: "Disbursement Date *",
+        lbl_upload_voucher: "Attach Bank Voucher (PDF or Image)",
+        upload_voucher_cta: "Upload transfer confirmation receipt",
+        lbl_notes: "Accounting Notes (Optional)",
+        btn_cancel: "Cancel",
+        btn_confirm_payout: "Confirm & Record Disbursement",
+        drawer_title: "Statement & Itemized Breakdown",
+        lbl_disbursed_on: "Disbursement Date:",
+        lbl_bank_ref: "Transfer Reference:",
+        btn_view_voucher: "📄 View Receipt",
+        drawer_gmv: "Gross Volume (GMV)",
+        drawer_fee: "Fee (5%)",
+        drawer_net: "Net Disbursed",
+        drawer_items_title: "Reconciled Matches & Bookings",
+        drawer_items_sub: "Settled at 95% of booking gross value",
+        btn_close: "Close",
+        btn_print_pdf: "Print Statement (PDF)",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_profile: "My Profile & Security",
+      }
+    };
+
+    let currentLang = 'es';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('data-lang', lang);
+
+      const btnEs = document.getElementById('btn-lang-es');
+      const btnEn = document.getElementById('btn-lang-en');
+      if (btnEs) btnEs.classList.toggle('active', lang === 'es');
+      if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.setAttribute('placeholder', i18n[lang][key]);
+        }
+      });
+
+      // Re-render table to translate badges and actions
+      renderSettlementsTable();
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      if (sidebar) sidebar.classList.toggle('open');
+    }
+
+    // =========================================================================
+    // TABLE RENDERING & FILTERING
+    // =========================================================================
+    function filterByStatus(status) {
+      currentFilterStatus = status;
+      ['ALL', 'PENDING', 'DISBURSED'].forEach(s => {
+        const chip = document.getElementById(`chip-status-${s}`);
+        if (chip) chip.classList.toggle('active', s === status);
+      });
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const query = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+      const periodVal = document.getElementById('period-filter')?.value || 'CURRENT_FORTNIGHT';
+      const venueVal = document.getElementById('venue-filter')?.value || 'ALL';
+
+      const filtered = settlementsData.filter(item => {
+        // Status filter
+        if (currentFilterStatus !== 'ALL' && item.status !== currentFilterStatus) return false;
+        
+        // Period filter
+        if (periodVal !== 'ALL_PERIODS' && item.periodCode !== periodVal) return false;
+
+        // Venue filter
+        if (venueVal !== 'ALL' && item.allyName !== venueVal) return false;
+
+        // Search query
+        if (query) {
+          const matchName = item.allyName.toLowerCase().includes(query);
+          const matchRif = item.rif.toLowerCase().includes(query);
+          const matchId = item.id.toLowerCase().includes(query);
+          const matchRef = item.transferRef ? item.transferRef.toLowerCase().includes(query) : false;
+          if (!matchName && !matchRif && !matchId && !matchRef) return false;
+        }
+
+        return true;
+      });
+
+      renderTableRows(filtered);
+      updateKPIsAndCounts();
+    }
+
+    function renderSettlementsTable() {
+      applyFilters();
+    }
+
+    function renderTableRows(items) {
+      const tbody = document.getElementById('settlements-tbody');
+      const emptyState = document.getElementById('table-empty-state');
+      const shownCountEl = document.getElementById('lbl-shown-count');
+      const totalCountEl = document.getElementById('lbl-total-count');
+
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (items.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        if (shownCountEl) shownCountEl.innerText = '0';
+        return;
+      }
+
+      if (emptyState) emptyState.style.display = 'none';
+      if (shownCountEl) shownCountEl.innerText = items.length.toString();
+      if (totalCountEl) totalCountEl.innerText = settlementsData.length.toString();
+
+      items.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border-subtle)';
+        tr.style.transition = 'background 0.15s ease';
+
+        const isDisbursed = item.status === 'DISBURSED';
+        const statusBadgeClass = isDisbursed ? 'badge-available' : 'badge-hold';
+        const statusText = isDisbursed 
+          ? (currentLang === 'es' ? 'LIQUIDADO' : 'DISBURSED')
+          : (currentLang === 'es' ? 'PENDIENTE' : 'PENDING');
+
+        const bsNet = (item.netUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 });
+        const bsGross = (item.grossUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 });
+
+        tr.innerHTML = `
+          <td style="padding: 14px 18px;">
+            <div style="font-family: monospace; font-size: 11px; font-weight: 700; color: var(--text-link);">#${item.id}</div>
+            <div style="font-weight: 700; font-size: 13.5px; color: var(--text-main); margin-top: 2px;">${item.allyName}</div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">${item.rif}</div>
+          </td>
+          
+          <td style="padding: 14px;">
+            <div style="font-weight: 600; color: var(--text-main);">${item.periodLabel}</div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">${item.bookingCount} ${currentLang === 'es' ? 'reservas' : 'bookings'}</div>
+          </td>
+
+          <td style="padding: 14px; text-align: right;">
+            <div style="font-weight: 700; color: var(--text-main);">$${item.grossUSD.toFixed(2)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Bs. ${bsGross}</div>
+          </td>
+
+          <td style="padding: 14px; text-align: right;">
+            <div style="font-weight: 600; color: #EF4444;">-$${item.feeUSD.toFixed(2)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">5.00%</div>
+          </td>
+
+          <td style="padding: 14px; text-align: right;">
+            <div style="font-size: 15px; font-weight: 800; color: #10B981;">$${item.netUSD.toFixed(2)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">Bs. ${bsNet}</div>
+          </td>
+
+          <td style="padding: 14px;">
+            <div class="bank-pill">
+              <span>🏦</span>
+              <span>${item.bankName} ${item.bankMask}</span>
+            </div>
+            ${item.transferRef ? `<div style="font-size: 11px; font-family: monospace; color: var(--text-muted); margin-top: 4px;">Ref: ${item.transferRef}</div>` : ''}
+          </td>
+
+          <td style="padding: 14px; text-align: center;">
+            <span class="badge ${statusBadgeClass}">${statusText}</span>
+          </td>
+
+          <td style="padding: 14px 18px; text-align: right;">
+            <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" id="btn-statement-${item.id}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="openStatementDrawer('${item.id}')">
+                <span>📋</span>
+                <span>${currentLang === 'es' ? 'Desglose' : 'Statement'}</span>
+              </button>
+              
+              ${isDisbursed ? `
+                <button type="button" id="btn-receipt-${item.id}" class="btn btn-outline" style="padding: 5px 10px; font-size: 12px;" onclick="openStatementDrawer('${item.id}')">
+                  <span>📄</span>
+                  <span>${currentLang === 'es' ? 'Recibo' : 'Receipt'}</span>
+                </button>
+              ` : `
+                <button type="button" id="btn-payout-${item.id}" class="btn btn-accent" style="padding: 5px 12px; font-size: 12px;" onclick="openPayoutModal('${item.id}')">
+                  <span>💸</span>
+                  <span>${currentLang === 'es' ? 'Pagar Lote' : 'Disburse'}</span>
+                </button>
+              `}
+            </div>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateKPIsAndCounts() {
+      const allCount = settlementsData.length;
+      const pendingCount = settlementsData.filter(x => x.status === 'PENDING').length;
+      const disbursedCount = settlementsData.filter(x => x.status === 'DISBURSED').length;
+
+      const cAll = document.getElementById('count-all');
+      const cPend = document.getElementById('count-pending');
+      const cDisb = document.getElementById('count-disbursed');
+      const navPending = document.getElementById('nav-pending-count');
+      const kpiPendingBadge = document.getElementById('kpi-pending-badge');
+
+      if (cAll) cAll.innerText = allCount;
+      if (cPend) cPend.innerText = pendingCount;
+      if (cDisb) cDisb.innerText = disbursedCount;
+      if (navPending) navPending.innerText = pendingCount;
+      if (kpiPendingBadge) kpiPendingBadge.innerText = `${pendingCount} ${currentLang === 'es' ? 'Lotes Pendientes' : 'Pending Batches'}`;
+
+      // Recalculate pending amount sum
+      const pendingUSD = settlementsData.filter(x => x.status === 'PENDING').reduce((acc, curr) => acc + curr.netUSD, 0);
+      const pendingBs = pendingUSD * BCV_RATE;
+      const disbursedUSD = settlementsData.filter(x => x.status === 'DISBURSED').reduce((acc, curr) => acc + curr.netUSD, 0);
+
+      const kpiPendAmt = document.getElementById('kpi-pending-amount');
+      const kpiPendBs = document.getElementById('kpi-pending-bs');
+      const kpiDisbAmt = document.getElementById('kpi-disbursed-amount');
+
+      if (kpiPendAmt) kpiPendAmt.innerText = `$${pendingUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+      if (kpiPendBs) kpiPendBs.innerText = `≈ Bs. ${pendingBs.toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+      if (kpiDisbAmt) kpiDisbAmt.innerText = `$${disbursedUSD.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+
+      // Update progress bar
+      const pct = allCount > 0 ? ((disbursedCount / allCount) * 100).toFixed(1) : 0;
+      const bar = document.getElementById('cycle-progress-bar');
+      const pctText = document.getElementById('cycle-percentage-text');
+      const countText = document.getElementById('cycle-count-text');
+
+      if (bar) bar.style.width = `${pct}%`;
+      if (pctText) pctText.innerText = `${pct}% ${currentLang === 'es' ? 'Liquidado' : 'Disbursed'}`;
+      if (countText) countText.innerText = `${disbursedCount} / ${allCount} ${currentLang === 'es' ? 'Aliados Procesados' : 'Allies Processed'}`;
+    }
+
+    // =========================================================================
+    // MODAL LOGIC: EXECUTE PAYOUT (EJECUTAR DESEMBOLSO)
+    // =========================================================================
+    function openPayoutModal(batchId) {
+      let target = null;
+      if (batchId) {
+        target = settlementsData.find(x => x.id === batchId);
+      } else {
+        // Find first pending batch
+        target = settlementsData.find(x => x.status === 'PENDING') || settlementsData[0];
+      }
+
+      if (!target) return;
+      activePayoutBatchId = target.id;
+
+      // Populate modal fields
+      document.getElementById('modal-payout-subtitle').innerText = `Lote: #${target.id} • ${target.periodLabel}`;
+      document.getElementById('modal-ally-name').innerText = target.allyName;
+      document.getElementById('modal-ally-rif').innerText = `RIF: ${target.rif} • ${currentLang === 'es' ? 'Período:' : 'Period:'} ${target.periodLabel}`;
+      
+      const badge = document.getElementById('modal-status-badge');
+      if (badge) {
+        badge.className = target.status === 'DISBURSED' ? 'badge badge-available' : 'badge badge-hold';
+        badge.innerText = target.status === 'DISBURSED' ? 'LIQUIDADO' : 'PENDIENTE';
+      }
+
+      document.getElementById('modal-net-usd').innerText = `$${target.netUSD.toFixed(2)} USD`;
+      document.getElementById('modal-net-bs').innerText = `Bs. ${(target.netUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+
+      document.getElementById('modal-dest-details').innerHTML = `
+        🏦 <strong>${target.bankName}</strong> — ${target.accountFull}<br>
+        <span style="font-size: 11.5px; color: var(--text-muted);">Titular: ${target.allyName} • RIF: ${target.rif}</span>
+      `;
+
+      // Reset form inputs
+      const refInput = document.getElementById('modal-transfer-ref');
+      if (refInput) {
+        refInput.value = target.transferRef || Math.floor(100000000000 + Math.random() * 900000000000).toString();
+      }
+      const dateInput = document.getElementById('modal-payout-date');
+      if (dateInput) {
+        dateInput.value = target.payoutDate || new Date().toISOString().split('T')[0];
+      }
+      const notesInput = document.getElementById('modal-notes');
+      if (notesInput) {
+        notesInput.value = target.notes || '';
+      }
+      const filePreview = document.getElementById('file-name-preview');
+      if (filePreview) {
+        filePreview.innerText = target.status === 'DISBURSED' 
+          ? `comprobante_transferencia_${target.id}.pdf (Cargado)`
+          : 'Formatos soportados: PNG, JPG, PDF (Máx. 5MB)';
+      }
+
+      document.getElementById('payout-modal').classList.add('active');
+    }
+
+    function closePayoutModal() {
+      document.getElementById('payout-modal').classList.remove('active');
+      activePayoutBatchId = null;
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        document.getElementById('file-name-preview').innerHTML = `<strong style="color: var(--text-link);">✓ ${file.name}</strong> (${(file.size / 1024).toFixed(1)} KB)`;
+      }
+    }
+
+    function confirmExecutePayout() {
+      if (!activePayoutBatchId) return;
+
+      const target = settlementsData.find(x => x.id === activePayoutBatchId);
+      if (!target) return;
+
+      const refVal = document.getElementById('modal-transfer-ref')?.value?.trim();
+      const dateVal = document.getElementById('modal-payout-date')?.value;
+      const notesVal = document.getElementById('modal-notes')?.value?.trim();
+
+      if (!refVal) {
+        alert(currentLang === 'es' ? 'Por favor ingresa el número de referencia bancaria.' : 'Please enter bank transfer reference number.');
+        return;
+      }
+
+      // Update model
+      target.status = 'DISBURSED';
+      target.transferRef = refVal;
+      target.payoutDate = dateVal || new Date().toISOString().split('T')[0];
+      if (notesVal) target.notes = notesVal;
+
+      closePayoutModal();
+      applyFilters();
+
+      showToast(
+        currentLang === 'es' 
+          ? `¡Desembolso registrado! Se liquidaron $${target.netUSD.toFixed(2)} USD a ${target.allyName}. Ref #${target.transferRef}`
+          : `Payout disbursed! $${target.netUSD.toFixed(2)} USD transferred to ${target.allyName}. Ref #${target.transferRef}`,
+        'success'
+      );
+    }
+
+    // =========================================================================
+    // FLYOUT DRAWER: STATEMENT BREAKDOWN
+    // =========================================================================
+    function openStatementDrawer(batchId) {
+      const target = settlementsData.find(x => x.id === batchId);
+      if (!target) return;
+
+      document.getElementById('drawer-batch-code').innerText = `Lote #${target.id} • ${target.periodLabel}`;
+      document.getElementById('drawer-ally-name').innerText = target.allyName;
+      document.getElementById('drawer-ally-rif').innerText = `RIF: ${target.rif} • ${target.accountFull}`;
+      
+      const badge = document.getElementById('drawer-badge');
+      if (badge) {
+        badge.className = target.status === 'DISBURSED' ? 'badge badge-available' : 'badge badge-hold';
+        badge.innerText = target.status === 'DISBURSED' 
+          ? (currentLang === 'es' ? 'LIQUIDADO' : 'DISBURSED')
+          : (currentLang === 'es' ? 'PENDIENTE' : 'PENDING');
+      }
+
+      document.getElementById('drawer-payout-date').innerText = target.payoutDate ? `${target.payoutDate}, 10:45 AM` : (currentLang === 'es' ? 'Pendiente' : 'Pending');
+      document.getElementById('drawer-bank-ref').innerText = target.transferRef || (currentLang === 'es' ? 'Por Asignar' : 'Unassigned');
+
+      // 3-Box Metrics
+      document.getElementById('drawer-gmv').innerText = `$${target.grossUSD.toFixed(2)}`;
+      document.getElementById('drawer-gmv-bs').innerText = `Bs. ${(target.grossUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+      
+      document.getElementById('drawer-fee').innerText = `-$${target.feeUSD.toFixed(2)}`;
+      document.getElementById('drawer-fee-bs').innerText = `Bs. -${(target.feeUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+
+      document.getElementById('drawer-net').innerText = `$${target.netUSD.toFixed(2)}`;
+      document.getElementById('drawer-net-bs').innerText = `Bs. ${(target.netUSD * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2 })}`;
+
+      // Populate Items Table
+      const tbody = document.getElementById('drawer-items-tbody');
+      tbody.innerHTML = '';
+      document.getElementById('drawer-items-count').innerText = target.items.length.toString();
+
+      target.items.forEach(it => {
+        const row = document.createElement('tr');
+        row.style.borderBottom = '1px solid var(--border-subtle)';
+        row.innerHTML = `
+          <td style="padding: 10px 12px;">
+            <div style="font-family: monospace; font-weight: 700; color: var(--text-link);">#${it.code}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${it.date}</div>
+          </td>
+          <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${it.space}</td>
+          <td style="padding: 10px 12px; color: var(--text-main);">${it.client}</td>
+          <td style="padding: 10px 12px; text-align: right; font-weight: 600;">$${it.gross.toFixed(2)}</td>
+          <td style="padding: 10px 12px; text-align: right; color: #EF4444;">-$${it.fee.toFixed(2)}</td>
+          <td style="padding: 10px 12px; text-align: right; font-weight: 700; color: #10B981;">$${it.net.toFixed(2)}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById('statement-drawer').classList.add('active');
+    }
+
+    function closeStatementDrawer() {
+      document.getElementById('statement-drawer').classList.remove('active');
+    }
+
+    function handleDrawerBackdropClick(event) {
+      if (event.target.id === 'statement-drawer') {
+        closeStatementDrawer();
+      }
+    }
+
+    // =========================================================================
+    // EXPORT & VOUCHER SIMULATIONS
+    // =========================================================================
+    function exportSettlementsCSV() {
+      const csvHeader = "Lote,Aliado,RIF,Periodo,Reservas,Bruto_USD,Comision_USD,Neto_USD,Neto_Bs,Banco,Referencia,Estatus\n";
+      const rows = settlementsData.map(d => 
+        `"${d.id}","${d.allyName}","${d.rif}","${d.periodLabel}",${d.bookingCount},${d.grossUSD},${d.feeUSD},${d.netUSD},${(d.netUSD * BCV_RATE).toFixed(2)},"${d.bankName}","${d.transferRef || ''}","${d.status}"`
+      ).join("\n");
+
+      const blob = new Blob([csvHeader + rows], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `YoReservo_Liquidaciones_Q1_Octubre_2026.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      showToast(currentLang === 'es' ? 'Archivo CSV generado exitosamente' : 'CSV file exported successfully');
+    }
+
+    function simulateDownloadVoucher() {
+      showToast(currentLang === 'es' ? 'Descargando comprobante bancario oficial...' : 'Downloading official transfer receipt...');
+    }
+
+    function simulateExportPDF() {
+      showToast(currentLang === 'es' ? 'Generando Estado de Cuenta y Finiquito en PDF...' : 'Generating Account Statement and PDF voucher...');
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      if (!toast || !toastMsg) return;
+      toastMsg.innerText = msg;
+      toastIcon.innerText = type === 'success' ? '✓' : 'ℹ️';
+
+      toast.classList.add('active');
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 4000);
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closePayoutModal();
+        closeStatementDrawer();
+      }
+    });
+
+    // INIT
+    initTheme();
+    renderSettlementsTable();
+  </script>
+
+</body>
+</html>

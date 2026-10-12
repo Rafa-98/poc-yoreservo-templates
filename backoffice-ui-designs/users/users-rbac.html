@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Personal, Roles & Control de Acceso (RBAC)</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    .role-simulator-bar {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .role-sim-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      transition: all 0.15s ease;
+    }
+
+    .role-sim-pill:hover {
+      border-color: var(--text-link);
+      color: var(--text-main);
+    }
+
+    .role-sim-pill.active {
+      background: rgba(198, 242, 59, 0.16);
+      border-color: var(--brand-lime);
+      color: var(--text-link);
+      box-shadow: 0 0 10px rgba(198, 242, 59, 0.2);
+    }
+
+    [data-theme="dark"] .role-sim-pill.active {
+      background: rgba(198, 242, 59, 0.2);
+      color: #C6F23B;
+      border-color: #C6F23B;
+    }
+
+    /* Subnav Tabs */
+    .tab-nav-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 20px;
+      background: var(--bg-surface);
+    }
+
+    .tab-btn {
+      padding: 14px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--text-link);
+      border-bottom-color: var(--brand-lime);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Matrix Table specific */
+    .matrix-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .matrix-allowed {
+      background: rgba(16, 185, 129, 0.14);
+      color: #059669;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    [data-theme="dark"] .matrix-allowed {
+      background: rgba(16, 185, 129, 0.2);
+      color: #34D399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .matrix-denied {
+      background: rgba(239, 68, 68, 0.12);
+      color: #DC2626;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    [data-theme="dark"] .matrix-denied {
+      background: rgba(239, 68, 68, 0.18);
+      color: #F87171;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .matrix-scoped {
+      background: rgba(245, 158, 11, 0.14);
+      color: #D97706;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    [data-theme="dark"] .matrix-scoped {
+      background: rgba(245, 158, 11, 0.2);
+      color: #FBBF24;
+      border-color: rgba(245, 158, 11, 0.4);
+    }
+
+    .user-avatar-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+      position: relative;
+    }
+
+    .avatar-status-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      border: 2px solid var(--bg-surface);
+    }
+
+    .dot-active { background: #10B981; }
+    .dot-pending { background: #F59E0B; }
+    .dot-inactive { background: #EF4444; }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item active">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Complejo Deportivo Ávila</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">RIF: J-50123890-4 • Aliado Pro</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Gestión de Personal & Roles (RBAC)</h2>
+              <span class="badge badge-confirmed" data-i18n="badge_strict_rbac">RBAC Enforced</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
+              Directorio de operadores, asignación por recinto y control de privilegios institucional
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Invite / Create User Action -->
+          <button type="button" class="btn btn-primary" id="btn-invite-user" onclick="openInviteModal()" style="font-size: 13px; padding: 7px 16px;">
+            <span>+</span>
+            <span data-i18n="btn_invite_user">Invitar Usuario</span>
+          </button>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- ROLE PERSPECTIVE SIMULATOR BAR -->
+      <section class="role-simulator-bar">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;" data-i18n="sim_label">
+            🎭 Vista Simulada:
+          </span>
+          <span style="font-size: 12px; color: var(--text-muted);" data-i18n="sim_desc">
+            Inspecciona cómo opera la plataforma bajo cada rol:
+          </span>
+        </div>
+
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="simulator-pills">
+          <button type="button" class="role-sim-pill active" onclick="simulateRole('ADMIN')">
+            <span>👑</span>
+            <span>ADMIN (Superusuario)</span>
+          </button>
+          <button type="button" class="role-sim-pill" onclick="simulateRole('ALLY')">
+            <span>🏢</span>
+            <span>ALLY (Propietario Club)</span>
+          </button>
+          <button type="button" class="role-sim-pill" onclick="simulateRole('ACCOUNTING')">
+            <span>💳</span>
+            <span>ACCOUNTING (Finanzas)</span>
+          </button>
+          <button type="button" class="role-sim-pill" onclick="simulateRole('VALIDATOR')">
+            <span>🎟️</span>
+            <span>VALIDATOR (Recepción)</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SUBNAV TABS -->
+      <nav class="tab-nav-bar">
+        <button type="button" class="tab-btn active" id="tab-btn-directory" onclick="switchTab('directory')">
+          <span>👥</span>
+          <span data-i18n="tab_directory">Directorio de Staff (7)</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-matrix" onclick="switchTab('matrix')">
+          <span>🛡️</span>
+          <span data-i18n="tab_matrix">Matriz de Permisos RBAC</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-sessions" onclick="switchTab('sessions')">
+          <span>🔐</span>
+          <span data-i18n="tab_sessions">Sesiones Activas & Dispositivos (11)</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: USERS DIRECTORY -->
+      <div class="tab-content active" id="tab-directory">
+        
+        <!-- KPI SUMMARY CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_total_staff">Total Usuarios de Staff</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-top: 4px;">7</div>
+            <div style="font-size: 11px; color: var(--text-link); margin-top: 4px;" data-i18n="kpi_total_desc">4 con acceso operativo multi-cancha</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_frontdesk">Validadores / Mostrador</div>
+            <div style="font-size: 26px; font-weight: 800; color: #0284C7; margin-top: 4px;">3</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="kpi_frontdesk_desc">Asignados a Sedes Las Mercedes & El Paraíso</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_pending">Invitaciones Pendientes</div>
+            <div style="font-size: 26px; font-weight: 800; color: #F59E0B; margin-top: 4px;">2</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="kpi_pending_desc">Esperando activación de contraseña</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_sessions">Sesiones JWT Activas</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--status-available-text); margin-top: 4px;">11</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="kpi_sessions_desc">Dispositivos autenticados actualmente</div>
+          </div>
+        </div>
+
+        <!-- SEARCH & FILTER TOOLBAR -->
+        <div class="card" style="padding: 16px 20px; margin-bottom: 20px;">
+          <div style="display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; flex: 1; min-width: 300px;">
+              <input type="text" id="user-search-input" class="form-control" style="max-width: 280px;" placeholder="🔍 Buscar por nombre, email o cédula..." oninput="filterStaffTable()">
+              
+              <select id="role-filter" class="form-control" style="width: auto; min-width: 170px;" onchange="filterStaffTable()">
+                <option value="all">Todos los Roles</option>
+                <option value="ADMIN">ADMIN</option>
+                <option value="ALLY">ALLY (Propietario)</option>
+                <option value="ACCOUNTING">ACCOUNTING (Finanzas)</option>
+                <option value="VALIDATOR">VALIDATOR (Recepción)</option>
+              </select>
+
+              <select id="venue-filter" class="form-control" style="width: auto; min-width: 200px;" onchange="filterStaffTable()">
+                <option value="all">Todas las Sedes</option>
+                <option value="Las Mercedes">Complejo Las Mercedes</option>
+                <option value="San Agustín">San Agustín del Paraíso</option>
+                <option value="Global">Acceso Global (Todas)</option>
+              </select>
+
+              <select id="status-filter" class="form-control" style="width: auto; min-width: 150px;" onchange="filterStaffTable()">
+                <option value="all">Todos los Estados</option>
+                <option value="ACTIVE">Activo</option>
+                <option value="INVITATION_PENDING">Invitación Pendiente</option>
+                <option value="INACTIVE">Inactivo</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 7px 14px;" onclick="resetStaffFilters()">
+              <span>🔄</span>
+              <span data-i18n="btn_clear_filters">Limpiar Filtros</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STAFF DIRECTORY TABLE -->
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="staff-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_user">Usuario & Cédula</th>
+                <th data-i18n="th_contact">Contacto & WhatsApp</th>
+                <th data-i18n="th_role">Rol RBAC</th>
+                <th data-i18n="th_scope">Sede Asignada</th>
+                <th data-i18n="th_status">Estatus</th>
+                <th data-i18n="th_last_session">Última Sesión</th>
+                <th style="text-align: right;" data-i18n="th_actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="staff-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- TAB 2: RBAC PERMISSIONS MATRIX -->
+      <div class="tab-content" id="tab-matrix">
+        <div class="card" style="padding: 20px; margin-bottom: 24px;">
+          <h3 style="font-size: 16px; margin: 0 0 6px;" data-i18n="matrix_banner_title">Matriz de Autorizaciones por Rol Institucional</h3>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 0;" data-i18n="matrix_banner_desc">
+            Cada acción en la plataforma está gobernada por un guardián de autorización en backend. A continuación se resume la frontera de seguridad:
+          </p>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="min-width: 240px;" data-i18n="th_capability">Capacidad / Acción en Sistema</th>
+                <th style="text-align: center;">👑 ADMIN</th>
+                <th style="text-align: center;">🏢 ALLY</th>
+                <th style="text-align: center;">💳 ACCOUNTING</th>
+                <th style="text-align: center;">🎟️ VALIDATOR</th>
+                <th style="text-align: center;">📱 CLIENT</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong>Visualizar Agenda Multi-Cancha</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Ver grilla horaria y estado de canchas</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-scoped">⚠️ Su Club</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Solo Lectura</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-scoped">⚠️ Su Sede</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ No</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Crear Reserva Walk-in (Mostrador)</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Bloquear cancha manual y emitir ticket</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Cobro en Efectivo / Punto (Caja Mostrador)</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Registrar pago presencial</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Auditar</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Conciliación de Pago Móvil & Visor de Vouchers</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Aprobar o rechazar pagos en bolívares</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Permitido</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Exclusivo</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Ajuste de Tasa Oficial BCV</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Intervenir conversión cambiaria</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Supervisar</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Configurar Recintos, Canchas & Tarifas USD</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Crear canchas, superficies y precios</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-scoped">⚠️ Su Club</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Publicación de Turnos Partidos & Horarios</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Editor de turnos semanales y recesos</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-scoped">⚠️ Su Club</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Invitar & Gestionar Personal (Staff)</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Asignar roles y emitir invitaciones</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Total</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-scoped">⚠️ Solo Validadores</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <strong>Gestión de Catálogos Maestros</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Crear deportes, categorías y amenidades</div>
+                </td>
+                <td style="text-align: center;"><span class="matrix-check matrix-allowed">✓ Exclusivo</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+                <td style="text-align: center;"><span class="matrix-check matrix-denied">✕ Denegado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: ACTIVE SESSIONS & AUDIT LOG -->
+      <div class="tab-content" id="tab-sessions">
+        <div class="card" style="padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <h3 style="font-size: 16px; margin: 0 0 4px;" data-i18n="sessions_banner_title">Auditoría de Sesiones JWT & Dispositivos</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" data-i18n="sessions_banner_desc">
+              Inspección en tiempo real de tokens activos. Un administrador puede invalidar sesiones de forma remota.
+            </p>
+          </div>
+          <button type="button" class="btn btn-destructive" onclick="revokeAllSessionsConfirm()" style="font-size: 12.5px;">
+            ⚠️ <span data-i18n="btn_revoke_all">Revocar Todas las Sesiones</span>
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Dispositivo & Navegador</th>
+                <th>Dirección IP & Ubicación</th>
+                <th>Iniciado</th>
+                <th>Expiración Token</th>
+                <th style="text-align: right;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="sessions-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 1: INVITAR / CREAR USUARIO DE STAFF
+       ========================================================================== -->
+  <div class="modal-backdrop" id="invite-modal-backdrop" onclick="closeInviteModal()">
+    <div class="modal-card" style="max-width: 540px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">✉️</span>
+          <div>
+            <h3 style="font-size: 18px; margin: 0;" data-i18n="modal_invite_title">Invitar Usuario al Staff</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="modal_invite_desc">
+              Crea el perfil del colaborador, asigna rol institucional y emite credenciales.
+            </p>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeInviteModal()">✕</button>
+      </div>
+
+      <form id="invite-form" onsubmit="handleInviteSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_first_name">Nombre *</label>
+              <input type="text" class="form-control" required id="inv-first-name" placeholder="Ej: Carlos">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_last_name">Apellido *</label>
+              <input type="text" class="form-control" required id="inv-last-name" placeholder="Ej: Mendoza">
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_email">Correo Electrónico Corporativo *</label>
+            <input type="email" class="form-control" required id="inv-email" placeholder="carlos.mendoza@complejoavila.com">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_phone">Teléfono / WhatsApp *</label>
+              <input type="text" class="form-control" required id="inv-phone" placeholder="+58 412 9876543">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_dni">Cédula / Documento *</label>
+              <input type="text" class="form-control" required id="inv-dni" placeholder="V-19876543">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_role">Rol RBAC Asignado *</label>
+              <select class="form-control" required id="inv-role" onchange="handleRoleChange()">
+                <option value="VALIDATOR">🎟️ VALIDATOR (Recepción / Mostrador)</option>
+                <option value="ACCOUNTING">💳 ACCOUNTING (Finanzas & Tesorería)</option>
+                <option value="ALLY">🏢 ALLY (Propietario / Gerente Sede)</option>
+                <option value="ADMIN">👑 ADMIN (Administrador Global)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="form-label" data-i18n="label_venue_scope">Sede Asignada *</label>
+              <select class="form-control" id="inv-venue">
+                <option value="Las Mercedes">Complejo Las Mercedes (Sede Principal)</option>
+                <option value="San Agustín">San Agustín del Paraíso</option>
+                <option value="Global">Acceso Global (Todas las Sedes)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Credential Delivery Method -->
+          <div style="background: var(--bg-muted); border: 1px solid var(--border-medium); border-radius: 12px; padding: 14px;">
+            <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px;" data-i18n="label_cred_method">
+              Método de Entrega de Credenciales:
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                <input type="radio" name="cred_method" value="magic_link" checked onchange="toggleCredMethod('magic_link')">
+                <span data-i18n="method_magic_link">🚀 Enviar Invitación con Magic Link por Email (Recomendado)</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer;">
+                <input type="radio" name="cred_method" value="temp_pass" onchange="toggleCredMethod('temp_pass')">
+                <span data-i18n="method_temp_pass">🔑 Generar Contraseña Temporal Segura</span>
+              </label>
+            </div>
+
+            <div id="temp-pass-field" style="display: none; margin-top: 12px;">
+              <div style="display: flex; gap: 8px;">
+                <input type="text" class="form-control" id="generated-pass" readonly value="Y0Reservo#2026!Secure">
+                <button type="button" class="btn btn-outline" onclick="generateNewPass()" style="font-size: 12px;">🎲 Generar</button>
+                <button type="button" class="btn btn-outline" onclick="copyPass()" style="font-size: 12px;">📋 Copiar</button>
+              </div>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                Cumple política: Mayúsculas, números y símbolos (8-72 caracteres).
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeInviteModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_submit_invite">Enviar Invitación ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: EDIT USER & REASSIGN SCOPE
+       ========================================================================== -->
+  <div class="modal-backdrop" id="edit-modal-backdrop" onclick="closeEditModal()">
+    <div class="modal-card" style="max-width: 500px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 18px; margin: 0;" data-i18n="modal_edit_title">Modificar Privilegios de Usuario</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" id="edit-modal-subtitle">
+            Actualizar rol y sede para el usuario
+          </p>
+        </div>
+        <button class="btn-icon" onclick="closeEditModal()">✕</button>
+      </div>
+
+      <form id="edit-form" onsubmit="handleEditSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="form-label">Usuario</label>
+            <input type="text" class="form-control" id="edit-user-name" readonly style="opacity: 0.8;">
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_role">Rol RBAC</label>
+            <select class="form-control" id="edit-user-role">
+              <option value="ADMIN">ADMIN (Superusuario Global)</option>
+              <option value="ALLY">ALLY (Propietario / Gerente Club)</option>
+              <option value="ACCOUNTING">ACCOUNTING (Finanzas & Tesorería)</option>
+              <option value="VALIDATOR">VALIDATOR (Recepción / Mostrador)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_venue_scope">Sede Asignada</label>
+            <select class="form-control" id="edit-user-venue">
+              <option value="Las Mercedes">Complejo Las Mercedes (Sede Principal)</option>
+              <option value="San Agustín">San Agustín del Paraíso</option>
+              <option value="Global">Acceso Global (Todas las Sedes)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="th_status">Estatus General</label>
+            <select class="form-control" id="edit-user-status">
+              <option value="ACTIVE">Activo</option>
+              <option value="INVITATION_PENDING">Invitación Pendiente</option>
+              <option value="INACTIVE">Inactivo (Suspendido)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeEditModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_save_changes">Guardar Cambios ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Staff initial seed data
+    let staffData = [
+      {
+        id: 'usr-1',
+        name: 'Alejandro Morales',
+        dni: 'V-14285910',
+        email: 'alejandro.morales@complejoavila.com',
+        phone: '+58 414 1234567',
+        role: 'ADMIN',
+        venue: 'Global',
+        status: 'ACTIVE',
+        lastSession: 'Activo ahora (Chrome • Windows 11)',
+        activeSessions: 3
+      },
+      {
+        id: 'usr-2',
+        name: 'Valentina Rivas',
+        dni: 'V-18920145',
+        email: 'valentina.rivas@complejoavila.com',
+        phone: '+58 412 8765432',
+        role: 'ALLY',
+        venue: 'Las Mercedes',
+        status: 'ACTIVE',
+        lastSession: 'Hace 14 min (Safari • macOS)',
+        activeSessions: 2
+      },
+      {
+        id: 'usr-3',
+        name: 'Carlos Mendoza',
+        dni: 'V-20194823',
+        email: 'carlos.mendoza@complejoavila.com',
+        phone: '+58 424 5551234',
+        role: 'ACCOUNTING',
+        venue: 'Global',
+        status: 'ACTIVE',
+        lastSession: 'Hace 45 min (Edge • Windows 10)',
+        activeSessions: 1
+      },
+      {
+        id: 'usr-4',
+        name: 'Mariana Duarte',
+        dni: 'V-24519820',
+        email: 'mariana.duarte@complejoavila.com',
+        phone: '+58 412 3339900',
+        role: 'VALIDATOR',
+        venue: 'Las Mercedes',
+        status: 'ACTIVE',
+        lastSession: 'Activa ahora (YoReservo QR App • Android)',
+        activeSessions: 2
+      },
+      {
+        id: 'usr-5',
+        name: 'Gabriel Sanoja',
+        dni: 'V-26102948',
+        email: 'gabriel.sanoja@complejoavila.com',
+        phone: '+58 416 9998877',
+        role: 'VALIDATOR',
+        venue: 'San Agustín',
+        status: 'ACTIVE',
+        lastSession: 'Hace 2 horas (Firefox • Linux)',
+        activeSessions: 1
+      },
+      {
+        id: 'usr-6',
+        name: 'Daniela Salazar',
+        dni: 'V-25810293',
+        email: 'daniela.salazar@complejoavila.com',
+        phone: '+58 414 4443322',
+        role: 'VALIDATOR',
+        venue: 'Las Mercedes',
+        status: 'INVITATION_PENDING',
+        lastSession: 'Sin inicio de sesión aún',
+        activeSessions: 0
+      },
+      {
+        id: 'usr-7',
+        name: 'Roberto Gómez',
+        dni: 'V-16782019',
+        email: 'roberto.gomez@complejoavila.com',
+        phone: '+58 412 0001122',
+        role: 'ALLY',
+        venue: 'San Agustín',
+        status: 'INVITATION_PENDING',
+        lastSession: 'Sin inicio de sesión aún',
+        activeSessions: 0
+      }
+    ];
+
+    let currentEditingUserId = null;
+    let currentLang = 'es';
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_catalogs: "Catálogos Maestros",
+        nav_settings: "Configuración Club",
+        topbar_title: "Gestión de Personal & Roles (RBAC)",
+        topbar_subtitle: "Directorio de operadores, asignación por recinto y control de privilegios institucional",
+        badge_strict_rbac: "RBAC Enforced",
+        btn_invite_user: "Invitar Usuario",
+        sim_label: "🎭 Vista Simulada:",
+        sim_desc: "Inspecciona cómo opera la plataforma bajo cada rol:",
+        tab_directory: "Directorio de Staff (7)",
+        tab_matrix: "Matriz de Permisos RBAC",
+        tab_sessions: "Sesiones Activas & Dispositivos (11)",
+        kpi_total_staff: "Total Usuarios de Staff",
+        kpi_total_desc: "4 con acceso operativo multi-cancha",
+        kpi_frontdesk: "Validadores / Mostrador",
+        kpi_frontdesk_desc: "Asignados a Sedes Las Mercedes & El Paraíso",
+        kpi_pending: "Invitaciones Pendientes",
+        kpi_pending_desc: "Esperando activación de contraseña",
+        kpi_sessions: "Sesiones JWT Activas",
+        kpi_sessions_desc: "Dispositivos autenticados actualmente",
+        btn_clear_filters: "Limpiar Filtros",
+        th_user: "Usuario & Cédula",
+        th_contact: "Contacto & WhatsApp",
+        th_role: "Rol RBAC",
+        th_scope: "Sede Asignada",
+        th_status: "Estatus",
+        th_last_session: "Última Sesión",
+        th_actions: "Acciones",
+        matrix_banner_title: "Matriz de Autorizaciones por Rol Institucional",
+        matrix_banner_desc: "Cada acción en la plataforma está gobernada por un guardián de autorización en backend. A continuación se resume la frontera de seguridad:",
+        th_capability: "Capacidad / Acción en Sistema",
+        sessions_banner_title: "Auditoría de Sesiones JWT & Dispositivos",
+        sessions_banner_desc: "Inspección en tiempo real de tokens activos. Un administrador puede invalidar sesiones de forma remota.",
+        btn_revoke_all: "Revocar Todas las Sesiones",
+        modal_invite_title: "Invitar Usuario al Staff",
+        modal_invite_desc: "Crea el perfil del colaborador, asigna rol institucional y emite credenciales.",
+        label_first_name: "Nombre *",
+        label_last_name: "Apellido *",
+        label_email: "Correo Electrónico Corporativo *",
+        label_phone: "Teléfono / WhatsApp *",
+        label_dni: "Cédula / Documento *",
+        label_role: "Rol RBAC Asignado *",
+        label_venue_scope: "Sede Asignada *",
+        label_cred_method: "Método de Entrega de Credenciales:",
+        method_magic_link: "🚀 Enviar Invitación con Magic Link por Email (Recomendado)",
+        method_temp_pass: "🔑 Generar Contraseña Temporal Segura",
+        btn_cancel: "Cancelar",
+        btn_submit_invite: "Enviar Invitación ✓",
+        modal_edit_title: "Modificar Privilegios de Usuario",
+        btn_save_changes: "Guardar Cambios ✓",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_profile: "Mi Perfil & Seguridad",
+        nav_hub: "Portal Maestro (Hub)",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Inbox",
+        nav_rate: "BCV Official Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Courts Builder",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Team",
+        nav_system: "System",
+        nav_catalogs: "Master Catalogs",
+        nav_settings: "Club Settings",
+        topbar_title: "Staff & Access Control (RBAC)",
+        topbar_subtitle: "Institutional directory, venue assignment and permission control audit",
+        badge_strict_rbac: "RBAC Enforced",
+        btn_invite_user: "Invite User",
+        sim_label: "🎭 Simulated View:",
+        sim_desc: "Inspect how the platform behaves under each role:",
+        tab_directory: "Staff Directory (7)",
+        tab_matrix: "RBAC Permissions Matrix",
+        tab_sessions: "Active Sessions & Devices (11)",
+        kpi_total_staff: "Total Staff Users",
+        kpi_total_desc: "4 with multi-court operational rights",
+        kpi_frontdesk: "Front-desk / Validators",
+        kpi_frontdesk_desc: "Assigned to Las Mercedes & El Paraíso",
+        kpi_pending: "Pending Invitations",
+        kpi_pending_desc: "Awaiting password activation",
+        kpi_sessions: "Active JWT Sessions",
+        kpi_sessions_desc: "Currently authenticated devices",
+        btn_clear_filters: "Clear Filters",
+        th_user: "User & ID",
+        th_contact: "Contact & WhatsApp",
+        th_role: "RBAC Role",
+        th_scope: "Assigned Venue",
+        th_status: "Status",
+        th_last_session: "Last Session",
+        th_actions: "Actions",
+        matrix_banner_title: "Institutional Role Authorization Matrix",
+        matrix_banner_desc: "Every action is protected by a backend authorization guard. Security boundaries summarized below:",
+        th_capability: "System Capability / Action",
+        sessions_banner_title: "Active JWT Sessions & Device Audit",
+        sessions_banner_desc: "Real-time token inspection. Admins can revoke active sessions remotely.",
+        btn_revoke_all: "Revoke All Sessions",
+        modal_invite_title: "Invite Staff User",
+        modal_invite_desc: "Create staff profile, assign role and issue credentials.",
+        label_first_name: "First Name *",
+        label_last_name: "Last Name *",
+        label_email: "Corporate Email *",
+        label_phone: "Phone / WhatsApp *",
+        label_dni: "National ID / Cédula *",
+        label_role: "Assigned RBAC Role *",
+        label_venue_scope: "Assigned Venue *",
+        label_cred_method: "Credentials Dispatch Method:",
+        method_magic_link: "🚀 Send Magic Link Invitation via Email (Recommended)",
+        method_temp_pass: "🔑 Generate Secure Temporary Password",
+        btn_cancel: "Cancel",
+        btn_submit_invite: "Send Invitation ✓",
+        modal_edit_title: "Modify User Privileges",
+        btn_save_changes: "Save Changes ✓",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_profile: "My Profile & Security",
+        nav_hub: "Master Portal (Hub)",
+      }
+    };
+
+    function renderStaffTable(dataToRender = staffData) {
+      const tbody = document.getElementById('staff-tbody');
+      tbody.innerHTML = '';
+
+      dataToRender.forEach(user => {
+        const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+        
+        // Status dot & badge
+        let dotClass = 'dot-active';
+        let statusBadge = '<span class="badge badge-available">Activo</span>';
+        if (user.status === 'INVITATION_PENDING') {
+          dotClass = 'dot-pending';
+          statusBadge = '<span class="badge badge-hold">Invitación Pendiente</span>';
+        } else if (user.status === 'INACTIVE') {
+          dotClass = 'dot-inactive';
+          statusBadge = '<span class="badge badge-cancelled">Inactivo</span>';
+        }
+
+        // Role badge
+        let roleBadgeClass = 'badge-role-client';
+        if (user.role === 'ADMIN') roleBadgeClass = 'badge-role-admin';
+        else if (user.role === 'ALLY') roleBadgeClass = 'badge-role-ally';
+        else if (user.role === 'ACCOUNTING') roleBadgeClass = 'badge-role-accounting';
+        else if (user.role === 'VALIDATOR') roleBadgeClass = 'badge-role-validator';
+
+        // Venue pill
+        const venueDisplay = user.venue === 'Global' 
+          ? '🌐 Acceso Global' 
+          : `📍 ${user.venue}`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div class="user-avatar-circle">
+                ${initials}
+                <span class="avatar-status-dot ${dotClass}"></span>
+              </div>
+              <div>
+                <strong style="color: var(--text-main); font-size: 14px;">${user.name}</strong>
+                <div style="font-size: 11.5px; color: var(--text-muted);">${user.dni}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-size: 13px; color: var(--text-main); font-weight: 500;">${user.email}</div>
+            <a href="https://wa.me/${user.phone.replace(/[^0-9]/g, '')}" target="_blank" style="font-size: 11.5px; color: var(--text-link); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+              <span>💬</span> ${user.phone}
+            </a>
+          </td>
+          <td>
+            <span class="badge ${roleBadgeClass}">${user.role}</span>
+          </td>
+          <td>
+            <span class="badge" style="background: var(--bg-muted); color: var(--text-main); font-weight: 600;">
+              ${venueDisplay}
+            </span>
+          </td>
+          <td>
+            ${statusBadge}
+          </td>
+          <td>
+            <div style="font-size: 12px; color: var(--text-main);">${user.lastSession}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">${user.activeSessions} sesión(es) activa(s)</div>
+          </td>
+          <td style="text-align: right;">
+            <button class="btn-icon" title="Editar Rol & Sede" onclick="openEditModal('${user.id}')">✏️</button>
+            <button class="btn-icon" title="Reenviar Invitación / Reset" onclick="resendInvite('${user.id}')">✉️</button>
+            <button class="btn-icon" title="Revocar Sesiones" onclick="revokeUserSessions('${user.id}')">🔒</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderSessionsTable() {
+      const tbody = document.getElementById('sessions-tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td>
+            <strong>Alejandro Morales</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">alejandro.morales@complejoavila.com</div>
+          </td>
+          <td><span class="badge badge-role-admin">ADMIN</span></td>
+          <td>💻 Chrome 129 en Windows 11 Pro</td>
+          <td><code>190.202.45.12</code> • Caracas, VE</td>
+          <td>Hace 18 min</td>
+          <td>En 6 días (JWT Exp: 2026-10-18)</td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="killSession(this)">Revocar</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Valentina Rivas</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">valentina.rivas@complejoavila.com</div>
+          </td>
+          <td><span class="badge badge-role-ally">ALLY</span></td>
+          <td>📱 Safari en iPhone 15 Pro (iOS 18)</td>
+          <td><code>186.92.110.4</code> • Caracas, VE</td>
+          <td>Hace 32 min</td>
+          <td>En 6 días</td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="killSession(this)">Revocar</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Mariana Duarte</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">mariana.duarte@complejoavila.com</div>
+          </td>
+          <td><span class="badge badge-role-validator">VALIDATOR</span></td>
+          <td>📱 YoReservo QR Scanner App (Android 14)</td>
+          <td><code>190.78.201.88</code> • Las Mercedes Check-in</td>
+          <td>Hace 4 min</td>
+          <td>En 12 horas</td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="killSession(this)">Revocar</button>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <strong>Carlos Mendoza</strong>
+            <div style="font-size: 11px; color: var(--text-muted);">carlos.mendoza@complejoavila.com</div>
+          </td>
+          <td><span class="badge badge-role-accounting">ACCOUNTING</span></td>
+          <td>💻 Edge 128 en Windows 10</td>
+          <td><code>200.74.19.5</code> • Caracas, VE</td>
+          <td>Hace 45 min</td>
+          <td>En 6 días</td>
+          <td style="text-align: right;">
+            <button class="btn btn-outline" style="font-size: 11px; padding: 4px 8px;" onclick="killSession(this)">Revocar</button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(ct => ct.classList.remove('active'));
+
+      document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+
+      if (tabId === 'sessions') {
+        renderSessionsTable();
+      }
+    }
+
+    function simulateRole(role) {
+      document.querySelectorAll('.role-sim-pill').forEach(p => p.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+
+      const messages = {
+        ADMIN: "👑 Modo ADMIN Global activado: Tienes acceso total a todas las sedes, tasas BCV, conciliaciones y configuración de catálogos.",
+        ALLY: "🏢 Modo ALLY activado: Vista de Propietario. Acceso restringido a tus sedes asignadas, canchas, turnos y personal de mostrador.",
+        ACCOUNTING: "💳 Modo ACCOUNTING activado: Vista de Tesorería. Acceso a conciliación Pago Móvil, auditoría de tasas y libro financiero.",
+        VALIDATOR: "🎟️ Modo VALIDATOR activado: Vista de Recepción. Acceso enfocado a la Agenda Multi-Cancha, Check-in QR y cobro de walk-ins."
+      };
+
+      alert(messages[role]);
+      
+      // Auto filter staff table by that role to demonstrate perspective
+      document.getElementById('role-filter').value = role === 'ADMIN' ? 'all' : role;
+      filterStaffTable();
+    }
+
+    function filterStaffTable() {
+      const q = document.getElementById('user-search-input').value.toLowerCase();
+      const role = document.getElementById('role-filter').value;
+      const venue = document.getElementById('venue-filter').value;
+      const status = document.getElementById('status-filter').value;
+
+      const filtered = staffData.filter(u => {
+        const matchesQuery = u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.dni.toLowerCase().includes(q);
+        const matchesRole = role === 'all' || u.role === role;
+        const matchesVenue = venue === 'all' || u.venue.includes(venue) || u.venue === 'Global';
+        const matchesStatus = status === 'all' || u.status === status;
+        return matchesQuery && matchesRole && matchesVenue && matchesStatus;
+      });
+
+      renderStaffTable(filtered);
+    }
+
+    function resetStaffFilters() {
+      document.getElementById('user-search-input').value = '';
+      document.getElementById('role-filter').value = 'all';
+      document.getElementById('venue-filter').value = 'all';
+      document.getElementById('status-filter').value = 'all';
+      renderStaffTable(staffData);
+    }
+
+    function openInviteModal() {
+      document.getElementById('invite-modal-backdrop').classList.add('active');
+    }
+
+    function closeInviteModal() {
+      document.getElementById('invite-modal-backdrop').classList.remove('active');
+    }
+
+    function toggleCredMethod(method) {
+      document.getElementById('temp-pass-field').style.display = method === 'temp_pass' ? 'block' : 'none';
+    }
+
+    function generateNewPass() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*";
+      let res = "YR#";
+      for (let i = 0; i < 9; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      document.getElementById('generated-pass').value = res;
+    }
+
+    function copyPass() {
+      const p = document.getElementById('generated-pass').value;
+      navigator.clipboard.writeText(p).then(() => {
+        alert("📋 ¡Contraseña temporal copiada al portapapeles!");
+      });
+    }
+
+    function handleRoleChange() {
+      const r = document.getElementById('inv-role').value;
+      const vSelect = document.getElementById('inv-venue');
+      if (r === 'ADMIN') {
+        vSelect.value = 'Global';
+        vSelect.disabled = true;
+      } else {
+        vSelect.disabled = false;
+      }
+    }
+
+    function handleInviteSubmit(e) {
+      e.preventDefault();
+      const fn = document.getElementById('inv-first-name').value;
+      const ln = document.getElementById('inv-last-name').value;
+      const email = document.getElementById('inv-email').value;
+      const phone = document.getElementById('inv-phone').value;
+      const dni = document.getElementById('inv-dni').value;
+      const role = document.getElementById('inv-role').value;
+      const venue = document.getElementById('inv-venue').value;
+
+      const newUser = {
+        id: `usr-${Date.now()}`,
+        name: `${fn} ${ln}`,
+        dni: dni,
+        email: email,
+        phone: phone,
+        role: role,
+        venue: venue,
+        status: 'INVITATION_PENDING',
+        lastSession: 'Invitación enviada por email',
+        activeSessions: 0
+      };
+
+      staffData.unshift(newUser);
+      renderStaffTable();
+      closeInviteModal();
+      alert(`✅ Invitación generada exitosamente para ${newUser.name} con rol [${role}]. Enlace de activación enviado a ${email}.`);
+    }
+
+    function openEditModal(userId) {
+      currentEditingUserId = userId;
+      const user = staffData.find(u => u.id === userId);
+      if (!user) return;
+
+      document.getElementById('edit-user-name').value = `${user.name} (${user.email})`;
+      document.getElementById('edit-user-role').value = user.role;
+      document.getElementById('edit-user-venue').value = user.venue;
+      document.getElementById('edit-user-status').value = user.status;
+
+      document.getElementById('edit-modal-backdrop').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal-backdrop').classList.remove('active');
+    }
+
+    function handleEditSubmit(e) {
+      e.preventDefault();
+      const user = staffData.find(u => u.id === currentEditingUserId);
+      if (!user) return;
+
+      user.role = document.getElementById('edit-user-role').value;
+      user.venue = document.getElementById('edit-user-venue').value;
+      user.status = document.getElementById('edit-user-status').value;
+
+      closeEditModal();
+      renderStaffTable();
+      alert(`✅ Privilegios de ${user.name} actualizados exitosamente en base de datos.`);
+    }
+
+    function resendInvite(userId) {
+      const user = staffData.find(u => u.id === userId);
+      if (!user) return;
+      alert(`✉️ Magic link de activación reenviado a: ${user.email}`);
+    }
+
+    function revokeUserSessions(userId) {
+      const user = staffData.find(u => u.id === userId);
+      if (!user) return;
+      user.activeSessions = 0;
+      user.lastSession = 'Sesiones revocadas';
+      renderStaffTable();
+      alert(`🔒 Todas las sesiones activas de ${user.name} han sido revocadas remotamente.`);
+    }
+
+    function killSession(btn) {
+      const tr = btn.closest('tr');
+      tr.style.opacity = '0.4';
+      btn.innerText = 'Revocada ✓';
+      btn.disabled = true;
+      alert('🔒 Token JWT invalidado en Redis. El usuario será expulsado en su siguiente petición.');
+    }
+
+    function revokeAllSessionsConfirm() {
+      if (confirm('⚠️ ¿Estás seguro de que deseas cerrar todas las sesiones activas en la plataforma? Todos los usuarios deberán iniciar sesión nuevamente.')) {
+        staffData.forEach(u => {
+          u.activeSessions = 0;
+          u.lastSession = 'Sesiones invalidadas globalmente';
+        });
+        renderStaffTable();
+        renderSessionsTable();
+        alert('✅ Todas las sesiones activas han sido invalidadas en Redis.');
+      }
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Initialize
+    initTheme();
+    renderStaffTable();
+  </script>
+</body>
+</html>

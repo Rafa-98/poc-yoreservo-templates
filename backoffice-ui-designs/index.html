@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Backoffice UI Hub & Interactive Showcase</title>
+  <link rel="stylesheet" href="assets/backoffice.css">
+  <style>
+    .hub-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    .hub-header {
+      background: var(--bg-sidebar);
+      border-radius: 24px;
+      padding: 40px;
+      color: #FFFFFF;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 40px;
+      box-shadow: var(--shadow-lg);
+    }
+    .hub-header-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%, rgba(198, 242, 59, 0.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .module-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 24px;
+    }
+    .screen-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
+      margin-top: 10px;
+      text-decoration: none;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .screen-item:hover {
+      border-color: var(--text-link);
+      background: var(--bg-surface-hover);
+      transform: translateX(4px);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hub-container">
+    
+    <!-- TOP BAR -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="assets/yoreservo-logo.png" alt="YoReservo Logo" style="height: 32px;">
+        <span class="badge badge-confirmed" style="font-size: 12px;">Design System v2.0</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="BACKOFFICE_SPECIFICATIONS.md" class="btn btn-outline" style="font-size: 13px;" target="_blank">
+          📄 <span data-i18n="btn_specs">Ver Especificaciones</span>
+        </a>
+        <a href="STYLE_GUIDE.md" class="btn btn-outline" style="font-size: 13px;" target="_blank">
+          🎨 <span data-i18n="btn_style">Guía de Estilos</span>
+        </a>
+        <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+          🌙
+        </button>
+        <div class="lang-switcher">
+          <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+          <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO HEADER -->
+    <div class="hub-header">
+      <div class="hub-header-bg"></div>
+      <div style="position: relative; z-index: 2;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+          <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--brand-lime);">
+            PROTOTIPOS OFICIALES DE BACKOFFICE
+          </span>
+        </div>
+        <h1 style="font-size: 38px; color: #FFFFFF; margin-bottom: 14px;" data-i18n="hero_title">
+          Portal Maestro de Interfaces y Operaciones
+        </h1>
+        <p style="font-size: 16px; color: var(--text-sidebar); max-width: 680px; line-height: 1.6;" data-i18n="hero_desc">
+          Colección navegable de prototipos interactivos en HTML/CSS autónomos para la consola de gestión de YoReservo. Diseñados con mobile-first, estándares RBAC y el Design System institucional.
+        </p>
+      </div>
+    </div>
+
+    <!-- MODULES SHOWCASE -->
+    <div class="module-grid">
+      
+      <!-- MODULE 1: AUTHENTICATION & ACCESS (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 1</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod1_title">Autenticación & Acceso</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod1_desc">
+          Flujos de entrada a la plataforma, simulador de roles, recuperación de contraseña y activación de invitación de staff.
+        </p>
+
+        <a href="auth/login.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_login_title">1. Iniciar Sesión (Login)</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_login_desc">Split-screen ejecutivo, i18n y selector de roles</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="auth/recover-password.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_recover_title">2. Recuperar Contraseña</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_recover_desc">Petición segura y confirmación con cooldown</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="auth/set-password.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_setpass_title">3. Activar Cuenta & Definir Clave</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_setpass_desc">Invitación de staff con checklist de seguridad</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="auth/profile.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_profile_title">4. Mi Perfil & Seguridad de Cuenta</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_profile_desc">Datos personales, cambio de clave bcrypt, idioma y gestión de sesiones</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 2: OPERATIONS & AGENDA (FLAGSHIP - COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 2</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod2_title">Operations Hub: Agenda</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod2_desc">
+          Rejilla interactiva multi-cancha en tiempo real, cajón lateral de reserva manual (walk-in) y check-in express.
+        </p>
+
+        <a href="agenda/agenda-grid.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_agenda_title">1. Agenda Multi-Cancha Interactiva</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_agenda_desc">Matriz horaria en vivo, cajón flyout walk-in y scanner QR</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 3: TREASURY & RECONCILIATION (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 3</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod3_title">Finanzas & Tesorería</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod3_desc">
+          Bandeja de conciliación Pago Móvil con visor de comprobante en pantalla, tasa oficial BCV y libro histórico.
+        </p>
+
+        <a href="treasury/pago-movil-inbox.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_pm_title">1. Bandeja Conciliación Pago Móvil</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_pm_desc">Visor in-line de comprobantes, aprobación y rechazo bancario</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="treasury/exchange-rate.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_bcv_title">2. Gestor de Tasa Oficial BCV & Historial</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_bcv_desc">Monitor del worker BCV, ajuste extraordinario y libro ledger</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 4: VENUES & SPACES (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 4</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod4_title">Recintos, Canchas & Turnos</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod4_desc">
+          Directorio de sedes con árbol geográfico, configurador de canchas con tarifas en USD/BCV, resolución de conflictos de reserva y editor visual de turnos partidos.
+        </p>
+
+        <a href="venues/venues-management.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_venues_title">1. Recintos & Sedes Deportivas</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_venues_desc">Cards de sedes, RIF, amenidades, filtros y selector territorial en cascada</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="venues/spaces-builder.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_spaces_title">2. Configurador de Canchas & Tarifas</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_spaces_desc">Tarifas por hora, conversión BCV y modal de seguridad ante deshabilitación</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="venues/schedules-editor.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_schedules_title">3. Editor Visual de Turnos & Horarios</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_schedules_desc">Turnos partidos mañana/noche, franja 24h, copiado rápido y excepciones/feriados</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 5: MASTER CATALOGS & RBAC (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 5</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod5_title">Catálogos & Usuarios RBAC</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod5_desc">
+          Gestión de roles institucionales (Aliado, Recepción, Admin, Auditor), permisos por recinto y catálogos de deportes/amenidades.
+        </p>
+
+        <a href="users/users-rbac.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_users_title">1. Personal & Control de Acceso (RBAC)</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_users_desc">Directorio de staff, matriz de permisos, auditoría de sesiones y simulador de roles</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+
+        <a href="catalogs/master-catalogs.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_catalogs_title">2. Catálogos Maestros & Taxonomía</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_catalogs_desc">Taxonomía 3 niveles (ActivityType > Activity > Category), superficies y amenidades</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 6: RESERVATIONS MANAGEMENT & CHECK-IN (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 6</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod6_title">Gestión de Reservas & Check-In</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod6_desc">
+          Libro maestro de reservas, búsqueda por código corto, cajón lateral de detalles con auditoría financiera, check-in express y exportación CSV.
+        </p>
+
+        <a href="bookings/reservations-list.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_reslist_title">1. Lista Maestra de Reservas & Check-In</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_reslist_desc">Búsqueda #AB4553, drawer de detalle, integración WhatsApp y validación de entrada</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 7: SETTLEMENTS & ALLY FINANCIAL PAYOUTS (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 7</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod7_title">Liquidaciones & Pagos a Aliados</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod7_desc">
+          Hub de cierres contables quincenales, cálculo automático de comisiones 5%, desglose de estados de cuenta por aliado, registro de transferencias y finiquitos en PDF/CSV.
+        </p>
+
+        <a href="treasury/settlements.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_settlements_title">1. Dispersión Contable & Liquidaciones</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_settlements_desc">Métricas GMV vs Comisión 5%, lotes quincenales, modal de desembolso bancario y finiquito</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 8: ROLE-ADAPTIVE EXECUTIVE DASHBOARD (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 8</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod8_title">Panel Ejecutivo & Dashboard Inteligente</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod8_desc">
+          Consola adaptativa con selector de rol (Admin Global vs Aliado Complejo Ávila), agregación temporal dinámica (Día por horas, Mes por semanas), gráficos GMV vs 5%, y estado en vivo de canchas.
+        </p>
+
+        <a href="dashboard/executive-dashboard.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_dash_title">1. Panel Ejecutivo & Operativo Adaptativo</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_dash_desc">Simulador Admin/Aliado, ribbon en vivo de canchas, gráficos interactivos y feed transaccional</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+      <!-- MODULE 9: USER PROFILE & SECURITY (COMPLETED) -->
+      <div class="card" style="border-top: 4px solid var(--brand-lime);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-link); letter-spacing: 0.08em;">Módulo 9</span>
+            <h3 style="font-size: 20px; margin-top: 4px;" data-i18n="mod9_title">Mi Perfil & Seguridad de Cuenta</h3>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_ready">Listo para Revisión</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;" data-i18n="mod9_desc">
+          Panel de autoservicio para el usuario con actualización de nombre y WhatsApp, checklist de seguridad de contraseña bcrypt, selección de idioma preferido (preferredLanguage), y control de sesiones activas (Session model).
+        </p>
+
+        <a href="auth/profile.html" class="screen-item">
+          <div>
+            <div style="font-weight: 600; font-size: 14px;" data-i18n="screen_profile_title">1. Autoservicio de Perfil & Dispositivos</div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="screen_profile_desc">Credenciales seguras, avatar, preferencias de notificación y revocación de sesiones</div>
+          </div>
+          <span style="font-size: 16px;">→</span>
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    const i18n = {
+      es: {
+        btn_specs: "Ver Especificaciones",
+        btn_style: "Guía de Estilos",
+        hero_title: "Portal Maestro de Interfaces y Operaciones",
+        hero_desc: "Colección navegable de prototipos interactivos en HTML/CSS autónomos para la consola de gestión de YoReservo. Diseñados con mobile-first, estándares RBAC y el Design System institucional.",
+        badge_ready: "Listo para Revisión",
+        badge_next: "Siguiente Módulo",
+        badge_planned: "Planificado",
+        mod1_title: "Autenticación & Acceso",
+        mod1_desc: "Flujos de entrada a la plataforma, simulador de roles, recuperación de contraseña y activación de invitación de staff.",
+        screen_login_title: "1. Iniciar Sesión (Login)",
+        screen_login_desc: "Split-screen ejecutivo, i18n y selector de roles",
+        screen_recover_title: "2. Recuperar Contraseña",
+        screen_recover_desc: "Petición segura y confirmación con cooldown",
+        screen_setpass_title: "3. Activar Cuenta & Definir Clave",
+        screen_setpass_desc: "Invitación de staff con checklist de seguridad",
+        mod2_title: "Operations Hub: Agenda",
+        mod2_desc: "Rejilla interactiva multi-cancha en tiempo real, cajón lateral de reserva manual (walk-in) y check-in express.",
+        screen_agenda_title: "1. Agenda Multi-Cancha Interactiva",
+        screen_agenda_desc: "Matriz horaria en vivo, cajón flyout walk-in y scanner QR",
+        mod3_title: "Finanzas & Tesorería",
+        mod3_desc: "Bandeja de conciliación Pago Móvil con visor de comprobante en pantalla, tasa oficial BCV y libro histórico.",
+        screen_pm_title: "1. Bandeja Conciliación Pago Móvil",
+        screen_pm_desc: "Visor in-line de comprobantes, aprobación y rechazo bancario",
+        screen_bcv_title: "2. Gestor de Tasa Oficial BCV & Historial",
+        screen_bcv_desc: "Monitor del worker BCV, ajuste extraordinario y libro ledger",
+        mod4_title: "Recintos, Canchas & Turnos",
+        mod4_desc: "Directorio de sedes con árbol geográfico, configurador de canchas con tarifas en USD/BCV, resolución de conflictos de reserva y editor visual de turnos partidos.",
+        screen_venues_title: "1. Recintos & Sedes Deportivas",
+        screen_venues_desc: "Cards de sedes, RIF, amenidades, filtros y selector territorial en cascada",
+        screen_spaces_title: "2. Configurador de Canchas & Tarifas",
+        screen_spaces_desc: "Tarifas por hora, conversión BCV y modal de seguridad ante deshabilitación",
+        screen_schedules_title: "3. Editor Visual de Turnos & Horarios",
+        screen_schedules_desc: "Turnos partidos mañana/noche, franja 24h, copiado rápido y excepciones/feriados",
+        mod5_title: "Catálogos & Usuarios RBAC",
+        mod5_desc: "Gestión de roles institucionales (Aliado, Recepción, Admin, Auditor), permisos por recinto y catálogos de deportes/amenidades.",
+        screen_users_title: "1. Personal & Control de Acceso (RBAC)",
+        screen_users_desc: "Directorio de staff, matriz de permisos, auditoría de sesiones y simulador de roles",
+        screen_catalogs_title: "2. Catálogos Maestros & Taxonomía",
+        screen_catalogs_desc: "Taxonomía 3 niveles (ActivityType > Activity > Category), superficies y amenidades",
+        mod6_title: "Gestión de Reservas & Check-In",
+        mod6_desc: "Libro maestro de reservas, búsqueda por código corto, cajón lateral de detalles con auditoría financiera, check-in express y exportación CSV.",
+        screen_reslist_title: "1. Lista Maestra de Reservas & Check-In",
+        screen_reslist_desc: "Búsqueda #AB4553, drawer de detalle, integración WhatsApp y validación de entrada",
+        mod7_title: "Liquidaciones & Pagos a Aliados",
+        mod7_desc: "Hub de cierres contables quincenales, cálculo automático de comisiones 5%, desglose de estados de cuenta por aliado, registro de transferencias y finiquitos en PDF/CSV.",
+        screen_settlements_title: "1. Dispersión Contable & Liquidaciones",
+        screen_settlements_desc: "Métricas GMV vs Comisión 5%, lotes quincenales, modal de desembolso bancario y finiquito",
+        mod8_title: "Panel Ejecutivo & Dashboard Inteligente",
+        mod8_desc: "Consola adaptativa con selector de rol (Admin Global vs Aliado Complejo Ávila), agregación temporal dinámica (Día por horas, Mes por semanas), gráficos GMV vs 5%, y estado en vivo de canchas.",
+        screen_dash_title: "1. Panel Ejecutivo & Operativo Adaptativo",
+        screen_dash_desc: "Simulador Admin/Aliado, ribbon en vivo de canchas, gráficos interactivos y feed transaccional",
+        mod9_title: "Mi Perfil & Seguridad de Cuenta",
+        mod9_desc: "Panel de autoservicio para el usuario con actualización de nombre y WhatsApp, checklist de seguridad de contraseña bcrypt, selección de idioma preferido (preferredLanguage), y control de sesiones activas (Session model).",
+        screen_profile_title: "1. Autoservicio de Perfil & Dispositivos",
+        screen_profile_desc: "Credenciales seguras, avatar, preferencias de notificación y revocación de sesiones"
+      },
+      en: {
+        btn_specs: "View Specifications",
+        btn_style: "Style Guide",
+        hero_title: "Master Operations & Interfaces Portal",
+        hero_desc: "Navigable showcase of self-contained interactive HTML/CSS prototypes for YoReservo's management console. Built with mobile-first principles, RBAC standards, and the corporate Design System.",
+        badge_ready: "Ready for Review",
+        badge_next: "Next Module",
+        badge_planned: "Planned",
+        mod1_title: "Authentication & Access",
+        mod1_desc: "Platform sign-in flows, role simulator, password recovery, and staff invitation activation.",
+        screen_login_title: "1. Sign In (Login)",
+        screen_login_desc: "Executive split-screen, i18n & role selector",
+        screen_recover_title: "2. Recover Password",
+        screen_recover_desc: "Secure request and email cooldown state",
+        screen_setpass_title: "3. Activate Account & Set Password",
+        screen_setpass_desc: "Staff invitation with security checklist",
+        mod2_title: "Operations Hub: Agenda",
+        mod2_desc: "Real-time interactive multi-court grid, walk-in booking flyout drawer, and express QR check-in.",
+        screen_agenda_title: "1. Multi-Court Interactive Agenda",
+        screen_agenda_desc: "Live schedule timeline, walk-in flyout drawer & QR scanner",
+        mod3_title: "Finance & Treasury",
+        mod3_desc: "High-velocity Pago Móvil reconciliation inbox with in-line receipt viewer, BCV rate, and audit ledger.",
+        screen_pm_title: "1. Pago Móvil Reconciliation Queue",
+        screen_pm_desc: "In-line live receipt viewer, instant approval & discrepancy rejection",
+        screen_bcv_title: "2. Official BCV Rate Manager & Ledger",
+        screen_bcv_desc: "Automated worker monitor, manual override tool & historical ledger",
+        mod4_title: "Venues, Courts & Shifts",
+        mod4_desc: "Venue directory with location cascade, court configuration with USD/BCV rates, safety conflict resolution & visual split-shifts editor.",
+        screen_venues_title: "1. Sports Venues & Branches",
+        screen_venues_desc: "Venue cards, RIF, amenities, search filters & cascading territory selector",
+        screen_spaces_title: "2. Court Builder & Hourly Rates",
+        screen_spaces_desc: "Hourly pricing, BCV conversion & operational conflict safety modal",
+        screen_schedules_title: "3. Visual Shifts & Operating Hours",
+        screen_schedules_desc: "Split morning/evening shifts, 24h timeline ribbon, quick weekday sync & holiday overrides",
+        mod5_title: "Master Catalogs & RBAC Users",
+        mod5_desc: "Institutional role management (Aliado, Reception, Admin, Auditor), venue-level permissions and sports/amenity catalogs.",
+        screen_users_title: "1. Staff & Access Control (RBAC)",
+        screen_users_desc: "Staff directory, permission matrix, active session audit & role simulator",
+        screen_catalogs_title: "2. Master Catalogs & Sports Taxonomy",
+        screen_catalogs_desc: "3-tier taxonomy (ActivityType > Activity > Category), court surfaces and amenities",
+        mod6_title: "Bookings Management & Check-In",
+        mod6_desc: "Master bookings ledger, short code search, financial detail flyout drawer, express check-in and CSV export.",
+        screen_reslist_title: "1. Master Bookings List & Check-In",
+        screen_reslist_desc: "#AB4553 search, detail flyout drawer, direct WhatsApp integration and access validation",
+        mod7_title: "Ally Settlements & Financial Payouts",
+        mod7_desc: "Bi-weekly financial closing hub, automated 5% commission retention, statement breakdown per ally, bank transfer logging and PDF/CSV statements.",
+        screen_settlements_title: "1. Treasury Disbursement & Settlements",
+        screen_settlements_desc: "GMV vs 5% Commission metrics, bi-weekly batches, bank payout execution modal and statements",
+        mod8_title: "Executive & Intelligence Dashboard",
+        mod8_desc: "Role-adaptive console (Global Admin vs Avila Complex Ally), dynamic timeframe aggregations (Day by hours, Month by weeks), GMV vs 5% fee analytics, and live court ribbon.",
+        screen_dash_title: "1. Adaptive Executive & Operational Dashboard",
+        screen_dash_desc: "Admin/Ally perspective simulator, live court ribbon, interactive financial charts and transactional feed",
+        mod9_title: "My Profile & Account Security",
+        mod9_desc: "User self-service console with personal details, WhatsApp contact update, bcrypt password validation checklist, interface language preferences (preferredLanguage), and active device sessions (Session model).",
+        screen_profile_title: "1. Self-Service Profile & Devices",
+        screen_profile_desc: "Secure credentials, avatar, notification preferences & active session revocation"
+      }
+    };
+
+    let currentLang = 'es';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    initTheme();
+  </script>
+</body>
+</html>

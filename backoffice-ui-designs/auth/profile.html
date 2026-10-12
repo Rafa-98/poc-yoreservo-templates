@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Mi Perfil & Seguridad de Cuenta</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Scoped Profile Styles */
+    .profile-avatar-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+    }
+    .profile-avatar-img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--brand-lime);
+      background: var(--bg-muted);
+    }
+    .avatar-edit-badge {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--brand-forest);
+      color: #FFFFFF;
+      border: 2px solid var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .avatar-edit-badge:hover {
+      background: var(--brand-lime);
+      color: #121811;
+      transform: scale(1.08);
+    }
+
+    /* Tab Navigation */
+    .settings-tab-bar {
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
+      padding-bottom: 2px;
+    }
+    .settings-tab-btn {
+      padding: 10px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .settings-tab-btn:hover {
+      color: var(--text-main);
+    }
+    .settings-tab-btn.active {
+      color: var(--text-link);
+      border-bottom-color: var(--brand-lime);
+      font-weight: 700;
+    }
+
+    /* Password Checklist */
+    .security-check-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+    .security-check-item.valid {
+      color: #10B981;
+      font-weight: 600;
+    }
+    .security-check-item.valid .check-icon::before {
+      content: "✓";
+    }
+    .security-check-item:not(.valid) .check-icon::before {
+      content: "○";
+    }
+
+    /* Session Device Card */
+    .session-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      transition: all 0.15s ease;
+    }
+    .session-card:hover {
+      border-color: var(--border-medium);
+    }
+    .session-card.current {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.03);
+    }
+    [data-theme="dark"] .session-card.current {
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(52, 211, 153, 0.4);
+    }
+
+    /* Toast Notification */
+    .toast-notification {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #111827;
+      color: #FFFFFF;
+      border: 1px solid rgba(198, 242, 59, 0.3);
+      padding: 14px 20px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13.5px;
+      font-weight: 500;
+      z-index: 500;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .toast-notification.active {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    [data-theme="dark"] .toast-notification {
+      background: #1F2D1C;
+      border-color: #C6F23B;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    
+    <!-- SIDEBAR -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="brand-logo-icon">YR</div>
+          <div>
+            <div class="brand-name">YoReservo</div>
+            <div class="brand-role" data-i18n="badge_role">SuperAdmin Global</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item active">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Carlos Mendoza</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">carlos.mendoza@yoreservo.app</div>
+      </div>
+    </aside>
+
+    <!-- MAIN APP -->
+    <main class="app-main">
+      
+      <!-- TOPBAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Mi Perfil & Seguridad de Cuenta</h2>
+              <span class="badge badge-available" data-i18n="badge_active">Cuenta Activa</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_sub">
+              Configuración de datos personales, idioma preferido, credenciales bcrypt y sesiones de dispositivo
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Sign out CTA -->
+          <a href="login.html" class="btn btn-outline" style="font-size: 12.5px; padding: 7px 14px;">
+            <span>🚪</span>
+            <span data-i18n="btn_logout">Cerrar Sesión</span>
+          </a>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <div style="padding: 24px; max-width: 1400px; margin: 0 auto; width: 100%;">
+        
+        <div style="display: grid; grid-template-columns: 320px 1fr; gap: 24px; align-items: flex-start;">
+          
+          <!-- LEFT COLUMN: USER IDENTIFIER & INSTITUTIONAL RBAC BADGES -->
+          <div class="card" style="padding: 24px; text-align: center;">
+            
+            <div class="profile-avatar-container">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80" 
+                   alt="Avatar" class="profile-avatar-img" id="user-avatar-img">
+              <label for="avatar-input" class="avatar-edit-badge" title="Cambiar Foto de Perfil">📷</label>
+              <input type="file" id="avatar-input" style="display: none;" accept="image/*" onchange="handleAvatarChange(event)">
+            </div>
+
+            <h3 style="font-size: 18px; font-weight: 800; margin: 0 0 4px; color: var(--text-main);" id="profile-display-name">
+              Carlos Mendoza
+            </h3>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+              carlos.mendoza@yoreservo.app
+            </div>
+
+            <!-- Role Badge (Read-Only) -->
+            <div style="margin-bottom: 20px;">
+              <span class="badge badge-confirmed" style="font-size: 12px; padding: 6px 14px; font-weight: 700;">
+                🛡️ SUPERADMIN
+              </span>
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;" data-i18n="role_disclaimer">
+                🔒 Rol gestionado centralmente por políticas RBAC
+              </div>
+            </div>
+
+            <!-- Affiliation & Details Box -->
+            <div style="background: var(--bg-muted); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px; text-align: left; font-size: 12.5px;">
+              
+              <div style="margin-bottom: 12px;">
+                <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 600;" data-i18n="lbl_affiliation">Sede Asignada</span>
+                <div style="font-weight: 700; color: var(--text-main); margin-top: 2px;">
+                  🏟️ Complejo Deportivo Ávila
+                </div>
+              </div>
+
+              <div style="margin-bottom: 12px;">
+                <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 600;" data-i18n="lbl_member_since">Miembro Desde</span>
+                <div style="font-weight: 600; color: var(--text-main); margin-top: 2px;">
+                  15 de Enero 2026
+                </div>
+              </div>
+
+              <div>
+                <span style="color: var(--text-muted); font-size: 11px; text-transform: uppercase; font-weight: 600;" data-i18n="lbl_security_status">Estado de Seguridad</span>
+                <div style="color: #10B981; font-weight: 700; margin-top: 2px;">
+                  ✓ Contraseña bcrypt activa
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: MULTI-TAB SETTINGS -->
+          <div class="card" style="padding: 24px;">
+            
+            <!-- TABS BAR -->
+            <div class="settings-tab-bar">
+              <button type="button" class="settings-tab-btn active" id="tab-btn-general" onclick="switchSettingsTab('general')">
+                <span>👤</span>
+                <span data-i18n="tab_general">Datos Personales</span>
+              </button>
+              <button type="button" class="settings-tab-btn" id="tab-btn-security" onclick="switchSettingsTab('security')">
+                <span>🔑</span>
+                <span data-i18n="tab_security">Seguridad & Contraseña</span>
+              </button>
+              <button type="button" class="settings-tab-btn" id="tab-btn-sessions" onclick="switchSettingsTab('sessions')">
+                <span>💻</span>
+                <span data-i18n="tab_sessions">Dispositivos & Sesiones</span>
+                <span class="badge badge-available" style="font-size: 10.5px; padding: 2px 6px;">3</span>
+              </button>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- TAB 1: DATOS PERSONALES & PREFERENCIAS                         -->
+            <!-- ============================================================= -->
+            <div id="tab-content-general">
+              <form id="general-form" onsubmit="handleGeneralSave(event)">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px;">
+                  
+                  <div>
+                    <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_name">
+                      Nombre Completo *
+                    </label>
+                    <input type="text" id="input-name" class="form-control" value="Carlos Mendoza" required style="font-size: 13.5px;">
+                  </div>
+
+                  <div>
+                    <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_phone">
+                      Teléfono WhatsApp *
+                    </label>
+                    <input type="tel" id="input-phone" class="form-control" value="+58 414 1234567" required style="font-size: 13.5px;">
+                  </div>
+
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;">
+                  
+                  <!-- Email (Read-Only with verification badge) -->
+                  <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main);" data-i18n="lbl_email">Correo Electrónico</label>
+                      <span class="badge badge-available" style="font-size: 10.5px;">✓ Verificado</span>
+                    </div>
+                    <input type="email" id="input-email" class="form-control" value="carlos.mendoza@yoreservo.app" disabled 
+                           style="font-size: 13.5px; background: var(--bg-muted); color: var(--text-muted); cursor: not-allowed;">
+                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="email_disclaimer">
+                      Para cambiar tu correo de acceso contacta al Administrador de Sistema.
+                    </div>
+                  </div>
+
+                  <!-- Preferred Language (Database preferredLanguage) -->
+                  <div>
+                    <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_pref_lang">
+                      Idioma Preferido de la Interfaz *
+                    </label>
+                    <select id="input-lang" class="form-control" style="font-size: 13.5px;" onchange="handleLanguagePreferenceChange(event)">
+                      <option value="es">Español (Latinoamérica) — Predeterminado</option>
+                      <option value="en">English (United States)</option>
+                    </select>
+                  </div>
+
+                </div>
+
+                <!-- Notifications Preferences -->
+                <div style="background: var(--bg-muted); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 18px; margin-bottom: 24px;">
+                  <h4 style="font-size: 14px; font-weight: 700; margin: 0 0 12px; color: var(--text-main);" data-i18n="notif_title">
+                    Preferencias de Alertas & Notificaciones
+                  </h4>
+
+                  <div style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                      <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--brand-lime);">
+                      <span data-i18n="notif_pm">Alertas inmediatas de nuevos pagos Pago Móvil por verificar</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                      <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--brand-lime);">
+                      <span data-i18n="notif_payout">Avisos de desembolso quincenal y cierres contables</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                      <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: var(--brand-lime);">
+                      <span data-i18n="notif_sec">Alertas de seguridad al iniciar sesión en un dispositivo nuevo</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                  <button type="submit" class="btn btn-primary" id="btn-save-general">
+                    <span>💾</span>
+                    <span data-i18n="btn_save_changes">Guardar Cambios</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- TAB 2: SEGURIDAD & CONTRASEÑA                                 -->
+            <!-- ============================================================= -->
+            <div id="tab-content-security" style="display: none;">
+              <form id="password-form" onsubmit="handlePasswordChange(event)">
+                
+                <!-- Current Password -->
+                <div style="margin-bottom: 18px; max-width: 480px;">
+                  <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_current_pass">
+                    Contraseña Actual *
+                  </label>
+                  <input type="password" id="input-current-pass" class="form-control" required style="font-size: 13.5px;" placeholder="••••••••••••">
+                </div>
+
+                <!-- New Password -->
+                <div style="margin-bottom: 14px; max-width: 480px;">
+                  <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_new_pass">
+                    Nueva Contraseña *
+                  </label>
+                  <input type="password" id="input-new-pass" class="form-control" required style="font-size: 13.5px;" 
+                         placeholder="Ingresa nueva contraseña segura" oninput="checkPasswordStrength(this.value)">
+                  
+                  <!-- Checklist Requirements -->
+                  <div style="margin-top: 10px; background: var(--bg-muted); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px;">
+                    <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;" data-i18n="lbl_pass_reqs">
+                      Requisitos de seguridad (bcrypt):
+                    </div>
+                    <div class="security-check-item" id="check-length">
+                      <span class="check-icon"></span>
+                      <span data-i18n="req_length">Al menos 8 caracteres (máximo 72)</span>
+                    </div>
+                    <div class="security-check-item" id="check-upper">
+                      <span class="check-icon"></span>
+                      <span data-i18n="req_upper">Al menos una letra mayúscula (A-Z)</span>
+                    </div>
+                    <div class="security-check-item" id="check-number">
+                      <span class="check-icon"></span>
+                      <span data-i18n="req_number">Al menos un número (0-9)</span>
+                    </div>
+                    <div class="security-check-item" id="check-symbol">
+                      <span class="check-icon"></span>
+                      <span data-i18n="req_symbol">Al menos un carácter especial (@, #, $, %, etc.)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div style="margin-bottom: 24px; max-width: 480px;">
+                  <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_confirm_pass">
+                    Confirmar Nueva Contraseña *
+                  </label>
+                  <input type="password" id="input-confirm-pass" class="form-control" required style="font-size: 13.5px;" placeholder="Repite la nueva contraseña">
+                </div>
+
+                <!-- 2FA Status Box -->
+                <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                  <div>
+                    <strong style="font-size: 13.5px; color: var(--text-main);" data-i18n="twofa_title">Autenticación en Dos Pasos (2FA)</strong>
+                    <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" data-i18n="twofa_desc">
+                      Protege tu cuenta agregando un código temporal de Google Authenticator.
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-outline" onclick="simulateToggle2FA()" style="font-size: 12px; padding: 6px 12px;">
+                    <span data-i18n="btn_config_2fa">Configurar 2FA</span>
+                  </button>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                  <button type="submit" class="btn btn-accent" id="btn-submit-password">
+                    <span>🔑</span>
+                    <span data-i18n="btn_update_pass">Actualizar Contraseña</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- ============================================================= -->
+            <!-- TAB 3: DISPOSITIVOS & SESIONES (POSTGRESQL SESSION MODEL)      -->
+            <!-- ============================================================= -->
+            <div id="tab-content-sessions" style="display: none;">
+              
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div>
+                  <h4 style="font-size: 14px; font-weight: 700; margin: 0; color: var(--text-main);" data-i18n="sessions_title">
+                    Sesiones de Dispositivo Activas
+                  </h4>
+                  <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" data-i18n="sessions_desc">
+                    Dispositivos que han iniciado sesión con tu cuenta en la consola YoReservo.
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline" onclick="revokeAllOtherSessions()" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.3); font-size: 12px; padding: 6px 12px;">
+                  <span>🚫</span>
+                  <span data-i18n="btn_revoke_all">Cerrar todas las demás sesiones</span>
+                </button>
+              </div>
+
+              <!-- List of active sessions -->
+              <div style="display: flex; flex-direction: column; gap: 12px;" id="sessions-list-container">
+                
+                <!-- Current Session -->
+                <div class="session-card current">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px;">💻</div>
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <strong style="font-size: 13.5px; color: var(--text-main);">Google Chrome en Windows 11</strong>
+                        <span class="badge badge-available" style="font-size: 10.5px;" data-i18n="badge_this_device">Este Dispositivo</span>
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+                        Caracas, Venezuela • IP: 190.202.44.12 • <strong style="color: #10B981;" data-i18n="lbl_active_now">Activo ahora</strong>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <span style="font-size: 12px; color: var(--text-muted);">Sesión Actual</span>
+                  </div>
+                </div>
+
+                <!-- Session 2: Mobile Safari -->
+                <div class="session-card" id="session-device-2">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px;">📱</div>
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <strong style="font-size: 13.5px; color: var(--text-main);">Safari en iPhone 15 Pro</strong>
+                        <span class="badge badge-confirmed" style="font-size: 10.5px;">Móvil</span>
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+                        Caracas, Venezuela • IP: 190.202.44.15 • Última actividad: Hace 2 horas
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-outline" onclick="revokeSingleSession('session-device-2', 'iPhone 15 Pro')" style="font-size: 11.5px; padding: 5px 10px;">
+                      <span data-i18n="btn_revoke">Cerrar Sesión</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Session 3: MacBook Pro -->
+                <div class="session-card" id="session-device-3">
+                  <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="font-size: 24px;">💻</div>
+                    <div>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <strong style="font-size: 13.5px; color: var(--text-main);">Google Chrome en macOS</strong>
+                        <span class="badge badge-hold" style="font-size: 10.5px;">Portátil</span>
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 3px;">
+                        Valencia, Carabobo • IP: 200.84.110.2 • Última actividad: Ayer a las 18:30
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <button type="button" class="btn btn-outline" onclick="revokeSingleSession('session-device-3', 'MacBook Pro')" style="font-size: 11.5px; padding: 5px 10px;">
+                      <span data-i18n="btn_revoke">Cerrar Sesión</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div class="toast-notification" id="toast">
+    <span style="font-size: 18px;" id="toast-icon">✓</span>
+    <span id="toast-message">Operación realizada con éxito</span>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC & STATE ENGINE                                          -->
+  <!-- ========================================================================= -->
+  <script>
+    let currentLang = 'es';
+
+    // =========================================================================
+    // I18N DICTIONARY
+    // =========================================================================
+    const i18n = {
+      es: {
+        badge_role: "SuperAdmin Global",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_catalogs: "Catálogos Maestros",
+        nav_profile: "Mi Perfil & Seguridad",
+        nav_hub: "Portal de Módulos",
+        topbar_title: "Mi Perfil & Seguridad de Cuenta",
+        badge_active: "Cuenta Activa",
+        topbar_sub: "Configuración de datos personales, idioma preferido, credenciales bcrypt y sesiones de dispositivo",
+        btn_logout: "Cerrar Sesión",
+        role_disclaimer: "🔒 Rol gestionado centralmente por políticas RBAC",
+        lbl_affiliation: "Sede Asignada",
+        lbl_member_since: "Miembro Desde",
+        lbl_security_status: "Estado de Seguridad",
+        tab_general: "Datos Personales",
+        tab_security: "Seguridad & Contraseña",
+        tab_sessions: "Dispositivos & Sesiones",
+        lbl_name: "Nombre Completo *",
+        lbl_phone: "Teléfono WhatsApp *",
+        lbl_email: "Correo Electrónico",
+        email_disclaimer: "Para cambiar tu correo de acceso contacta al Administrador de Sistema.",
+        lbl_pref_lang: "Idioma Preferido de la Interfaz *",
+        notif_title: "Preferencias de Alertas & Notificaciones",
+        notif_pm: "Alertas inmediatas de nuevos pagos Pago Móvil por verificar",
+        notif_payout: "Avisos de desembolso quincenal y cierres contables",
+        notif_sec: "Alertas de seguridad al iniciar sesión en un dispositivo nuevo",
+        btn_save_changes: "Guardar Cambios",
+        lbl_current_pass: "Contraseña Actual *",
+        lbl_new_pass: "Nueva Contraseña *",
+        lbl_pass_reqs: "Requisitos de seguridad (bcrypt):",
+        req_length: "Al menos 8 caracteres (máximo 72)",
+        req_upper: "Al menos una letra mayúscula (A-Z)",
+        req_number: "Al menos un número (0-9)",
+        req_symbol: "Al menos un carácter especial (@, #, $, %, etc.)",
+        lbl_confirm_pass: "Confirmar Nueva Contraseña *",
+        twofa_title: "Autenticación en Dos Pasos (2FA)",
+        twofa_desc: "Protege tu cuenta agregando un código temporal de Google Authenticator.",
+        btn_config_2fa: "Configurar 2FA",
+        btn_update_pass: "Actualizar Contraseña",
+        sessions_title: "Sesiones de Dispositivo Activas",
+        sessions_desc: "Dispositivos que han iniciado sesión con tu cuenta en la consola YoReservo.",
+        btn_revoke_all: "Cerrar todas las demás sesiones",
+        badge_this_device: "Este Dispositivo",
+        lbl_active_now: "Activo ahora",
+        btn_revoke: "Cerrar Sesión"
+      },
+      en: {
+        badge_role: "Global SuperAdmin",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rate",
+        nav_reconciliation: "Pago Móvil Reconciliation",
+        nav_rate: "Official BCV Rate",
+        nav_settlements: "Ally Settlements",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Court Configurator",
+        nav_schedules: "Shifts & Hours",
+        nav_staff: "Staff & RBAC",
+        nav_system: "System",
+        nav_catalogs: "Master Catalogs",
+        nav_profile: "My Profile & Security",
+        nav_hub: "Modules Portal",
+        topbar_title: "My Profile & Account Security",
+        badge_active: "Active Account",
+        topbar_sub: "Personal details management, interface language, bcrypt password security, and active sessions",
+        btn_logout: "Sign Out",
+        role_disclaimer: "🔒 Role managed centrally via RBAC security policies",
+        lbl_affiliation: "Assigned Venue",
+        lbl_member_since: "Member Since",
+        lbl_security_status: "Security Health",
+        tab_general: "Personal Details",
+        tab_security: "Security & Password",
+        tab_sessions: "Devices & Sessions",
+        lbl_name: "Full Name *",
+        lbl_phone: "WhatsApp Phone *",
+        lbl_email: "Email Address",
+        email_disclaimer: "To update your login email contact the System Administrator.",
+        lbl_pref_lang: "Preferred Interface Language *",
+        notif_title: "Alerts & Notifications Preferences",
+        notif_pm: "Instant alerts for incoming Pago Móvil payments pending review",
+        notif_payout: "Fortnightly settlement closing and disbursement notifications",
+        notif_sec: "Security alerts upon new device sign-ins",
+        btn_save_changes: "Save Changes",
+        lbl_current_pass: "Current Password *",
+        lbl_new_pass: "New Password *",
+        lbl_pass_reqs: "Security requirements (bcrypt):",
+        req_length: "At least 8 characters (maximum 72)",
+        req_upper: "At least one uppercase letter (A-Z)",
+        req_number: "At least one number (0-9)",
+        req_symbol: "At least one special character (@, #, $, %, etc.)",
+        lbl_confirm_pass: "Confirm New Password *",
+        twofa_title: "Two-Factor Authentication (2FA)",
+        twofa_desc: "Enhance account security with temporary codes via Google Authenticator.",
+        btn_config_2fa: "Configure 2FA",
+        btn_update_pass: "Update Password",
+        sessions_title: "Active Device Sessions",
+        sessions_desc: "Devices currently signed in with your account across YoReservo console.",
+        btn_revoke_all: "Revoke all other sessions",
+        badge_this_device: "This Device",
+        lbl_active_now: "Active now",
+        btn_revoke: "Revoke Session"
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('data-lang', lang);
+
+      const btnEs = document.getElementById('btn-lang-es');
+      const btnEn = document.getElementById('btn-lang-en');
+      if (btnEs) btnEs.classList.toggle('active', lang === 'es');
+      if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+
+      const selectLang = document.getElementById('input-lang');
+      if (selectLang) selectLang.value = lang;
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerHTML = i18n[lang][key];
+        }
+      });
+    }
+
+    function handleLanguagePreferenceChange(e) {
+      setLanguage(e.target.value);
+      showToast(currentLang === 'es' ? 'Idioma preferido actualizado.' : 'Preferred language updated.');
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById('app-sidebar');
+      if (sidebar) sidebar.classList.toggle('open');
+    }
+
+    // =========================================================================
+    // TABS LOGIC
+    // =========================================================================
+    function switchSettingsTab(tabName) {
+      ['general', 'security', 'sessions'].forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        const content = document.getElementById(`tab-content-${t}`);
+        if (btn) btn.classList.toggle('active', t === tabName);
+        if (content) content.style.display = (t === tabName) ? 'block' : 'none';
+      });
+    }
+
+    // =========================================================================
+    // FORM HANDLERS & SIMULATIONS
+    // =========================================================================
+    function handleGeneralSave(e) {
+      e.preventDefault();
+      const newName = document.getElementById('input-name').value;
+      document.getElementById('profile-display-name').innerText = newName;
+
+      showToast(
+        currentLang === 'es' 
+          ? `¡Datos actualizados con éxito! Perfil guardado para ${newName}.`
+          : `Profile updated successfully for ${newName}!`
+      );
+    }
+
+    function handleAvatarChange(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('user-avatar-img').src = event.target.result;
+          showToast(currentLang === 'es' ? 'Nueva foto de perfil cargada.' : 'New profile picture uploaded.');
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function checkPasswordStrength(val) {
+      const len = val.length >= 8 && val.length <= 72;
+      const upper = /[A-Z]/.test(val);
+      const num = /[0-9]/.test(val);
+      const symbol = /[^A-Za-z0-9]/.test(val);
+
+      document.getElementById('check-length').classList.toggle('valid', len);
+      document.getElementById('check-upper').classList.toggle('valid', upper);
+      document.getElementById('check-number').classList.toggle('valid', num);
+      document.getElementById('check-symbol').classList.toggle('valid', symbol);
+    }
+
+    function handlePasswordChange(e) {
+      e.preventDefault();
+      const newPass = document.getElementById('input-new-pass').value;
+      const confPass = document.getElementById('input-confirm-pass').value;
+
+      if (newPass !== confPass) {
+        alert(currentLang === 'es' ? 'Las nuevas contraseñas no coinciden.' : 'New passwords do not match.');
+        return;
+      }
+
+      if (newPass.length < 8) {
+        alert(currentLang === 'es' ? 'La contraseña debe tener al menos 8 caracteres.' : 'Password must be at least 8 characters long.');
+        return;
+      }
+
+      document.getElementById('input-current-pass').value = '';
+      document.getElementById('input-new-pass').value = '';
+      document.getElementById('input-confirm-pass').value = '';
+      checkPasswordStrength('');
+
+      showToast(
+        currentLang === 'es'
+          ? '🔑 ¡Contraseña actualizada exitosamente! Cifrado bcrypt generado.'
+          : '🔑 Password updated successfully! Bcrypt hash generated.'
+      );
+    }
+
+    function simulateToggle2FA() {
+      showToast(
+        currentLang === 'es'
+          ? '📲 Se abrió el asistente de configuración 2FA (Código QR TOTP).'
+          : '📲 Two-factor 2FA setup wizard launched (TOTP QR code).'
+      );
+    }
+
+    function revokeSingleSession(cardId, deviceName) {
+      const el = document.getElementById(cardId);
+      if (el) {
+        el.style.opacity = '0.5';
+        setTimeout(() => {
+          el.remove();
+          showToast(
+            currentLang === 'es'
+              ? `🚫 Sesión revocada en ${deviceName}.`
+              : `🚫 Session revoked on ${deviceName}.`
+          );
+        }, 200);
+      }
+    }
+
+    function revokeAllOtherSessions() {
+      const s2 = document.getElementById('session-device-2');
+      const s3 = document.getElementById('session-device-3');
+      if (s2) s2.remove();
+      if (s3) s3.remove();
+
+      showToast(
+        currentLang === 'es'
+          ? '🚫 Todas las demás sesiones han sido cerradas con éxito.'
+          : '🚫 All other active sessions have been revoked.'
+      );
+    }
+
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-message');
+      const toastIcon = document.getElementById('toast-icon');
+
+      if (!toast || !toastMsg) return;
+      toastMsg.innerText = msg;
+      toastIcon.innerText = type === 'success' ? '✓' : 'ℹ️';
+
+      toast.classList.add('active');
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 4000);
+    }
+
+    // INIT
+    initTheme();
+  </script>
+
+</body>
+</html>

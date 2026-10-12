@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Agenda Multi-Cancha | Backoffice</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Specific Agenda Overrides */
+    .qr-scanner-sim {
+      width: 100%;
+      height: 220px;
+      background: #080C07;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed rgba(198, 242, 59, 0.4);
+      margin-bottom: 20px;
+    }
+    .qr-laser {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: var(--brand-lime);
+      box-shadow: 0 0 12px var(--brand-lime);
+      animation: scanLaser 2s infinite ease-in-out alternate;
+    }
+    @keyframes scanLaser {
+      0% { top: 15%; opacity: 0.4; }
+      100% { top: 85%; opacity: 1; }
+    }
+    .slot-block-inner {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      justify-content: space-between;
+    }
+    .slot-player-name {
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.2;
+    }
+    .slot-sub-info {
+      font-size: 10.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .slot-code {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .wa-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 5px;
+      background: rgba(37, 211, 102, 0.2);
+      color: #25D366;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-size: 11px;
+      transition: transform 0.15s ease;
+    }
+    .wa-btn:hover {
+      transform: scale(1.15);
+      background: #25D366;
+      color: #FFFFFF;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      
+      <!-- BRAND LOGO -->
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <!-- NAVIGATION MENU -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item active">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <!-- USER FOOTER -->
+      <div class="sidebar-user" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(198, 242, 59, 0.2); color: var(--brand-lime); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">
+          SA
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 13px; font-weight: 600; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            Colegio San Agustín
+          </div>
+          <div style="font-size: 11px; color: var(--brand-lime);" data-i18n="user_role">
+            Aliado Propietario
+          </div>
+        </div>
+        <a href="../auth/login.html" title="Cerrar sesión" style="color: var(--text-sidebar); text-decoration: none; font-size: 16px;">
+          ⎋
+        </a>
+      </div>
+
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="app-main">
+      
+      <!-- STICKY TOPBAR -->
+      <header class="app-topbar">
+        
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <!-- Mobile Hamburger -->
+          <button type="button" class="btn btn-outline" style="padding: 8px 12px; display: inline-flex;" onclick="toggleSidebar()">
+            ☰
+          </button>
+
+          <!-- VENUE SELECTOR -->
+          <button type="button" class="venue-selector-btn" onclick="alert('Selector de recintos: Cambiar entre sedes asignadas al aliado.')">
+            <span>📍</span>
+            <span style="font-weight: 700;" data-i18n="venue_name">Colegio San Agustín del Paraíso</span>
+            <span style="font-size: 10px; color: var(--text-muted);">▼</span>
+          </button>
+        </div>
+
+        <!-- RIGHT ACTIONS -->
+        <div style="display: flex; align-items: center; gap: 12px;">
+          
+          <!-- SCAN QR CHECK-IN CTA -->
+          <button type="button" class="btn btn-outline" onclick="openQrModal()" style="font-size: 13px;" id="btn-scan-qr">
+            <span>📷</span>
+            <span class="desktop-only" data-i18n="btn_scan_qr">Check-in QR</span>
+          </button>
+
+          <!-- + NUEVA RESERVA WALK-IN PRIMARY CTA -->
+          <button type="button" class="btn btn-primary" onclick="openBookingDrawer()" style="font-size: 13px;" id="btn-new-booking">
+            <span>+</span>
+            <span data-i18n="btn_new_walkin">Nueva Reserva</span>
+          </button>
+
+          <!-- THEME TOGGLE -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+            🌙
+          </button>
+
+          <!-- LANGUAGE SWITCHER -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- AGENDA OPERATIONAL CONTROL BAR -->
+      <section class="agenda-controls-bar">
+        
+        <!-- DATE SELECTOR PILLS -->
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <div class="date-pill-group">
+            <button type="button" class="date-pill active" onclick="selectDate('hoy', this)" data-i18n="date_today">Hoy (12 Oct)</button>
+            <button type="button" class="date-pill" onclick="selectDate('manana', this)" data-i18n="date_tomorrow">Mañana (13 Oct)</button>
+            <button type="button" class="date-pill" onclick="selectDate('miercoles', this)" data-i18n="date_wed">Mié (14 Oct)</button>
+          </div>
+          <button type="button" class="btn btn-outline" style="padding: 6px 12px; font-size: 12px;" onclick="alert('Apertura de selector de fecha calendario.')">
+            📅 <span data-i18n="btn_calendar">Otro día</span>
+          </button>
+        </div>
+
+        <!-- SPORT FILTER TABS -->
+        <div class="sport-filter-tabs">
+          <button type="button" class="sport-tab active" onclick="filterSport('all', this)">
+            <span data-i18n="filter_all">Todos (4 Canchas)</span>
+          </button>
+          <button type="button" class="sport-tab" onclick="filterSport('f5', this)">
+            <span>⚽</span> Fútbol 5 (2)
+          </button>
+          <button type="button" class="sport-tab" onclick="filterSport('padel', this)">
+            <span>🎾</span> Pádel (1)
+          </button>
+          <button type="button" class="sport-tab" onclick="filterSport('tenis', this)">
+            <span>🎾</span> Tenis (1)
+          </button>
+        </div>
+
+        <!-- LIVE LEGEND CHIPS -->
+        <div style="display: flex; align-items: center; gap: 10px; font-size: 11px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--status-available-bg); border: 1px dashed var(--status-available-border);"></span>
+            <span style="color: var(--text-muted);" data-i18n="status_avail">Disponible</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--status-confirmed-bg); border: 1px solid var(--status-confirmed-border);"></span>
+            <span style="color: var(--text-muted);" data-i18n="status_conf">Confirmada</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--status-hold-bg); border: 1px solid var(--status-hold-border);"></span>
+            <span style="color: var(--text-muted);" data-i18n="status_hold">Pre-reserva</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--status-completed-bg); border: 1px solid var(--status-completed-border);"></span>
+            <span style="color: var(--text-muted);" data-i18n="status_comp">Completada</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <span style="width: 10px; height: 10px; border-radius: 3px; background: var(--status-blocked-bg); border: 1px solid var(--status-blocked-border);"></span>
+            <span style="color: var(--text-muted);" data-i18n="status_block">Bloqueada</span>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- KPI METRICS STRIP -->
+      <section class="agenda-kpi-strip">
+        <div class="kpi-card-mini">
+          <span class="kpi-label" data-i18n="kpi_occupancy">Ocupación Hoy</span>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <span class="kpi-val" style="color: #059669;">82%</span>
+            <span style="font-size: 11px; color: var(--text-muted);">26 / 32 turnos</span>
+          </div>
+        </div>
+
+        <div class="kpi-card-mini">
+          <span class="kpi-label" data-i18n="kpi_reservations">Reservas del Día</span>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <span class="kpi-val">19 Partidos</span>
+            <span class="badge badge-confirmed" style="font-size: 10px;">16 Pagadas</span>
+          </div>
+        </div>
+
+        <div class="kpi-card-mini">
+          <span class="kpi-label" data-i18n="kpi_revenue">Facturación Estimada</span>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <span class="kpi-val" style="color: var(--text-link);">$485.00</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Bs. 19,885</span>
+          </div>
+        </div>
+
+        <div class="kpi-card-mini">
+          <span class="kpi-label" data-i18n="kpi_next_match">Próximo Partido</span>
+          <div style="display: flex; align-items: baseline; gap: 8px;">
+            <span class="kpi-val" style="font-size: 16px;">16:00 — Cancha 1</span>
+            <span class="badge badge-hold" style="font-size: 10px;">En 15 min</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- INTERACTIVE TIMELINE MATRIX -->
+      <section class="timeline-scroll-pane">
+        
+        <div class="timeline-table">
+          
+          <!-- FIXED TIME HOURS COLUMN -->
+          <div class="timeline-hours-col">
+            <div class="timeline-hours-header" data-i18n="th_time">Hora</div>
+            <div class="timeline-hour-cell">07:00</div>
+            <div class="timeline-hour-cell">08:00</div>
+            <div class="timeline-hour-cell">09:00</div>
+            <div class="timeline-hour-cell">10:00</div>
+            <div class="timeline-hour-cell">16:00</div>
+            <div class="timeline-hour-cell">17:00</div>
+            <div class="timeline-hour-cell">18:00</div>
+            <div class="timeline-hour-cell">19:00</div>
+            <div class="timeline-hour-cell">20:00</div>
+            <div class="timeline-hour-cell">21:00</div>
+          </div>
+
+          <!-- COURTS COLUMNS GRID -->
+          <div class="timeline-courts-grid">
+            
+            <!-- COURT 1: FUTBOL 5 SINTETICA -->
+            <div class="court-column" data-sport="f5">
+              <div class="court-header-cell">
+                <div class="court-name">⚽ Cancha 1 — Grama Sintética</div>
+                <div class="court-meta">
+                  <span>Fútbol 5</span> • <span style="font-weight: 700; color: var(--text-link);">$25/h</span>
+                </div>
+              </div>
+
+              <!-- 07:00 Slot: Available -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 1 — Grama Sintética', '07:00 - 08:00', 25)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$25.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 08:00 Slot: Completed / Checked-in -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-completed" onclick="openDetailModal('AB4553', 'Gabriel Rivas', '+58 414 111 2233', 'Cancha 1 — Grama Sintética', '08:00 - 09:00', 'Fútbol 5', '$25.00', 'COMPLETED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Gabriel Rivas</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#AB4553</span>
+                      <span class="badge badge-completed" style="font-size: 9px; padding: 2px 6px;" data-i18n="badge_checked">Checked-in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 09:00 Slot: Confirmed / Paid -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('FC8831', 'Roberto Martínez', '+58 412 998 7766', 'Cancha 1 — Grama Sintética', '09:00 - 10:00', 'Fútbol 5', '$25.00', 'CONFIRMED', 'Efectivo USD (Mostrador)')">
+                  <div class="slot-block-inner">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="slot-player-name">Roberto Martínez</div>
+                      <a href="https://wa.me/584129987766" target="_blank" class="wa-btn" title="Contactar por WhatsApp" onclick="event.stopPropagation()">💬</a>
+                    </div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#FC8831</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 10:00 Slot: Available -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 1 — Grama Sintética', '10:00 - 11:00', 25)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$25.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 16:00 Slot: Confirmed / Paid (Next match) -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('XP9012', 'Carlos Mendoza', '+58 424 555 4433', 'Cancha 1 — Grama Sintética', '16:00 - 17:00', 'Fútbol 5', '$25.00', 'CONFIRMED', 'Pago Móvil Mercantil')">
+                  <div class="slot-block-inner">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="slot-player-name">Carlos Mendoza</div>
+                      <a href="https://wa.me/584245554433" target="_blank" class="wa-btn" title="Contactar por WhatsApp" onclick="event.stopPropagation()">💬</a>
+                    </div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#XP9012</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 17:00 Slot: Available -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 1 — Grama Sintética', '17:00 - 18:00', 25)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$25.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 18:00 Slot: Pre-reserved / Hold -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-hold" onclick="openDetailModal('PR7741', 'Daniela Salazar', '+58 416 332 1100', 'Cancha 1 — Grama Sintética', '18:00 - 19:00', 'Fútbol 5', '$25.00', 'HOLD', 'En espera Pago Móvil (12 min)')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Daniela Salazar (Hold)</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PR7741</span>
+                      <span style="font-size: 9px; font-weight: 700; color: var(--status-hold-text);">⏱️ 12m</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 19:00 Slot: Confirmed -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('LV4490', 'Liga Empresarial Seguros', '+58 414 777 8899', 'Cancha 1 — Grama Sintética', '19:00 - 20:00', 'Fútbol 5', '$25.00', 'CONFIRMED', 'Transferencia Banco de Venezuela')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Liga Empresarial</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#LV4490</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 20:00 Slot: Confirmed -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('LV4491', 'Liga Empresarial Seguros', '+58 414 777 8899', 'Cancha 1 — Grama Sintética', '20:00 - 21:00', 'Fútbol 5', '$25.00', 'CONFIRMED', 'Transferencia Banco de Venezuela')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Liga Empresarial</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#LV4491</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 21:00 Slot: Available -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 1 — Grama Sintética', '21:00 - 22:00', 25)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$25.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COURT 2: FUTBOL 5 TECHADA -->
+            <div class="court-column" data-sport="f5">
+              <div class="court-header-cell">
+                <div class="court-name">⚽ Cancha 2 — Techada Indoor</div>
+                <div class="court-meta">
+                  <span>Fútbol 5</span> • <span style="font-weight: 700; color: var(--text-link);">$30/h</span>
+                </div>
+              </div>
+
+              <!-- 07:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 2 — Techada Indoor', '07:00 - 08:00', 30)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$30.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 08:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-completed" onclick="openDetailModal('TK2201', 'Academia San Agustín', '+58 412 333 4455', 'Cancha 2 — Techada Indoor', '08:00 - 09:00', 'Fútbol 5', '$30.00', 'COMPLETED', 'Convenio Escolar')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Academia San Agustín</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TK2201</span>
+                      <span class="badge badge-completed" style="font-size: 9px; padding: 2px 6px;">Checked-in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 09:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-completed" onclick="openDetailModal('TK2202', 'Academia San Agustín', '+58 412 333 4455', 'Cancha 2 — Techada Indoor', '09:00 - 10:00', 'Fútbol 5', '$30.00', 'COMPLETED', 'Convenio Escolar')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Academia San Agustín</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TK2202</span>
+                      <span class="badge badge-completed" style="font-size: 9px; padding: 2px 6px;">Checked-in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 10:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 2 — Techada Indoor', '10:00 - 11:00', 30)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$30.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 16:00 Slot: Blocked / Maintenance -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-blocked" onclick="alert('Cancha 2 bloqueada por mantenimiento de iluminación LED entre 16:00 y 17:00.')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">⚠️ Mantenimiento LED</div>
+                    <div class="slot-sub-info">
+                      <span style="font-size: 10px;">Turno Bloqueado</span>
+                      <span>🔧</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 17:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('JD1192', 'Alejandro Morales', '+58 424 990 0112', 'Cancha 2 — Techada Indoor', '17:00 - 18:00', 'Fútbol 5', '$30.00', 'CONFIRMED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="slot-player-name">Alejandro Morales</div>
+                      <a href="https://wa.me/584249900112" target="_blank" class="wa-btn" title="WhatsApp" onclick="event.stopPropagation()">💬</a>
+                    </div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#JD1192</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 18:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('JD1193', 'Alejandro Morales', '+58 424 990 0112', 'Cancha 2 — Techada Indoor', '18:00 - 19:00', 'Fútbol 5', '$30.00', 'CONFIRMED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Alejandro Morales</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#JD1193</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 19:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 2 — Techada Indoor', '19:00 - 20:00', 30)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$30.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 20:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('PL7001', 'Pedro Lucas & Amigos', '+58 414 665 4433', 'Cancha 2 — Techada Indoor', '20:00 - 21:00', 'Fútbol 5', '$30.00', 'CONFIRMED', 'Punto de Venta / Tarjeta')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Pedro Lucas & Amigos</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PL7001</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 21:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 2 — Techada Indoor', '21:00 - 22:00', 30)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$30.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COURT 3: PADEL PANORAMICA -->
+            <div class="court-column" data-sport="padel">
+              <div class="court-header-cell">
+                <div class="court-name">🎾 Cancha 3 — Pádel Cristal</div>
+                <div class="court-meta">
+                  <span>Pádel Dobles</span> • <span style="font-weight: 700; color: var(--text-link);">$20/h</span>
+                </div>
+              </div>
+
+              <!-- 07:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 3 — Pádel Cristal', '07:00 - 08:00', 20)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$20.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 08:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-completed" onclick="openDetailModal('PD0101', 'Valentina Ochoa', '+58 424 887 6655', 'Cancha 3 — Pádel Cristal', '08:00 - 09:00', 'Pádel', '$20.00', 'COMPLETED', 'Pago Móvil Mercantil')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Valentina Ochoa</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PD0101</span>
+                      <span class="badge badge-completed" style="font-size: 9px; padding: 2px 6px;">Checked-in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 09:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('PD0102', 'Marcos Giménez', '+58 414 223 9988', 'Cancha 3 — Pádel Cristal', '09:00 - 10:00', 'Pádel', '$20.00', 'CONFIRMED', 'Efectivo Mostrador')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Marcos Giménez</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PD0102</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 10:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 3 — Pádel Cristal', '10:00 - 11:00', 20)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$20.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 16:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('PD0103', 'Torneo Americano Pádel', '+58 412 776 5544', 'Cancha 3 — Pádel Cristal', '16:00 - 17:00', 'Pádel', '$20.00', 'CONFIRMED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Torneo Americano</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PD0103</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 17:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('PD0104', 'Torneo Americano Pádel', '+58 412 776 5544', 'Cancha 3 — Pádel Cristal', '17:00 - 18:00', 'Pádel', '$20.00', 'CONFIRMED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Torneo Americano</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PD0104</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 18:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('PD0105', 'Torneo Americano Pádel', '+58 412 776 5544', 'Cancha 3 — Pádel Cristal', '18:00 - 19:00', 'Pádel', '$20.00', 'CONFIRMED', 'Pago Móvil Banesco')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Torneo Americano</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PD0105</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 19:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-hold" onclick="openDetailModal('PR9901', 'Luisana Castillo', '+58 424 112 3344', 'Cancha 3 — Pádel Cristal', '19:00 - 20:00', 'Pádel', '$20.00', 'HOLD', 'Hold online (6 min)')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Luisana Castillo (Hold)</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#PR9901</span>
+                      <span style="font-size: 9px; font-weight: 700; color: var(--status-hold-text);">⏱️ 6m</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 20:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 3 — Pádel Cristal', '20:00 - 21:00', 20)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$20.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 21:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 3 — Pádel Cristal', '21:00 - 22:00', 20)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$20.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- COURT 4: TENIS ARCILLA -->
+            <div class="court-column" data-sport="tenis">
+              <div class="court-header-cell">
+                <div class="court-name">🎾 Cancha 4 — Tenis Arcilla</div>
+                <div class="court-meta">
+                  <span>Tenis Singles</span> • <span style="font-weight: 700; color: var(--text-link);">$15/h</span>
+                </div>
+              </div>
+
+              <!-- 07:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-completed" onclick="openDetailModal('TN0012', 'Andrés Velásquez', '+58 416 990 1122', 'Cancha 4 — Tenis Arcilla', '07:00 - 08:00', 'Tenis', '$15.00', 'COMPLETED', 'Pago Móvil Bancamiga')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Andrés Velásquez</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TN0012</span>
+                      <span class="badge badge-completed" style="font-size: 9px; padding: 2px 6px;">Checked-in</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 08:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '08:00 - 09:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 09:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '09:00 - 10:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 10:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '10:00 - 11:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 16:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('TN0014', 'Prof. Gustavo Méndez (Clase)', '+58 412 110 9988', 'Cancha 4 — Tenis Arcilla', '16:00 - 17:00', 'Tenis', '$15.00', 'CONFIRMED', 'Efectivo USD Mostrador')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Prof. Gustavo (Clase)</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TN0014</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 17:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('TN0015', 'Prof. Gustavo Méndez (Clase)', '+58 412 110 9988', 'Cancha 4 — Tenis Arcilla', '17:00 - 18:00', 'Tenis', '$15.00', 'CONFIRMED', 'Efectivo USD Mostrador')">
+                  <div class="slot-block-inner">
+                    <div class="slot-player-name">Prof. Gustavo (Clase)</div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TN0015</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 18:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '18:00 - 19:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 19:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-confirmed" onclick="openDetailModal('TN0018', 'Sebastián De Abreu', '+58 424 776 1122', 'Cancha 4 — Tenis Arcilla', '19:00 - 20:00', 'Tenis', '$15.00', 'CONFIRMED', 'Pago Móvil Provincial')">
+                  <div class="slot-block-inner">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div class="slot-player-name">Sebastián De Abreu</div>
+                      <a href="https://wa.me/584247761122" target="_blank" class="wa-btn" title="WhatsApp" onclick="event.stopPropagation()">💬</a>
+                    </div>
+                    <div class="slot-sub-info">
+                      <span class="slot-code">#TN0018</span>
+                      <span class="badge badge-confirmed" style="font-size: 9px; padding: 2px 6px;">Pagado</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 20:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '20:00 - 21:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 21:00 Slot -->
+              <div class="court-slot-cell">
+                <div class="slot-block slot-available" onclick="openBookingDrawer('Cancha 4 — Tenis Arcilla', '21:00 - 22:00', 15)">
+                  <div class="slot-block-inner">
+                    <span style="font-size: 11px; font-weight: 600;">+ <span data-i18n="slot_available">Disponible</span></span>
+                    <span style="font-size: 10px; opacity: 0.8;">$15.00</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- ==========================================================================
+       QUICK BOOKING FLYOUT DRAWER (WALK-IN)
+       ========================================================================== -->
+  <div class="drawer-backdrop" id="booking-drawer-backdrop" onclick="closeBookingDrawer()"></div>
+  <aside class="drawer-panel" id="booking-drawer">
+    
+    <div class="drawer-header">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-link);" data-i18n="drawer_subtitle">
+          Recepción / Mostrador
+        </div>
+        <h3 style="font-size: 18px; margin-top: 2px;" data-i18n="drawer_title">
+          + Nueva Reserva Inmediata
+        </h3>
+      </div>
+      <button type="button" class="btn-icon" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="closeBookingDrawer()">✕</button>
+    </div>
+
+    <form id="quick-booking-form" onsubmit="handleQuickBookingSubmit(event)" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+      
+      <div class="drawer-body">
+        
+        <!-- OPERATIONAL NOTICE (Zero Fee for Manual Bookings) -->
+        <div style="background: rgba(198, 242, 59, 0.12); border: 1px solid rgba(198, 242, 59, 0.25); border-radius: 12px; padding: 12px 14px; margin-bottom: 20px;">
+          <div style="display: flex; gap: 8px; align-items: flex-start;">
+            <span style="font-size: 16px;">⚡</span>
+            <div style="font-size: 12px; color: var(--text-main); line-height: 1.4;">
+              <strong data-i18n="notice_manual_title">Reserva Manual sin Comisión:</strong>
+              <span data-i18n="notice_manual_desc">Esta reserva es marcada como is_manual: true con comisión $0.00. Queda confirmada de inmediato.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SELECTED COURT & SCHEDULE -->
+        <div style="background: var(--bg-muted); border-radius: 14px; padding: 14px 16px; margin-bottom: 20px; border: 1px solid var(--border-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <span style="font-size: 12px; font-weight: 600; color: var(--text-muted);" data-i18n="label_court_time">Cancha & Horario</span>
+            <span class="badge badge-confirmed" id="drawer-slot-badge" style="font-size: 10px;">Turno Seleccionado</span>
+          </div>
+          <div style="font-weight: 700; font-size: 15px;" id="drawer-court-name">Cancha 1 — Grama Sintética</div>
+          <div style="font-size: 13px; color: var(--text-link); font-weight: 600;" id="drawer-time-slot">10:00 - 11:00 (Hoy)</div>
+        </div>
+
+        <!-- CUSTOMER FULL NAME -->
+        <div class="form-group">
+          <label class="form-label" for="customer-name" data-i18n="label_cust_name">Nombre completo del cliente *</label>
+          <div class="input-wrapper">
+            <input type="text" id="customer-name" class="input-field" placeholder="ej. Luis Mendoza" required>
+          </div>
+        </div>
+
+        <!-- WHATSAPP PHONE -->
+        <div class="form-group">
+          <label class="form-label" for="customer-phone" data-i18n="label_cust_phone">Teléfono / WhatsApp *</label>
+          <div class="input-wrapper">
+            <input type="tel" id="customer-phone" class="input-field" placeholder="+58 412 123 4567" required value="+58 414 ">
+          </div>
+          <div class="form-helper" data-i18n="helper_cust_phone">Permite contactar directamente al capitán vía WhatsApp desde la agenda.</div>
+        </div>
+
+        <!-- PAYMENT METHOD -->
+        <div class="form-group">
+          <label class="form-label" for="payment-method" data-i18n="label_payment_method">Método de cobro en taquilla *</label>
+          <select id="payment-method" class="input-field" style="cursor: pointer;" required onchange="updateRateDisplay()">
+            <option value="CASH_USD" selected>💵 Efectivo Divisas (USD)</option>
+            <option value="PAGO_MOVIL">📱 Pago Móvil Directo en Taquilla</option>
+            <option value="POS_DEBIT">💳 Punto de Venta / Tarjeta (Bs)</option>
+            <option value="COURTESY">🎟️ Cortesía / Convenio Club</option>
+          </select>
+        </div>
+
+        <!-- FINANCIAL BREAKDOWN -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: 14px; padding: 14px 16px; margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span style="color: var(--text-muted);" data-i18n="rate_tariff">Tarifa por hora:</span>
+            <span style="font-weight: 700;" id="drawer-usd-price">$25.00 USD</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <span style="color: var(--text-muted);" data-i18n="rate_bcv">Tasa Oficial BCV:</span>
+            <span style="font-weight: 600;">41.00 Bs/USD</span>
+          </div>
+          <div style="border-top: 1px dashed var(--border-subtle); padding-top: 8px; margin-top: 8px; display: flex; justify-content: space-between; font-size: 14px; font-weight: 700;">
+            <span data-i18n="rate_total_bs">Total a Cobrar en Bs:</span>
+            <span style="color: var(--text-link);" id="drawer-bs-price">Bs. 1,025.00</span>
+          </div>
+        </div>
+
+        <!-- OPTIONAL NOTES -->
+        <div class="form-group">
+          <label class="form-label" for="booking-notes" data-i18n="label_notes">Notas operativas (Opcional)</label>
+          <textarea id="booking-notes" class="input-field" rows="2" placeholder="ej. Cliente trae balones propios, abono previo..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="drawer-footer">
+        <button type="button" class="btn btn-outline" style="flex: 1;" onclick="closeBookingDrawer()" data-i18n="btn_cancel">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" style="flex: 1.5;" id="btn-confirm-booking">
+          <span data-i18n="btn_confirm_reserve">Confirmar Reserva ✓</span>
+        </button>
+      </div>
+
+    </form>
+
+  </aside>
+
+  <!-- ==========================================================================
+       SLOT DETAIL & AUDIT MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="detail-modal-backdrop" onclick="closeDetailModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge badge-confirmed" id="modal-status-badge">Confirmada</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700;" id="modal-code">#AB4553</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="closeDetailModal()">✕</button>
+      </div>
+
+      <div style="padding: 24px;">
+        
+        <!-- PLAYER CARD -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: var(--bg-muted); border-radius: 16px; padding: 16px; margin-bottom: 20px;">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 2px;" data-i18n="player_cap">Capitán / Jugador</div>
+            <div style="font-size: 16px; font-weight: 700;" id="modal-player-name">Carlos Mendoza</div>
+            <div style="font-size: 13px; color: var(--text-muted);" id="modal-player-phone">+58 424 555 4433</div>
+          </div>
+          <a href="#" id="modal-wa-btn" target="_blank" class="btn btn-outline" style="gap: 6px; font-size: 13px; color: #25D366; border-color: rgba(37, 211, 102, 0.4);">
+            <span>💬</span> WhatsApp
+          </a>
+        </div>
+
+        <!-- DETAILS GRID -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; font-size: 13px;">
+          <div>
+            <div style="color: var(--text-muted); margin-bottom: 2px;" data-i18n="court_title">Cancha Asignada:</div>
+            <div style="font-weight: 600;" id="modal-court-name">Cancha 1 — Grama Sintética</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted); margin-bottom: 2px;" data-i18n="time_title">Horario del Partido:</div>
+            <div style="font-weight: 600;" id="modal-time-slot">16:00 - 17:00 (1 hora)</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted); margin-bottom: 2px;" data-i18n="sport_title">Deporte & Formato:</div>
+            <div style="font-weight: 600;" id="modal-sport">Fútbol 5</div>
+          </div>
+          <div>
+            <div style="color: var(--text-muted); margin-bottom: 2px;" data-i18n="payment_title">Estado de Pago:</div>
+            <div style="font-weight: 600;" id="modal-payment-info">$25.00 USD (Pago Móvil)</div>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          
+          <!-- CHECK-IN BUTTON -->
+          <button type="button" class="btn btn-primary" id="btn-modal-checkin" onclick="handlePerformCheckIn()" style="width: 100%; padding: 12px;">
+            <span>🎫</span>
+            <span data-i18n="btn_do_checkin">Registrar Ingreso (Check-in en Puerta)</span>
+          </button>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <!-- BLOCK COURT BUTTON -->
+            <button type="button" class="btn btn-outline" onclick="handleBlockSlot()" style="font-size: 12.5px;">
+              <span>🌧️</span>
+              <span data-i18n="btn_block_rain">Bloquear por Lluvia</span>
+            </button>
+
+            <!-- CANCEL BUTTON -->
+            <button type="button" class="btn btn-destructive" onclick="handleCancelSlot()" style="font-size: 12.5px;">
+              <span>✕</span>
+              <span data-i18n="btn_cancel_reserve">Cancelar Reserva</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       EXPRESS QR CHECK-IN SCANNER SIMULATOR MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="qr-modal-backdrop" onclick="closeQrModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">📷</span>
+          <h3 style="font-size: 18px;" data-i18n="qr_modal_title">Escanear Código QR / Check-in</h3>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="closeQrModal()">✕</button>
+      </div>
+
+      <div style="padding: 24px;">
+        
+        <!-- CAMERA VIEWPORT SIMULATOR -->
+        <div class="qr-scanner-sim">
+          <div class="qr-laser"></div>
+          <div style="position: relative; z-index: 2; text-align: center; color: #FFFFFF;">
+            <div style="font-size: 38px; margin-bottom: 6px;">📱</div>
+            <div style="font-size: 13px; font-weight: 600;" data-i18n="qr_viewfinder_text">Apunta el visor al código QR del jugador</div>
+            <div style="font-size: 11px; color: var(--brand-lime); margin-top: 4px;" data-i18n="qr_viewfinder_sub">Cámara de puerta activa</div>
+          </div>
+        </div>
+
+        <!-- MANUAL CODE FALLBACK -->
+        <div style="text-align: center; margin-bottom: 16px;">
+          <span style="font-size: 12px; color: var(--text-muted);" data-i18n="qr_manual_or">o ingresa el código alfanumérico de 6 dígitos:</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-bottom: 20px;">
+          <input type="text" id="manual-qr-code" class="input-field" placeholder="ej. XP9012" maxlength="6" style="text-transform: uppercase; font-family: 'Outfit', sans-serif; font-size: 18px; letter-spacing: 0.1em; text-align: center;" value="XP9012">
+          <button type="button" class="btn btn-primary" onclick="simulateQrScan()" style="padding: 0 20px;" id="btn-validate-code">
+            <span data-i18n="btn_validate_code">Validar</span>
+          </button>
+        </div>
+
+        <!-- SIMULATED SUCCESS ALERT (HIDDEN INITIALLY) -->
+        <div id="qr-success-alert" style="display: none; background: rgba(5, 150, 105, 0.15); border: 1px solid rgba(5, 150, 105, 0.3); border-radius: 14px; padding: 16px; text-align: center;">
+          <div style="font-size: 26px; margin-bottom: 4px;">✅</div>
+          <div style="font-weight: 700; color: var(--status-available-text); font-size: 15px;" data-i18n="qr_success_title">¡Check-in Exitoso!</div>
+          <div style="font-size: 13px; color: var(--text-main); margin-top: 4px;">
+            Jugador: <strong>Carlos Mendoza</strong> — Cancha 1 (16:00 - 17:00)
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+            Estatus actualizado a <strong>COMPLETADO</strong> en la agenda en vivo.
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SCRIPT CONTROLLER (THEME, I18N, TIMELINE INTERACTIONS) -->
+  <script>
+    let currentLang = 'es';
+    let activeCourtPrice = 25;
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_settings: "Configuración Club",
+        nav_hub: "Portal Maestro (Hub)",
+        user_role: "Aliado Propietario",
+        venue_name: "Colegio San Agustín del Paraíso",
+        btn_scan_qr: "Check-in QR",
+        btn_new_walkin: "Nueva Reserva",
+        date_today: "Hoy (12 Oct)",
+        date_tomorrow: "Mañana (13 Oct)",
+        date_wed: "Mié (14 Oct)",
+        btn_calendar: "Otro día",
+        filter_all: "Todos (4 Canchas)",
+        status_avail: "Disponible",
+        status_conf: "Confirmada",
+        status_hold: "Pre-reserva",
+        status_comp: "Completada",
+        status_block: "Bloqueada",
+        kpi_occupancy: "Ocupación Hoy",
+        kpi_reservations: "Reservas del Día",
+        kpi_revenue: "Facturación Estimada",
+        kpi_next_match: "Próximo Partido",
+        th_time: "Hora",
+        slot_available: "Disponible",
+        badge_checked: "Checked-in",
+        drawer_subtitle: "Recepción / Mostrador",
+        drawer_title: "+ Nueva Reserva Inmediata",
+        notice_manual_title: "Reserva Manual sin Comisión:",
+        notice_manual_desc: "Esta reserva es marcada como is_manual: true con comisión $0.00. Queda confirmada de inmediato.",
+        label_court_time: "Cancha & Horario",
+        label_cust_name: "Nombre completo del cliente *",
+        label_cust_phone: "Teléfono / WhatsApp *",
+        helper_cust_phone: "Permite contactar directamente al capitán vía WhatsApp desde la agenda.",
+        label_payment_method: "Método de cobro en taquilla *",
+        rate_tariff: "Tarifa por hora:",
+        rate_bcv: "Tasa Oficial BCV:",
+        rate_total_bs: "Total a Cobrar en Bs:",
+        label_notes: "Notas operativas (Opcional)",
+        btn_cancel: "Cancelar",
+        btn_confirm_reserve: "Confirmar Reserva ✓",
+        player_cap: "Capitán / Jugador",
+        court_title: "Cancha Asignada:",
+        time_title: "Horario del Partido:",
+        sport_title: "Deporte & Formato:",
+        payment_title: "Estado de Pago:",
+        btn_do_checkin: "Registrar Ingreso (Check-in en Puerta)",
+        btn_block_rain: "Bloquear por Lluvia",
+        btn_cancel_reserve: "Cancelar Reserva",
+        qr_modal_title: "Escanear Código QR / Check-in",
+        qr_viewfinder_text: "Apunta el visor al código QR del jugador",
+        qr_viewfinder_sub: "Cámara de puerta activa",
+        qr_manual_or: "o ingresa el código alfanumérico de 6 dígitos:",
+        btn_validate_code: "Validar",
+        qr_success_title: "¡Check-in Exitoso!",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_spaces: "Configurador Canchas",
+        nav_catalogs: "Catálogos Maestros",
+        nav_profile: "Mi Perfil & Seguridad",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Reconciliation",
+        nav_rate: "Official BCV Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Courts",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Receptionists",
+        nav_system: "System",
+        nav_settings: "Club Settings",
+        nav_hub: "Master Portal (Hub)",
+        user_role: "Venue Owner (Ally)",
+        venue_name: "San Agustín Sports Complex",
+        btn_scan_qr: "QR Check-in",
+        btn_new_walkin: "+ New Walk-in",
+        date_today: "Today (Oct 12)",
+        date_tomorrow: "Tomorrow (Oct 13)",
+        date_wed: "Wed (Oct 14)",
+        btn_calendar: "Pick Date",
+        filter_all: "All (4 Courts)",
+        status_avail: "Available",
+        status_conf: "Confirmed",
+        status_hold: "Hold (15m)",
+        status_comp: "Completed",
+        status_block: "Blocked",
+        kpi_occupancy: "Today's Occupancy",
+        kpi_reservations: "Today's Bookings",
+        kpi_revenue: "Estimated Revenue",
+        kpi_next_match: "Next Match",
+        th_time: "Time",
+        slot_available: "Available",
+        badge_checked: "Checked-in",
+        drawer_subtitle: "Front Desk / Walk-in",
+        drawer_title: "+ Instant Court Booking",
+        notice_manual_title: "Manual Booking with Zero App Fees:",
+        notice_manual_desc: "This booking is tagged as is_manual: true with $0.00 fee. Confirmed immediately.",
+        label_court_time: "Court & Time Slot",
+        label_cust_name: "Customer Full Name *",
+        label_cust_phone: "Phone / WhatsApp *",
+        helper_cust_phone: "Allows direct WhatsApp communication with the team captain.",
+        label_payment_method: "Payment Method at Counter *",
+        rate_tariff: "Hourly Rate:",
+        rate_bcv: "Official BCV Rate:",
+        rate_total_bs: "Total in Bs:",
+        label_notes: "Operational Notes (Optional)",
+        btn_cancel: "Cancel",
+        btn_confirm_reserve: "Confirm Booking ✓",
+        player_cap: "Team Captain / Player",
+        court_title: "Assigned Court:",
+        time_title: "Match Schedule:",
+        sport_title: "Sport & Format:",
+        payment_title: "Payment Status:",
+        btn_do_checkin: "Perform Check-in (Validate Gate Entry)",
+        btn_block_rain: "Block Court (Rain / Maintenance)",
+        btn_cancel_reserve: "Cancel Booking",
+        qr_modal_title: "Scan Player QR Code / Check-in",
+        qr_viewfinder_text: "Point camera at player QR ticket",
+        qr_viewfinder_sub: "Gate camera active",
+        qr_manual_or: "or enter the 6-character short code:",
+        btn_validate_code: "Validate",
+        qr_success_title: "Check-in Successful!",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_spaces: "Court Configurator",
+        nav_catalogs: "Master Catalogs",
+        nav_profile: "My Profile & Security",
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    // MOBILE SIDEBAR TOGGLE
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // DATE SELECTOR
+    function selectDate(dateKey, btn) {
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    // SPORT FILTER
+    function filterSport(sport, btn) {
+      document.querySelectorAll('.sport-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.querySelectorAll('.court-column').forEach(col => {
+        if (sport === 'all' || col.getAttribute('data-sport') === sport) {
+          col.style.display = 'flex';
+        } else {
+          col.style.display = 'none';
+        }
+      });
+    }
+
+    // QUICK BOOKING DRAWER
+    function openBookingDrawer(court = 'Cancha 1 — Grama Sintética', slot = '10:00 - 11:00', price = 25) {
+      activeCourtPrice = price;
+      document.getElementById('drawer-court-name').innerText = court;
+      document.getElementById('drawer-time-slot').innerText = slot + ' (' + (currentLang === 'es' ? 'Hoy' : 'Today') + ')';
+      document.getElementById('drawer-usd-price').innerText = `$${price}.00 USD`;
+      document.getElementById('drawer-bs-price').innerText = `Bs. ${(price * 41.0).toLocaleString('es-VE', {minimumFractionDigits: 2})}`;
+
+      document.getElementById('booking-drawer-backdrop').classList.add('active');
+      document.getElementById('booking-drawer').classList.add('active');
+    }
+
+    function closeBookingDrawer() {
+      document.getElementById('booking-drawer-backdrop').classList.remove('active');
+      document.getElementById('booking-drawer').classList.remove('active');
+    }
+
+    function updateRateDisplay() {
+      const bsPrice = (activeCourtPrice * 41.0).toLocaleString('es-VE', {minimumFractionDigits: 2});
+      document.getElementById('drawer-bs-price').innerText = `Bs. ${bsPrice}`;
+    }
+
+    function handleQuickBookingSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('customer-name').value;
+      const phone = document.getElementById('customer-phone').value;
+      const btn = document.getElementById('btn-confirm-booking');
+      
+      btn.innerText = currentLang === 'es' ? 'Guardando...' : 'Saving...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        alert(currentLang === 'es' 
+          ? `¡Reserva confirmada con éxito!\n\nCliente: ${name}\nTeléfono: ${phone}\nCero comisión YoReservo (Manual Walk-in).\nLa agenda ha sido actualizada.`
+          : `Booking successfully confirmed!\n\nClient: ${name}\nPhone: ${phone}\nZero YoReservo commission (Manual Walk-in).\nAgenda grid updated.`
+        );
+        btn.innerText = i18n[currentLang].btn_confirm_reserve;
+        btn.disabled = false;
+        closeBookingDrawer();
+      }, 500);
+    }
+
+    // SLOT DETAIL MODAL
+    function openDetailModal(code, name, phone, court, slot, sport, price, status, payment) {
+      document.getElementById('modal-code').innerText = code;
+      document.getElementById('modal-player-name').innerText = name;
+      document.getElementById('modal-player-phone').innerText = phone;
+      document.getElementById('modal-court-name').innerText = court;
+      document.getElementById('modal-time-slot').innerText = slot;
+      document.getElementById('modal-sport').innerText = sport;
+      document.getElementById('modal-payment-info').innerText = `${price} (${payment})`;
+      document.getElementById('modal-wa-btn').href = `https://wa.me/${phone.replace(/[^0-9]/g, '')}`;
+
+      const badge = document.getElementById('modal-status-badge');
+      if (status === 'COMPLETED') {
+        badge.className = 'badge badge-completed';
+        badge.innerText = currentLang === 'es' ? 'Completada / Checked-in' : 'Completed / Checked-in';
+        document.getElementById('btn-modal-checkin').style.display = 'none';
+      } else if (status === 'HOLD') {
+        badge.className = 'badge badge-hold';
+        badge.innerText = currentLang === 'es' ? 'Pre-reserva (Hold)' : 'Pre-reserved (Hold)';
+        document.getElementById('btn-modal-checkin').style.display = 'inline-flex';
+      } else {
+        badge.className = 'badge badge-confirmed';
+        badge.innerText = currentLang === 'es' ? 'Confirmada / Pagada' : 'Confirmed / Paid';
+        document.getElementById('btn-modal-checkin').style.display = 'inline-flex';
+      }
+
+      document.getElementById('detail-modal-backdrop').classList.add('active');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detail-modal-backdrop').classList.remove('active');
+    }
+
+    function handlePerformCheckIn() {
+      const code = document.getElementById('modal-code').innerText;
+      const name = document.getElementById('modal-player-name').innerText;
+      alert(currentLang === 'es' 
+        ? `✅ Check-in validado exitosamente para ${name} (${code}).\nEntrada permitida al recinto.` 
+        : `✅ Check-in successfully recorded for ${name} (${code}).\nGate access granted.`
+      );
+      closeDetailModal();
+    }
+
+    function handleBlockSlot() {
+      if (confirm(currentLang === 'es' 
+        ? '¿Deseas bloquear esta cancha por lluvia o mantenimiento? Se notificará al usuario si existe reserva activa.'
+        : 'Do you want to block this court due to rain or maintenance? Player will be notified.'
+      )) {
+        alert(currentLang === 'es' ? 'Cancha bloqueada operativamente.' : 'Court slot blocked.');
+        closeDetailModal();
+      }
+    }
+
+    function handleCancelSlot() {
+      if (confirm(currentLang === 'es' ? '¿Confirmas la cancelación de esta reserva?' : 'Are you sure you want to cancel this booking?')) {
+        alert(currentLang === 'es' ? 'Reserva cancelada.' : 'Booking cancelled.');
+        closeDetailModal();
+      }
+    }
+
+    // QR SCANNER MODAL
+    function openQrModal() {
+      document.getElementById('qr-success-alert').style.display = 'none';
+      document.getElementById('qr-modal-backdrop').classList.add('active');
+    }
+
+    function closeQrModal() {
+      document.getElementById('qr-modal-backdrop').classList.remove('active');
+    }
+
+    function simulateQrScan() {
+      const code = document.getElementById('manual-qr-code').value.toUpperCase();
+      const alertEl = document.getElementById('qr-success-alert');
+      alertEl.style.display = 'block';
+    }
+
+    // Initialize
+    initTheme();
+  </script>
+</body>
+</html>

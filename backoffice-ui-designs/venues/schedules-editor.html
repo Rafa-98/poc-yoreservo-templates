@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Editor Visual de Horarios & Turnos Partidos | Backoffice</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Specific styles for schedules editor */
+    .schedule-scope-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin: 0 20px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .days-matrix {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 0 20px 32px;
+    }
+
+    .day-row-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 20px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .day-row-card.is-closed {
+      background: var(--bg-muted);
+      opacity: 0.75;
+      border-style: dashed;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+    }
+
+    .day-title-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .day-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-main);
+      min-width: 100px;
+    }
+
+    /* 24h timeline ribbon */
+    .timeline-ribbon-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .timeline-ribbon {
+      height: 28px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ribbon-slot {
+      height: 100%;
+      transition: all 0.2s ease;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      padding: 0 4px;
+    }
+
+    .ribbon-slot.shift-1 {
+      background: var(--brand-lime);
+      color: var(--brand-lime-text);
+      border-right: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .ribbon-slot.recess {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(0, 0, 0, 0.04),
+        rgba(0, 0, 0, 0.04) 6px,
+        rgba(0, 0, 0, 0.08) 6px,
+        rgba(0, 0, 0, 0.08) 12px
+      );
+      color: var(--text-faint);
+    }
+
+    [data-theme="dark"] .ribbon-slot.recess {
+      background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.03),
+        rgba(255, 255, 255, 0.03) 6px,
+        rgba(255, 255, 255, 0.07) 6px,
+        rgba(255, 255, 255, 0.07) 12px
+      );
+    }
+
+    .ribbon-slot.shift-2 {
+      background: var(--brand-forest);
+      color: #FFFFFF;
+      border-left: 1px solid rgba(0,0,0,0.2);
+    }
+
+    [data-theme="dark"] .ribbon-slot.shift-2 {
+      background: #2D4720;
+      color: #E2FF80;
+      border-left: 1px solid rgba(198, 242, 59, 0.3);
+    }
+
+    .ribbon-ticks {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-faint);
+      font-family: monospace;
+      padding: 0 2px;
+    }
+
+    .shifts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .shift-box {
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 14px 16px;
+      background: var(--bg-surface-hover);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .shift-box-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .shift-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .time-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .time-field label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .time-field input {
+      padding: 8px 10px;
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      background: var(--bg-surface);
+      color: var(--text-main);
+    }
+
+    .price-tag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-link);
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--border-strong);
+      transition: .2s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--status-available-text);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    .rules-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin: 0 20px 24px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 16px;
+    }
+
+    .exceptions-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin: 0 20px 32px;
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item active">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Complejo Deportivo Ávila</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">RIF: J-50123890-4 • Aliado Pro</div>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <main class="app-main">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Turnos & Horarios Semanales</h2>
+              <span class="badge badge-available" data-i18n="badge_split_active">Turnos Partidos Activos</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
+              Configuración de turnos mañana/noche, receso térmico y reglas de reserva por cancha
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Quick Sync Action -->
+          <button type="button" class="btn btn-accent" id="btn-quick-sync" onclick="quickSyncWeekdays()" data-i18n="btn_copy_weekdays" style="font-size: 12.5px; padding: 7px 14px;">
+            <span>⚡</span>
+            <span>Copiar Lunes a Lun-Vie</span>
+          </button>
+
+          <!-- Save Button -->
+          <button type="button" class="btn btn-primary" id="btn-save-shifts" onclick="openSaveModal()" data-i18n="btn_save_changes" style="font-size: 13px; padding: 7px 16px;">
+            <span>💾</span>
+            <span>Guardar Turnos</span>
+          </button>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- SUBNAV TABS (Module 4 Navigation) -->
+      <section style="padding: 16px 20px 0; display: flex; gap: 10px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface); margin-bottom: 24px;">
+        <a href="venues-management.html" class="btn btn-outline" style="border: none; color: var(--text-muted); font-weight: 500;">
+          🏟️ <span data-i18n="tab_venues">Recintos (2 Sedes)</span>
+        </a>
+        <a href="spaces-builder.html" class="btn btn-outline" style="border: none; color: var(--text-muted); font-weight: 500;">
+          ⚽ <span data-i18n="tab_spaces">Canchas & Tarifas (4 Canchas)</span>
+        </a>
+        <a href="schedules-editor.html" class="btn btn-outline" style="border-bottom: 3px solid var(--brand-lime); border-radius: 8px 8px 0 0; background: var(--bg-surface); font-weight: 700;">
+          🕒 <span data-i18n="tab_schedules">Turnos Semanales (Split-Shifts)</span>
+        </a>
+      </section>
+
+      <!-- SCOPE SELECTION BAR -->
+      <section class="schedule-scope-bar">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;" data-i18n="label_venue">Sede Deportiva:</span>
+            <div style="font-weight: 700; font-size: 15px; color: var(--text-main); margin-top: 2px;">
+              📍 Complejo Las Mercedes (Sede Principal)
+            </div>
+          </div>
+
+          <div style="height: 32px; width: 1px; background: var(--border-subtle); display: none; @media(min-width: 768px){display: block;}"></div>
+
+          <div>
+            <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em;" data-i18n="label_court_scope">Canchas Aplicadas:</span>
+            <div style="margin-top: 4px;">
+              <select id="scope-selector" class="form-control" style="font-weight: 600; font-size: 13px; padding: 7px 14px; width: auto; min-width: 260px;" onchange="handleScopeChange()">
+                <option value="all-padel">🎾 Todas las Canchas de Pádel (C1, C2, C3, C4)</option>
+                <option value="c1">Cancha 1 — Pádel Panorámica Central</option>
+                <option value="c2">Cancha 2 — Pádel Panorámica Norte</option>
+                <option value="c3">Cancha 3 — Pádel Standard Techada</option>
+                <option value="c4">Cancha 4 — Pádel Standard Techada</option>
+                <option value="f7">⚽ Cancha Fútbol 7 — Grama Sintética Pro</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span class="badge" style="background: rgba(198, 242, 59, 0.15); color: var(--text-link); border: 1px solid rgba(198, 242, 59, 0.3); font-weight: 700;" data-i18n="badge_synced">
+            ✓ 4 Canchas en sincronía
+          </span>
+          <button type="button" class="btn btn-outline" onclick="openCopyModal('Lunes')" style="font-size: 12px; padding: 7px 14px;" data-i18n="btn_replicate">
+            🔁 Replicar a otra Sede
+          </button>
+        </div>
+      </section>
+
+      <!-- GLOBAL BOOKING RULES ACCORDION/CARD -->
+      <section class="rules-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 12px;">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 0;" data-i18n="rules_title">Reglas Globales de Franja & Duración de Reserva</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="rules_subtitle">
+              Parámetros de duración por turno, colchón de mantenimiento y ventana de preventa para usuarios de YoReservo.
+            </p>
+          </div>
+          <span class="badge badge-available" data-i18n="badge_slot_90">Slot Estándar Pádel: 90 min</span>
+        </div>
+
+        <div class="rules-grid">
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);" data-i18n="label_slot_duration">Duración Mínima de Partido</label>
+            <select class="form-control" style="margin-top: 6px; font-weight: 600;" id="rule-slot-duration" onchange="renderRibbons()">
+              <option value="60">60 minutos (1 hora estándar)</option>
+              <option value="90" selected>90 minutos (1.5 h — Estándar Pádel)</option>
+              <option value="120">120 minutos (2 horas extendidas)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);" data-i18n="label_buffer_time">Colchón / Receso entre Partidos</label>
+            <select class="form-control" style="margin-top: 6px; font-weight: 600;" id="rule-buffer">
+              <option value="0" selected>0 minutos (Sin intervalo)</option>
+              <option value="15">15 minutos (Limpieza y rotación)</option>
+              <option value="30">30 minutos (Mantenimiento pesado)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);" data-i18n="label_horizon">Anticipación Máxima de Reserva</label>
+            <select class="form-control" style="margin-top: 6px; font-weight: 600;" id="rule-horizon">
+              <option value="7">7 días de anticipación</option>
+              <option value="14" selected>14 días de anticipación</option>
+              <option value="30">30 días (Exclusivo Miembros)</option>
+            </select>
+          </div>
+
+          <div>
+            <label style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-muted);" data-i18n="label_cancellation_limit">Cancelación Límite sin Penalidad</label>
+            <select class="form-control" style="margin-top: 6px; font-weight: 600;" id="rule-cancel">
+              <option value="4">Hasta 4 horas antes</option>
+              <option value="12" selected>Hasta 12 horas antes</option>
+              <option value="24">Hasta 24 horas antes</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 DAYS SCHEDULE MATRIX -->
+      <section class="days-matrix" id="days-matrix-container">
+        <!-- Rendered dynamically by JavaScript with split shifts and 24h interactive ribbons -->
+      </section>
+
+      <!-- CALENDAR EXCEPTIONS & HOLIDAYS OVERRIDE -->
+      <section class="exceptions-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-subtle); padding-bottom: 14px; margin-bottom: 16px;">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 700; margin: 0;" data-i18n="exceptions_title">Excepciones de Calendario, Feriados & Mantenimiento</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="exceptions_subtitle">
+              Fechas específicas que anulan el horario semanal regular (ej. Feriados Bancarios, Víspera Navideña, Torneos Locales).
+            </p>
+          </div>
+          <button type="button" class="btn btn-accent" onclick="openAddExceptionModal()" data-i18n="btn_add_exception" style="font-size: 13px; padding: 8px 14px;">
+            + Agregar Excepción de Horario
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_date">Fecha</th>
+                <th data-i18n="th_reason">Motivo / Evento</th>
+                <th data-i18n="th_scope">Alcance de Canchas</th>
+                <th data-i18n="th_regime">Régimen Horario</th>
+                <th data-i18n="th_status">Estado</th>
+                <th style="text-align: right;" data-i18n="th_actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="exceptions-tbody">
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">24 Dic 2026</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Jueves</div>
+                </td>
+                <td>
+                  <div style="font-weight: 600; color: var(--text-main);">Víspera de Navidad</div>
+                  <div style="font-size: 11.5px; color: var(--text-muted);">Cierre anticipado del complejo</div>
+                </td>
+                <td><span class="badge" style="background: var(--bg-muted); color: var(--text-main);">Todas las Canchas</span></td>
+                <td>
+                  <span class="badge badge-hold">07:00 a 14:00 (Turno Único Mañana)</span>
+                </td>
+                <td><span class="badge badge-available">Programado</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar excepción')">✏️</button>
+                  <button class="btn-icon" title="Eliminar" onclick="alert('Eliminar excepción')">🗑️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">25 Dic 2026</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Viernes</div>
+                </td>
+                <td>
+                  <div style="font-weight: 600; color: var(--text-main);">Navidad</div>
+                  <div style="font-size: 11.5px; color: var(--text-muted);">Feriado Nacional no laborable</div>
+                </td>
+                <td><span class="badge" style="background: var(--bg-muted); color: var(--text-main);">Todas las Canchas</span></td>
+                <td>
+                  <span class="badge badge-cancelled">Cerrado Todo el Día (00:00 - 24:00)</span>
+                </td>
+                <td><span class="badge badge-available">Programado</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar excepción')">✏️</button>
+                  <button class="btn-icon" title="Eliminar" onclick="alert('Eliminar excepción')">🗑️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">14 Nov 2026</strong>
+                  <div style="font-size: 11px; color: var(--text-muted);">Sábado</div>
+                </td>
+                <td>
+                  <div style="font-weight: 600; color: var(--text-main);">Torneo Nacional Pádel Master</div>
+                  <div style="font-size: 11.5px; color: var(--text-muted);">Bloqueo exclusivo para circuito oficial</div>
+                </td>
+                <td><span class="badge" style="background: rgba(124, 58, 237, 0.12); color: var(--status-completed-text); font-weight: 600;">Canchas 1 y 2</span></td>
+                <td>
+                  <span class="badge badge-blocked">Bloqueo Total: 08:00 a 22:00</span>
+                </td>
+                <td><span class="badge badge-available">Confirmado</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar excepción')">✏️</button>
+                  <button class="btn-icon" title="Eliminar" onclick="alert('Eliminar excepción')">🗑️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: COPY SCHEDULE TO MULTIPLE DAYS -->
+  <div class="modal-backdrop" id="copy-modal-backdrop" onclick="closeCopyModal()">
+    <div class="modal-card" style="max-width: 480px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="copy_title">Replicar Horario de Día</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0;" id="copy-modal-subtitle">
+            Copia los turnos y tarifas del día seleccionado hacia los días destino.
+          </p>
+        </div>
+        <button class="btn-icon" onclick="closeCopyModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="font-size: 13px; font-weight: 600; color: var(--text-main);" data-i18n="copy_select_targets">
+          Selecciona los días que heredarán esta configuración:
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Lunes" id="cp-mon"> Lunes
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Martes" id="cp-tue" checked> Martes
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Miércoles" id="cp-wed" checked> Miércoles
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Jueves" id="cp-thu" checked> Jueves
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Viernes" id="cp-fri" checked> Viernes
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Sábado" id="cp-sat"> Sábado
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600;">
+            <input type="checkbox" name="copy_day" value="Domingo" id="cp-sun"> Domingo
+          </label>
+        </div>
+
+        <div style="background: var(--bg-muted); padding: 12px; border-radius: 10px; font-size: 12px; color: var(--text-muted); margin-top: 6px;">
+          💡 <strong>Nota:</strong> Los turnos actuales en los días seleccionados se sobrescribirán con los turnos de la fuente.
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeCopyModal()" data-i18n="btn_cancel">Cancelar</button>
+        <button class="btn btn-primary" onclick="executeCopySchedule()" data-i18n="btn_apply_copy">Aplicar a Días Seleccionados ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD EXCEPTION -->
+  <div class="modal-backdrop" id="exception-modal-backdrop" onclick="closeAddExceptionModal()">
+    <div class="modal-card" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="modal_exc_title">Agregar Excepción de Horario</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 4px 0 0;" data-i18n="modal_exc_desc">
+            Define una fecha especial o bloqueo por torneo/mantenimiento.
+          </p>
+        </div>
+        <button class="btn-icon" onclick="closeAddExceptionModal()">✕</button>
+      </div>
+
+      <form id="exception-form" onsubmit="handleAddExceptionSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="form-label" data-i18n="label_exc_date">Fecha de la Excepción *</label>
+            <input type="date" class="form-control" required id="exc-date-input" value="2026-12-31">
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_exc_reason">Motivo / Nombre del Evento *</label>
+            <input type="text" class="form-control" required id="exc-reason-input" placeholder="Ej: Víspera de Año Nuevo o Torneo de Pádel">
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_exc_scope">Canchas Afectadas *</label>
+            <select class="form-control" id="exc-scope-select">
+              <option value="all">Todas las canchas del recinto</option>
+              <option value="c1-c2">Solo Canchas 1 y 2 (Panorámicas)</option>
+              <option value="c3-c4">Solo Canchas 3 y 4 (Techadas)</option>
+              <option value="f7">Solo Cancha Fútbol 7</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_exc_regime">Tipo de Régimen *</label>
+            <select class="form-control" id="exc-regime-select" onchange="handleRegimeChange()">
+              <option value="closed">Cerrado completamente todo el día</option>
+              <option value="partial">Horario especial reducido</option>
+            </select>
+          </div>
+
+          <div id="exc-hours-row" style="display: none; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label">Hora Apertura Especial</label>
+              <input type="time" class="form-control" value="08:00" id="exc-start-time">
+            </div>
+            <div>
+              <label class="form-label">Hora Cierre Especial</label>
+              <input type="time" class="form-control" value="14:00" id="exc-end-time">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAddExceptionModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_save_exc">Guardar Excepción ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRM SAVE SHIFTS AUDIT -->
+  <div class="modal-backdrop" id="save-modal-backdrop" onclick="closeSaveModal()">
+    <div class="modal-card" style="max-width: 500px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 26px;">🛡️</span>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="save_audit_title">Confirmar Publicación de Turnos</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="save_audit_desc">
+              Auditoría previa contra reservas existentes en base de datos.
+            </p>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeSaveModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+        <div style="background: var(--status-available-bg); border: 1px solid var(--status-available-border); border-radius: 12px; padding: 14px; display: flex; align-items: flex-start; gap: 12px;">
+          <span style="font-size: 20px;">✅</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13.5px; color: var(--status-available-text);" data-i18n="audit_no_conflict">
+              0 Conflictos Detectados con Reservas Activas
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;" data-i18n="audit_no_conflict_desc">
+              Se han verificado 54 reservas programadas para los próximos 14 días. Ninguna reserva paga o en proceso queda fuera de los nuevos turnos configurados.
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size: 13px; color: var(--text-main); line-height: 1.5;">
+          <p style="margin: 0;" data-i18n="audit_confirmation_text">
+            Al publicar estos cambios, el motor de reservas de la app cliente sincronizará inmediatamente los nuevos bloques de 90 minutos y las tarifas diferenciadas de mañana y noche.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeSaveModal()" data-i18n="btn_cancel">Revisar Nuevamente</button>
+        <button class="btn btn-primary" onclick="confirmSavePublication()" data-i18n="btn_confirm_publish">Publicar en Vivo ✓</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOGIC SCRIPT -->
+  <script>
+    // State of the 7 days
+    const daysData = [
+      {
+        id: 'mon',
+        nameEs: 'Lunes',
+        nameEn: 'Monday',
+        open: true,
+        split: true,
+        t1Start: '07:00',
+        t1End: '12:00',
+        t1Price: 30,
+        t2Start: '16:00',
+        t2End: '23:00',
+        t2Price: 40
+      },
+      {
+        id: 'tue',
+        nameEs: 'Martes',
+        nameEn: 'Tuesday',
+        open: true,
+        split: true,
+        t1Start: '07:00',
+        t1End: '12:00',
+        t1Price: 30,
+        t2Start: '16:00',
+        t2End: '23:00',
+        t2Price: 40
+      },
+      {
+        id: 'wed',
+        nameEs: 'Miércoles',
+        nameEn: 'Wednesday',
+        open: true,
+        split: true,
+        t1Start: '07:00',
+        t1End: '12:00',
+        t1Price: 30,
+        t2Start: '16:00',
+        t2End: '23:00',
+        t2Price: 40
+      },
+      {
+        id: 'thu',
+        nameEs: 'Jueves',
+        nameEn: 'Thursday',
+        open: true,
+        split: true,
+        t1Start: '07:00',
+        t1End: '12:00',
+        t1Price: 30,
+        t2Start: '16:00',
+        t2End: '23:30',
+        t2Price: 40
+      },
+      {
+        id: 'fri',
+        nameEs: 'Viernes',
+        nameEn: 'Friday',
+        open: true,
+        split: true,
+        t1Start: '07:00',
+        t1End: '12:00',
+        t1Price: 35,
+        t2Start: '15:30',
+        t2End: '24:00',
+        t2Price: 45
+      },
+      {
+        id: 'sat',
+        nameEs: 'Sábado',
+        nameEn: 'Saturday',
+        open: true,
+        split: false, // Continuous shift on Saturdays
+        t1Start: '07:00',
+        t1End: '23:00',
+        t1Price: 45,
+        t2Start: '16:00',
+        t2End: '23:00',
+        t2Price: 45
+      },
+      {
+        id: 'sun',
+        nameEs: 'Domingo',
+        nameEn: 'Sunday',
+        open: true,
+        split: false, // Continuous shift on Sundays
+        t1Start: '08:00',
+        t1End: '20:00',
+        t1Price: 40,
+        t2Start: '16:00',
+        t2End: '20:00',
+        t2Price: 40
+      }
+    ];
+
+    let currentLang = 'es';
+    let sourceCopyDay = 'mon';
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_settings: "Configuración Club",
+        topbar_title: "Turnos & Horarios Semanales",
+        badge_split_active: "Turnos Partidos Activos",
+        topbar_subtitle: "Configuración de turnos mañana/noche, receso térmico y reglas de reserva por cancha",
+        tab_venues: "Recintos (2 Sedes)",
+        tab_spaces: "Canchas & Tarifas (4 Canchas)",
+        tab_schedules: "Turnos Semanales (Split-Shifts)",
+        btn_copy_weekdays: "⚡ Copiar Lunes a Lun-Vie",
+        btn_save_changes: "💾 Guardar Turnos",
+        label_venue: "Sede Deportiva:",
+        label_court_scope: "Canchas Aplicadas:",
+        badge_synced: "✓ 4 Canchas en sincronía",
+        btn_replicate: "🔁 Replicar a otra Sede",
+        rules_title: "Reglas Globales de Franja & Duración de Reserva",
+        rules_subtitle: "Parámetros de duración por turno, colchón de mantenimiento y ventana de preventa para usuarios de YoReservo.",
+        badge_slot_90: "Slot Estándar Pádel: 90 min",
+        label_slot_duration: "Duración Mínima de Partido",
+        label_buffer_time: "Colchón / Receso entre Partidos",
+        label_horizon: "Anticipación Máxima de Reserva",
+        label_cancellation_limit: "Cancelación Límite sin Penalidad",
+        exceptions_title: "Excepciones de Calendario, Feriados & Mantenimiento",
+        exceptions_subtitle: "Fechas específicas que anulan el horario semanal regular (ej. Feriados Bancarios, Víspera Navideña, Torneos Locales).",
+        btn_add_exception: "+ Agregar Excepción de Horario",
+        th_date: "Fecha",
+        th_reason: "Motivo / Evento",
+        th_scope: "Alcance de Canchas",
+        th_regime: "Régimen Horario",
+        th_status: "Estado",
+        th_actions: "Acciones",
+        copy_title: "Replicar Horario de Día",
+        copy_select_targets: "Selecciona los días que heredarán esta configuración:",
+        btn_cancel: "Cancelar",
+        btn_apply_copy: "Aplicar a Días Seleccionados ✓",
+        modal_exc_title: "Agregar Excepción de Horario",
+        modal_exc_desc: "Define una fecha especial o bloqueo por torneo/mantenimiento.",
+        label_exc_date: "Fecha de la Excepción *",
+        label_exc_reason: "Motivo / Nombre del Evento *",
+        label_exc_scope: "Canchas Afectadas *",
+        label_exc_regime: "Tipo de Régimen *",
+        btn_save_exc: "Guardar Excepción ✓",
+        save_audit_title: "Confirmar Publicación de Turnos",
+        save_audit_desc: "Auditoría previa contra reservas existentes en base de datos.",
+        audit_no_conflict: "0 Conflictos Detectados con Reservas Activas",
+        audit_no_conflict_desc: "Se han verificado 54 reservas programadas para los próximos 14 días. Ninguna reserva paga o en proceso queda fuera de los nuevos turnos configurados.",
+        audit_confirmation_text: "Al publicar estos cambios, el motor de reservas de la app cliente sincronizará inmediatamente los nuevos bloques de 90 minutos y las tarifas diferenciadas de mañana y noche.",
+        btn_confirm_publish: "Publicar en Vivo ✓",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_catalogs: "Catálogos Maestros",
+        nav_profile: "Mi Perfil & Seguridad",
+        nav_hub: "Portal Maestro (Hub)",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Inbox",
+        nav_rate: "BCV Official Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Courts Builder",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Team",
+        nav_system: "System",
+        nav_settings: "Club Settings",
+        topbar_title: "Weekly Shifts & Operating Schedules",
+        badge_split_active: "Split Shifts Active",
+        topbar_subtitle: "Morning & evening shift configuration, midday maintenance recess and court booking rules",
+        tab_venues: "Venues (2 Branches)",
+        tab_spaces: "Courts & Rates (4 Courts)",
+        tab_schedules: "Weekly Shifts (Split-Shifts)",
+        btn_copy_weekdays: "⚡ Copy Mon to Mon-Fri",
+        btn_save_changes: "💾 Save Shifts",
+        label_venue: "Sports Venue:",
+        label_court_scope: "Applied Courts:",
+        badge_synced: "✓ 4 Courts in sync",
+        btn_replicate: "🔁 Replicate to another Venue",
+        rules_title: "Global Time-Slot & Booking Duration Rules",
+        rules_subtitle: "Match slot durations, maintenance buffers, and advance reservation horizons for YoReservo players.",
+        badge_slot_90: "Standard Pádel Slot: 90 min",
+        label_slot_duration: "Minimum Match Duration",
+        label_buffer_time: "Buffer / Rest between Matches",
+        label_horizon: "Advance Booking Horizon",
+        label_cancellation_limit: "Free Cancellation Deadline",
+        exceptions_title: "Calendar Exceptions, Holidays & Maintenance",
+        exceptions_subtitle: "Specific dates that override regular weekly schedules (e.g. Bank Holidays, Christmas Eve, Tournaments).",
+        btn_add_exception: "+ Add Schedule Exception",
+        th_date: "Date",
+        th_reason: "Reason / Event",
+        th_scope: "Court Scope",
+        th_regime: "Operating Regime",
+        th_status: "Status",
+        th_actions: "Actions",
+        copy_title: "Replicate Day Schedule",
+        copy_select_targets: "Select destination days that will inherit this configuration:",
+        btn_cancel: "Cancel",
+        btn_apply_copy: "Apply to Selected Days ✓",
+        modal_exc_title: "Add Schedule Exception",
+        modal_exc_desc: "Define a special holiday date or tournament/maintenance block.",
+        label_exc_date: "Exception Date *",
+        label_exc_reason: "Reason / Event Name *",
+        label_exc_scope: "Affected Courts *",
+        label_exc_regime: "Regime Type *",
+        btn_save_exc: "Save Exception ✓",
+        save_audit_title: "Confirm Shift Publication",
+        save_audit_desc: "Pre-flight audit against active bookings in the database.",
+        audit_no_conflict: "0 Conflicts Detected with Active Bookings",
+        audit_no_conflict_desc: "54 bookings scheduled over the next 14 days were verified. No paid or pending match falls outside the new shift configuration.",
+        audit_confirmation_text: "Upon publishing, the client app booking engine will immediately synchronize the new 90-minute blocks and morning/evening rates.",
+        btn_confirm_publish: "Publish Live ✓",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_catalogs: "Master Catalogs",
+        nav_profile: "My Profile & Security",
+        nav_hub: "Master Portal (Hub)",
+      }
+    };
+
+    function parseTimeToMinutes(tStr) {
+      const parts = tStr.split(':');
+      return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+    }
+
+    function renderDays() {
+      const container = document.getElementById('days-matrix-container');
+      container.innerHTML = '';
+
+      daysData.forEach((day, index) => {
+        const isClosed = !day.open;
+        const dayName = currentLang === 'es' ? day.nameEs : day.nameEn;
+
+        // Render card
+        const card = document.createElement('div');
+        card.className = `day-row-card ${isClosed ? 'is-closed' : ''}`;
+        card.id = `card-${day.id}`;
+
+        card.innerHTML = `
+          <div class="day-header">
+            <div class="day-title-badge">
+              <label class="toggle-switch" title="${currentLang === 'es' ? 'Activar/Desactivar Día' : 'Toggle Day'}">
+                <input type="checkbox" ${day.open ? 'checked' : ''} onchange="toggleDayStatus(${index})">
+                <span class="toggle-slider"></span>
+              </label>
+              <div>
+                <span class="day-name">${dayName}</span>
+                <span class="badge ${day.open ? 'badge-available' : 'badge-cancelled'}" style="margin-left: 8px;">
+                  ${day.open 
+                    ? (day.split ? (currentLang === 'es' ? 'Turno Partido' : 'Split Shift') : (currentLang === 'es' ? 'Turno Continuo' : 'Continuous Shift'))
+                    : (currentLang === 'es' ? 'Cerrado' : 'Closed')
+                  }
+                </span>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              ${day.open ? `
+                <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 6px 12px; border-radius: 8px;" onclick="toggleSplitMode(${index})">
+                  ${day.split 
+                    ? (currentLang === 'es' ? '🔄 Cambiar a Turno Continuo' : '🔄 Switch to Continuous') 
+                    : (currentLang === 'es' ? '⚡ Dividir en 2 Turnos (Partido)' : '⚡ Enable Split Shift')
+                  }
+                </button>
+              ` : ''}
+
+              <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 6px 12px; border-radius: 8px;" onclick="openCopyModal('${day.id}')" title="Copiar este día">
+                📋 ${currentLang === 'es' ? 'Copiar a...' : 'Copy to...'}
+              </button>
+            </div>
+          </div>
+
+          ${day.open ? `
+            <!-- SHIFTS INPUTS -->
+            <div class="shifts-grid">
+              
+              <!-- Turno 1 -->
+              <div class="shift-box">
+                <div class="shift-box-title">
+                  <span>${day.split ? (currentLang === 'es' ? '☀️ Turno 1: Mañana' : '☀️ Shift 1: Morning') : (currentLang === 'es' ? '🕒 Horario Continuo' : '🕒 Continuous Operating Shift')}</span>
+                  <span class="price-tag-badge">$${day.t1Price}/h</span>
+                </div>
+                <div class="shift-inputs">
+                  <div class="time-field">
+                    <label>${currentLang === 'es' ? 'Inicio' : 'Open'}</label>
+                    <input type="time" value="${day.t1Start}" onchange="updateShiftTime(${index}, 't1Start', this.value)">
+                  </div>
+                  <div class="time-field">
+                    <label>${currentLang === 'es' ? 'Fin' : 'Close'}</label>
+                    <input type="time" value="${day.t1End}" onchange="updateShiftTime(${index}, 't1End', this.value)">
+                  </div>
+                  <div class="time-field" style="width: 70px;">
+                    <label>${currentLang === 'es' ? 'Tarifa' : 'Rate'}</label>
+                    <input type="number" value="${day.t1Price}" style="text-align: right;" onchange="updateShiftPrice(${index}, 't1Price', this.value)">
+                  </div>
+                </div>
+              </div>
+
+              ${day.split ? `
+                <!-- Receso / Mantenimiento mediodía -->
+                <div class="shift-box" style="background: var(--bg-muted); border-style: dashed; justify-content: center; align-items: center; text-align: center;">
+                  <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; color: var(--text-faint);">
+                    ⏸️ ${currentLang === 'es' ? 'Pausa Mediodía / Receso Calor' : 'Midday Break / Heat Recess'}
+                  </div>
+                  <div style="font-family: monospace; font-size: 13px; font-weight: 700; color: var(--text-muted); margin-top: 4px;">
+                    ${day.t1End} — ${day.t2Start}
+                  </div>
+                  <div style="font-size: 11px; color: var(--text-faint); margin-top: 2px;">
+                    ${currentLang === 'es' ? 'Cancha en descanso / Mantenimiento' : 'Court rest & grooming'}
+                  </div>
+                </div>
+
+                <!-- Turno 2 -->
+                <div class="shift-box">
+                  <div class="shift-box-title">
+                    <span>🌙 ${currentLang === 'es' ? 'Turno 2: Tarde / Noche (Luz)' : 'Shift 2: Evening / Floodlights'}</span>
+                    <span class="price-tag-badge">$${day.t2Price}/h</span>
+                  </div>
+                  <div class="shift-inputs">
+                    <div class="time-field">
+                      <label>${currentLang === 'es' ? 'Inicio' : 'Open'}</label>
+                      <input type="time" value="${day.t2Start}" onchange="updateShiftTime(${index}, 't2Start', this.value)">
+                    </div>
+                    <div class="time-field">
+                      <label>${currentLang === 'es' ? 'Fin' : 'Close'}</label>
+                      <input type="time" value="${day.t2End}" onchange="updateShiftTime(${index}, 't2End', this.value)">
+                    </div>
+                    <div class="time-field" style="width: 70px;">
+                      <label>${currentLang === 'es' ? 'Tarifa' : 'Rate'}</label>
+                      <input type="number" value="${day.t2Price}" style="text-align: right;" onchange="updateShiftPrice(${index}, 't2Price', this.value)">
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+            </div>
+
+            <!-- VISUAL 24H TIMELINE RIBBON -->
+            <div class="timeline-ribbon-wrap">
+              <div class="timeline-ribbon">
+                ${renderRibbonSegments(day)}
+              </div>
+              <div class="ribbon-ticks">
+                <span>06:00</span>
+                <span>09:00</span>
+                <span>12:00</span>
+                <span>15:00</span>
+                <span>18:00</span>
+                <span>21:00</span>
+                <span>24:00</span>
+              </div>
+            </div>
+          ` : `
+            <div style="padding: 12px; color: var(--text-faint); font-size: 13px; text-align: center; font-style: italic;">
+              ${currentLang === 'es' ? 'Este día no cuenta con turnos disponibles para reserva de clientes.' : 'This day has no open shifts available for bookings.'}
+            </div>
+          `}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function renderRibbonSegments(day) {
+      if (!day.open) return '';
+
+      const minDayStart = 6 * 60; // 06:00
+      const maxDayEnd = 24 * 60;  // 24:00
+      const totalMinutes = maxDayEnd - minDayStart; // 18 hours = 1080 min
+
+      const t1StartMin = Math.max(minDayStart, parseTimeToMinutes(day.t1Start));
+      const t1EndMin = Math.min(maxDayEnd, parseTimeToMinutes(day.t1End));
+
+      let html = '';
+
+      // Leading closed space (before shift 1)
+      if (t1StartMin > minDayStart) {
+        const leadWidth = ((t1StartMin - minDayStart) / totalMinutes) * 100;
+        html += `<div class="ribbon-slot recess" style="width: ${leadWidth}%;"></div>`;
+      }
+
+      // Shift 1
+      const s1Width = ((t1EndMin - t1StartMin) / totalMinutes) * 100;
+      html += `<div class="ribbon-slot shift-1" style="width: ${s1Width}%;" title="Turno 1: ${day.t1Start} - ${day.t1End}">
+        ${day.t1Start} - ${day.t1End}
+      </div>`;
+
+      if (day.split) {
+        const t2StartMin = Math.max(t1EndMin, parseTimeToMinutes(day.t2Start));
+        const t2EndMin = Math.min(maxDayEnd, parseTimeToMinutes(day.t2End));
+
+        // Midday recess
+        if (t2StartMin > t1EndMin) {
+          const recessWidth = ((t2StartMin - t1EndMin) / totalMinutes) * 100;
+          html += `<div class="ribbon-slot recess" style="width: ${recessWidth}%;" title="Receso: ${day.t1End} - ${day.t2Start}">
+            ⏸️ ${currentLang === 'es' ? 'Pausa' : 'Break'}
+          </div>`;
+        }
+
+        // Shift 2
+        const s2Width = ((t2EndMin - t2StartMin) / totalMinutes) * 100;
+        html += `<div class="ribbon-slot shift-2" style="width: ${s2Width}%;" title="Turno 2: ${day.t2Start} - ${day.t2End}">
+          ${day.t2Start} - ${day.t2End}
+        </div>`;
+
+        // Trailing closed space
+        if (t2EndMin < maxDayEnd) {
+          const trailWidth = ((maxDayEnd - t2EndMin) / totalMinutes) * 100;
+          html += `<div class="ribbon-slot recess" style="width: ${trailWidth}%;"></div>`;
+        }
+      } else {
+        // Trailing closed space for continuous shift
+        if (t1EndMin < maxDayEnd) {
+          const trailWidth = ((maxDayEnd - t1EndMin) / totalMinutes) * 100;
+          html += `<div class="ribbon-slot recess" style="width: ${trailWidth}%;"></div>`;
+        }
+      }
+
+      return html;
+    }
+
+    function toggleDayStatus(index) {
+      daysData[index].open = !daysData[index].open;
+      renderDays();
+    }
+
+    function toggleSplitMode(index) {
+      daysData[index].split = !daysData[index].split;
+      renderDays();
+    }
+
+    function updateShiftTime(index, field, value) {
+      daysData[index][field] = value;
+      renderDays();
+    }
+
+    function updateShiftPrice(index, field, value) {
+      daysData[index][field] = parseFloat(value) || 0;
+      renderDays();
+    }
+
+    function quickSyncWeekdays() {
+      const mon = daysData[0];
+      for (let i = 1; i <= 4; i++) { // Martes, Miercoles, Jueves, Viernes
+        daysData[i].open = mon.open;
+        daysData[i].split = mon.split;
+        daysData[i].t1Start = mon.t1Start;
+        daysData[i].t1End = mon.t1End;
+        daysData[i].t1Price = mon.t1Price;
+        daysData[i].t2Start = mon.t2Start;
+        daysData[i].t2End = mon.t2End;
+        daysData[i].t2Price = mon.t2Price;
+      }
+      renderDays();
+      alert(currentLang === 'es'
+        ? "⚡ ¡Horario de Lunes sincronizado con éxito a Martes, Miércoles, Jueves y Viernes!"
+        : "⚡ Monday schedule successfully synchronized to Tuesday through Friday!"
+      );
+    }
+
+    function openCopyModal(sourceDayId) {
+      sourceCopyDay = sourceDayId;
+      const dayObj = daysData.find(d => d.id === sourceDayId) || daysData[0];
+      const name = currentLang === 'es' ? dayObj.nameEs : dayObj.nameEn;
+      document.getElementById('copy-modal-subtitle').innerText = currentLang === 'es'
+        ? `Copiando configuración de ${name} hacia otros días:`
+        : `Copying ${name} configuration to other days:`;
+      document.getElementById('copy-modal-backdrop').classList.add('active');
+    }
+
+    function closeCopyModal() {
+      document.getElementById('copy-modal-backdrop').classList.remove('active');
+    }
+
+    function executeCopySchedule() {
+      const source = daysData.find(d => d.id === sourceCopyDay) || daysData[0];
+      const checkboxes = document.querySelectorAll('input[name="copy_day"]:checked');
+      checkboxes.forEach(cb => {
+        const targetDay = daysData.find(d => d.nameEs === cb.value || d.nameEn === cb.value);
+        if (targetDay && targetDay.id !== source.id) {
+          targetDay.open = source.open;
+          targetDay.split = source.split;
+          targetDay.t1Start = source.t1Start;
+          targetDay.t1End = source.t1End;
+          targetDay.t1Price = source.t1Price;
+          targetDay.t2Start = source.t2Start;
+          targetDay.t2End = source.t2End;
+          targetDay.t2Price = source.t2Price;
+        }
+      });
+      closeCopyModal();
+      renderDays();
+      alert(currentLang === 'es' ? "¡Horarios replicados exitosamente!" : "Schedules successfully replicated!");
+    }
+
+    function openAddExceptionModal() {
+      document.getElementById('exception-modal-backdrop').classList.add('active');
+    }
+
+    function closeAddExceptionModal() {
+      document.getElementById('exception-modal-backdrop').classList.remove('active');
+    }
+
+    function handleRegimeChange() {
+      const reg = document.getElementById('exc-regime-select').value;
+      document.getElementById('exc-hours-row').style.display = reg === 'partial' ? 'grid' : 'none';
+    }
+
+    function handleAddExceptionSubmit(e) {
+      e.preventDefault();
+      const date = document.getElementById('exc-date-input').value;
+      const reason = document.getElementById('exc-reason-input').value;
+      const reg = document.getElementById('exc-regime-select').value;
+      
+      const tbody = document.getElementById('exceptions-tbody');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>
+          <strong style="color: var(--text-main);">${date}</strong>
+          <div style="font-size: 11px; color: var(--text-muted);">${currentLang === 'es' ? 'Excepción especial' : 'Special override'}</div>
+        </td>
+        <td>
+          <div style="font-weight: 600; color: var(--text-main);">${reason}</div>
+          <div style="font-size: 11.5px; color: var(--text-muted);">${currentLang === 'es' ? 'Agregado manualmente' : 'Added manually'}</div>
+        </td>
+        <td><span class="badge" style="background: var(--bg-muted); color: var(--text-main);">${currentLang === 'es' ? 'Todas las Canchas' : 'All Courts'}</span></td>
+        <td>
+          <span class="badge ${reg === 'closed' ? 'badge-cancelled' : 'badge-hold'}">
+            ${reg === 'closed' ? (currentLang === 'es' ? 'Cerrado Todo el Día' : 'Closed All Day') : '08:00 - 14:00 (Especial)'}
+          </span>
+        </td>
+        <td><span class="badge badge-available">${currentLang === 'es' ? 'Programado' : 'Scheduled'}</span></td>
+        <td style="text-align: right;">
+          <button class="btn-icon" title="Eliminar" onclick="this.closest('tr').remove()">🗑️</button>
+        </td>
+      `;
+      tbody.prepend(tr);
+      closeAddExceptionModal();
+      alert(currentLang === 'es' ? "¡Excepción de horario agregada con éxito!" : "Schedule exception added successfully!");
+    }
+
+    function openSaveModal() {
+      document.getElementById('save-modal-backdrop').classList.add('active');
+    }
+
+    function closeSaveModal() {
+      document.getElementById('save-modal-backdrop').classList.remove('active');
+    }
+
+    function confirmSavePublication() {
+      closeSaveModal();
+      alert(currentLang === 'es'
+        ? "✅ ¡Configuración de turnos semanales publicada con éxito en YoReservo! Sincronizado en tiempo real con la app móvil de clientes."
+        : "✅ Weekly shift configuration successfully published to YoReservo! Real-time sync with mobile client app."
+      );
+    }
+
+    function handleScopeChange() {
+      const scope = document.getElementById('scope-selector').value;
+      alert(currentLang === 'es' 
+        ? `Cargando plantilla de turnos para: [${scope}]...` 
+        : `Loading shift schedule template for: [${scope}]...`
+      );
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+
+      renderDays();
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+      renderDays();
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Initialize
+    initTheme();
+    renderDays();
+  </script>
+</body>
+</html>

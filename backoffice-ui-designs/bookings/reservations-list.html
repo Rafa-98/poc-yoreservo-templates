@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Lista de Reservas & Operaciones de Check-In</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Filter Bar & Quick Chips */
+    .filter-chip {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .filter-chip:hover {
+      border-color: var(--text-link);
+      color: var(--text-main);
+    }
+    .filter-chip.active {
+      background: rgba(198, 242, 59, 0.15);
+      border-color: var(--brand-lime);
+      color: var(--text-link);
+      font-weight: 700;
+    }
+    [data-theme="dark"] .filter-chip.active {
+      background: rgba(198, 242, 59, 0.2);
+      color: #C6F23B;
+      border-color: #C6F23B;
+    }
+
+    /* Flyout Drawer for Reservation Details */
+    .drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(18, 24, 17, 0.65);
+      backdrop-filter: blur(6px);
+      z-index: 350;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .drawer-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .drawer-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      max-width: 540px;
+      background: var(--bg-surface);
+      border-left: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow-modal);
+      z-index: 360;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    .drawer-backdrop.active .drawer-panel {
+      transform: translateX(0);
+    }
+    .drawer-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-surface);
+    }
+    .drawer-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .drawer-footer {
+      padding: 18px 24px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-muted);
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    /* Booking Code Pill */
+    .booking-code-pill {
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-medium);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item active">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Complejo Deportivo Ávila</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">RIF: J-50123890-4 • Aliado Pro</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main">
+      
+      <!-- TOPBAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Control Maestro de Reservas</h2>
+              <span class="badge badge-available" data-i18n="badge_realtime">Tiempo Real</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
+              Historial de partidos, check-in en mostrador, conciliación de pagos y exportación contable
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Walk-in Booking Action -->
+          <button type="button" class="btn btn-primary" onclick="openWalkinModal()" style="font-size: 13px; padding: 7px 16px;" id="btn-walkin">
+            <span>+</span>
+            <span data-i18n="btn_walkin">Reserva Walk-in</span>
+          </button>
+
+          <!-- Export Excel CTA -->
+          <button type="button" class="btn btn-outline" onclick="exportReservationsCSV()" style="font-size: 12.5px; padding: 7px 14px;">
+            <span>📊</span>
+            <span data-i18n="btn_export">Exportar CSV</span>
+          </button>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- SUBNAV TABS (Module 6 Navigation) -->
+      <section style="padding: 16px 20px 0; display: flex; gap: 10px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface);">
+        <a href="../agenda/agenda-grid.html" class="btn btn-outline" style="border: none; color: var(--text-muted); font-weight: 500;">
+          📅 <span data-i18n="tab_agenda_view">Vista Grilla / Timeline</span>
+        </a>
+        <a href="reservations-list.html" class="btn btn-outline" style="border-bottom: 3px solid var(--brand-lime); border-radius: 8px 8px 0 0; background: var(--bg-surface); font-weight: 700;">
+          📋 <span data-i18n="tab_list_view">Lista de Reservas & Auditoría</span>
+        </a>
+      </section>
+
+      <div style="padding: 24px 20px;">
+        
+        <!-- KPI SUMMARY CARDS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px;">
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_total_bookings">Total Reservas del Mes</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--text-main); margin-top: 4px;" id="kpi-total">184</div>
+            <div style="font-size: 11px; color: var(--text-link); margin-top: 4px;" data-i18n="kpi_total_growth">+18% vs mes anterior</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_confirmed">Confirmadas & Pagadas</div>
+            <div style="font-size: 26px; font-weight: 800; color: #10B981; margin-top: 4px;" id="kpi-confirmed">142</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="kpi_confirmed_desc">Vía Pago Móvil & Tarjeta</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_walkin">Walk-in Mostrador (Caja)</div>
+            <div style="font-size: 26px; font-weight: 800; color: #0284C7; margin-top: 4px;" id="kpi-walkin">28</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;" data-i18n="kpi_walkin_desc">Cobros directos en efectivo/punto</div>
+          </div>
+
+          <div class="card" style="padding: 16px 20px;">
+            <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_volume">Facturación en Canchas</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--brand-lime-text-dark, #C6F23B); margin-top: 4px;">$6,840.00</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">≈ 280,440 Bs. (Tasa BCV 41.00)</div>
+          </div>
+        </div>
+
+        <!-- SEARCH & ADVANCED FILTER TOOLBAR -->
+        <div class="card" style="padding: 18px 20px; margin-bottom: 20px;">
+          
+          <!-- Date Range Quick Chips -->
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;" data-i18n="label_date_filter">Fecha:</span>
+              <button type="button" class="filter-chip active" onclick="setDateFilter('all', this)" data-i18n="chip_all">Todas</button>
+              <button type="button" class="filter-chip" onclick="setDateFilter('today', this)" data-i18n="chip_today">Hoy (12 Oct)</button>
+              <button type="button" class="filter-chip" onclick="setDateFilter('tomorrow', this)" data-i18n="chip_tomorrow">Mañana (13 Oct)</button>
+              <button type="button" class="filter-chip" onclick="setDateFilter('week', this)" data-i18n="chip_week">Esta Semana</button>
+              <button type="button" class="filter-chip" onclick="setDateFilter('month', this)" data-i18n="chip_month">Este Mes</button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge badge-hold" style="font-weight: 700;">Tasa Oficial BCV: 41.00 Bs.</span>
+            </div>
+          </div>
+
+          <!-- Multi-Dropdown Filters Row -->
+          <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1; min-width: 320px;">
+              <input type="text" id="search-input" class="form-control" style="max-width: 280px;" placeholder="🔍 Código (ej. AB4553), cliente o teléfono..." oninput="filterReservations()">
+              
+              <select id="filter-venue" class="form-control" style="width: auto; min-width: 190px;" onchange="filterReservations()">
+                <option value="all">Todas las Sedes</option>
+                <option value="Las Mercedes">Complejo Las Mercedes</option>
+                <option value="San Agustín">San Agustín del Paraíso</option>
+              </select>
+
+              <select id="filter-sport" class="form-control" style="width: auto; min-width: 160px;" onchange="filterReservations()">
+                <option value="all">Todos los Deportes</option>
+                <option value="Pádel">🎾 Pádel</option>
+                <option value="Fútbol">⚽ Fútbol</option>
+                <option value="Tenis">🎾 Tenis</option>
+              </select>
+
+              <select id="filter-payment" class="form-control" style="width: auto; min-width: 170px;" onchange="filterReservations()">
+                <option value="all">Método de Pago</option>
+                <option value="pago_movil">Pago Móvil (Bs.)</option>
+                <option value="cash">Efectivo en Cancha ($)</option>
+                <option value="card">Tarjeta / Débito</option>
+              </select>
+
+              <select id="filter-status" class="form-control" style="width: auto; min-width: 160px;" onchange="filterReservations()">
+                <option value="all">Todos los Estados</option>
+                <option value="CONFIRMED">Confirmada</option>
+                <option value="PENDING_PAYMENT">Pendiente Pago</option>
+                <option value="COMPLETED">Completada</option>
+                <option value="CANCELLED">Cancelada</option>
+                <option value="BLOCKED">Bloqueo Mantenimiento</option>
+              </select>
+            </div>
+
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 7px 12px;" onclick="resetFilters()">
+              🔄 <span data-i18n="btn_clear">Limpiar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RESERVATIONS DATA TABLE -->
+        <div style="overflow-x: auto;">
+          <table class="data-table" id="bookings-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_code">Código & Origen</th>
+                <th data-i18n="th_client">Cliente & WhatsApp</th>
+                <th data-i18n="th_court">Cancha & Recinto</th>
+                <th data-i18n="th_schedule">Horario & Turno</th>
+                <th data-i18n="th_financial">Monto USD / Bs.</th>
+                <th data-i18n="th_payment">Método Pago</th>
+                <th data-i18n="th_status">Estatus</th>
+                <th style="text-align: right;" data-i18n="th_actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="bookings-tbody">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       FLYOUT DRAWER: RESERVATION DETAIL & AUDIT
+       ========================================================================== -->
+  <div class="drawer-backdrop" id="detail-drawer-backdrop" onclick="closeDetailDrawer()">
+    <div class="drawer-panel" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 24px;">🎟️</span>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h3 style="font-size: 18px; margin: 0;" id="drawer-code-title">Reserva #AB4553</h3>
+              <span class="badge badge-confirmed" id="drawer-status-badge">Confirmada</span>
+            </div>
+            <div style="font-size: 11.5px; color: var(--text-muted);" id="drawer-created-subtitle">
+              Emitida el 12 Oct 2026 a las 14:22 vía YoReservo App
+            </div>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeDetailDrawer()">✕</button>
+      </div>
+
+      <div class="drawer-body">
+        
+        <!-- Check-in Action Box -->
+        <div style="background: var(--bg-muted); border: 1px solid var(--border-medium); border-radius: 14px; padding: 18px; display: flex; align-items: center; justify-content: space-between; gap: 14px;">
+          <div>
+            <div style="font-weight: 700; font-size: 14px; color: var(--text-main);" data-i18n="label_checkin_title">
+              Control de Ingreso a Cancha:
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="drawer-checkin-desc">
+              Valida el pase de los jugadores al llegar al recinto.
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="drawer-checkin-btn" onclick="executeCheckin()" style="font-size: 13px;">
+            🎟️ Validar Entrada
+          </button>
+        </div>
+
+        <!-- Customer Identity Card -->
+        <div class="card" style="padding: 16px;">
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 8px;" data-i18n="section_player">
+            👤 Datos del Jugador / Titular:
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="font-size: 15px; color: var(--text-main);" id="drawer-player-name">Ignacio Silva</strong>
+              <div style="font-size: 12.5px; color: var(--text-muted); margin-top: 2px;" id="drawer-player-dni">C.I: V-19482910 • Cliente Frecuente</div>
+            </div>
+            <a href="#" id="drawer-wa-btn" target="_blank" class="btn btn-outline" style="font-size: 12px; color: #10B981; border-color: rgba(16, 185, 129, 0.4);">
+              <span>💬</span> WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Match & Venue Specs -->
+        <div class="card" style="padding: 16px;">
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 12px;" data-i18n="section_court">
+            🏟️ Cancha & Turno Asignado:
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted);">Sede Deportiva:</div>
+              <strong style="font-size: 13.5px; color: var(--text-main);" id="drawer-venue">Complejo Las Mercedes</strong>
+            </div>
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted);">Cancha & Formato:</div>
+              <strong style="font-size: 13.5px; color: var(--text-main);" id="drawer-court">Cancha 1 — Pádel Panorámica</strong>
+            </div>
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted);">Fecha de Juego:</div>
+              <strong style="font-size: 13.5px; color: var(--text-main);" id="drawer-date">Lunes, 12 Oct 2026</strong>
+            </div>
+            <div>
+              <div style="font-size: 11px; color: var(--text-muted);">Horario / Duración:</div>
+              <strong style="font-size: 13.5px; color: var(--text-main);" id="drawer-time">18:00 - 19:30 (90 min)</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment & Financial Audit -->
+        <div class="card" style="padding: 16px;">
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 12px;" data-i18n="section_finance">
+            💳 Liquidación Financiera & Comprobante:
+          </div>
+          <div style="background: var(--bg-muted); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--text-muted);">Tarifa de Cancha (USD):</span>
+              <strong style="color: var(--text-main);" id="drawer-usd">$40.00</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px;">
+              <span style="color: var(--text-muted);">Tasa Oficial BCV Aplicada:</span>
+              <span id="drawer-rate">41.00 Bs. / USD</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 13.5px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
+              <span style="font-weight: 700; color: var(--text-main);">Total en Bolívares (Bs.):</span>
+              <strong style="color: var(--text-link); font-size: 15px;" id="drawer-bs">1,640.00 Bs.</strong>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px; font-size: 12px; color: var(--text-muted);" id="drawer-pay-meta">
+            Método: <strong>Pago Móvil Banesco</strong> • Ref: <code>#84920194</code>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="drawer-footer">
+        <button type="button" class="btn btn-outline" onclick="closeDetailDrawer()" data-i18n="btn_close">Cerrar</button>
+        <button type="button" class="btn btn-destructive" onclick="cancelReservationPrompt()" data-i18n="btn_cancel_booking">Cancelar Reserva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: NUEVA RESERVA WALK-IN (MOSTRADOR)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="walkin-modal-backdrop" onclick="closeWalkinModal()">
+    <div class="modal-card" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🎟️</span>
+          <div>
+            <h3 style="font-size: 18px; margin: 0;" data-i18n="modal_walkin_title">Nueva Reserva Walk-in (Mostrador)</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="modal_walkin_desc">
+              Bloqueo manual presencial sin comisión de app (Tarifa 100% para el club).
+            </p>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeWalkinModal()">✕</button>
+      </div>
+
+      <form id="walkin-form" onsubmit="handleWalkinSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_client_name">Nombre del Cliente *</label>
+              <input type="text" class="form-control" required id="walkin-name" placeholder="Ej: Marcos Pérez">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_client_phone">WhatsApp del Cliente *</label>
+              <input type="text" class="form-control" required id="walkin-phone" placeholder="+58 414 7776655">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_venue">Sede Deportiva *</label>
+              <select class="form-control" id="walkin-venue">
+                <option value="Las Mercedes">Complejo Las Mercedes</option>
+                <option value="San Agustín">San Agustín del Paraíso</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_court">Cancha *</label>
+              <select class="form-control" id="walkin-court">
+                <option value="C1 Pádel">Cancha 1 — Pádel Panorámica</option>
+                <option value="C2 Pádel">Cancha 2 — Pádel Panorámica</option>
+                <option value="F7 Fútbol">Cancha Fútbol 7 Sintética</option>
+                <option value="T1 Tenis">Cancha 1 Tenis Polvo Ladrillo</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label">Fecha *</label>
+              <input type="date" class="form-control" id="walkin-date" required value="2026-10-12">
+            </div>
+            <div>
+              <label class="form-label">Hora Inicio *</label>
+              <input type="time" class="form-control" id="walkin-time" required value="17:00">
+            </div>
+            <div>
+              <label class="form-label">Duración *</label>
+              <select class="form-control" id="walkin-duration">
+                <option value="60">60 min</option>
+                <option value="90" selected>90 min</option>
+                <option value="120">120 min</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label">Método de Cobro Mostrador *</label>
+              <select class="form-control" id="walkin-payment">
+                <option value="cash">💵 Efectivo USD en Caja</option>
+                <option value="pago_movil">📱 Pago Móvil Verificado</option>
+                <option value="pos">💳 Punto de Venta / Débito</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label">Monto a Cobrar ($)</label>
+              <input type="number" class="form-control" id="walkin-price" required value="30">
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeWalkinModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_confirm_walkin">Confirmar Reserva ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let currentLang = 'es';
+    let activeDateFilter = 'all';
+    let selectedBookingId = null;
+
+    let reservationsData = [
+      {
+        id: 'res-1',
+        code: 'AB4553',
+        origin: 'app',
+        clientName: 'Ignacio Silva',
+        dni: 'V-19482910',
+        phone: '+58 414 9102938',
+        venue: 'Las Mercedes',
+        sport: 'Pádel',
+        court: 'Cancha 1 — Panorámica',
+        date: '2026-10-12',
+        dateDisplay: 'Hoy, 12 Oct',
+        timeSlot: '18:00 - 19:30',
+        duration: '90 min',
+        priceUsd: 40,
+        rateBcv: 41.00,
+        priceBs: 1640.00,
+        paymentMethod: 'pago_movil',
+        paymentMeta: 'Pago Móvil Banesco • Ref: #84920194',
+        status: 'CONFIRMED',
+        checkedIn: false
+      },
+      {
+        id: 'res-2',
+        code: 'MN7102',
+        origin: 'walk-in',
+        clientName: 'Carlos Mendoza',
+        dni: 'V-16829104',
+        phone: '+58 412 8881920',
+        venue: 'Las Mercedes',
+        sport: 'Pádel',
+        court: 'Cancha 2 — Panorámica',
+        date: '2026-10-12',
+        dateDisplay: 'Hoy, 12 Oct',
+        timeSlot: '19:30 - 21:00',
+        duration: '90 min',
+        priceUsd: 40,
+        rateBcv: 41.00,
+        priceBs: 1640.00,
+        paymentMethod: 'cash',
+        paymentMeta: 'Efectivo en Mostrador ($40 en caja)',
+        status: 'CONFIRMED',
+        checkedIn: true,
+        checkedInBy: 'Mariana Duarte a las 19:22'
+      },
+      {
+        id: 'res-3',
+        code: 'FK3901',
+        origin: 'app',
+        clientName: 'Daniela Salazar',
+        dni: 'V-25810293',
+        phone: '+58 424 5551234',
+        venue: 'San Agustín',
+        sport: 'Fútbol',
+        court: 'Cancha Fútbol 7 Pro',
+        date: '2026-10-12',
+        dateDisplay: 'Hoy, 12 Oct',
+        timeSlot: '20:00 - 21:00',
+        duration: '60 min',
+        priceUsd: 25,
+        rateBcv: 41.00,
+        priceBs: 1025.00,
+        paymentMethod: 'pago_movil',
+        paymentMeta: 'Pago Móvil Mercantil • Ref: #30194821',
+        status: 'PENDING_PAYMENT',
+        checkedIn: false
+      },
+      {
+        id: 'res-4',
+        code: 'YT9021',
+        origin: 'app',
+        clientName: 'Gustavo Paiva',
+        dni: 'V-14782019',
+        phone: '+58 416 3330011',
+        venue: 'Las Mercedes',
+        sport: 'Tenis',
+        court: 'Cancha 1 — Arcilla Batida',
+        date: '2026-10-13',
+        dateDisplay: 'Mañana, 13 Oct',
+        timeSlot: '08:00 - 09:30',
+        duration: '90 min',
+        priceUsd: 30,
+        rateBcv: 41.00,
+        priceBs: 1230.00,
+        paymentMethod: 'card',
+        paymentMeta: 'Tarjeta Débito Punto • Lote: 049',
+        status: 'CONFIRMED',
+        checkedIn: false
+      },
+      {
+        id: 'res-5',
+        code: 'QP1194',
+        origin: 'walk-in',
+        clientName: 'Roberto Gómez',
+        dni: 'V-12948102',
+        phone: '+58 414 2223344',
+        venue: 'Las Mercedes',
+        sport: 'Pádel',
+        court: 'Cancha 3 — Techada',
+        date: '2026-10-11',
+        dateDisplay: 'Ayer, 11 Oct',
+        timeSlot: '17:00 - 18:30',
+        duration: '90 min',
+        priceUsd: 35,
+        rateBcv: 41.00,
+        priceBs: 1435.00,
+        paymentMethod: 'cash',
+        paymentMeta: 'Efectivo $35 USD',
+        status: 'COMPLETED',
+        checkedIn: true,
+        checkedInBy: 'Mariana Duarte a las 16:55'
+      },
+      {
+        id: 'res-6',
+        code: 'ZZ0019',
+        origin: 'app',
+        clientName: 'Alejandro Morales',
+        dni: 'V-14285910',
+        phone: '+58 412 1112233',
+        venue: 'San Agustín',
+        sport: 'Fútbol',
+        court: 'Cancha Fútbol 5',
+        date: '2026-10-10',
+        dateDisplay: '10 Oct 2026',
+        timeSlot: '16:00 - 17:00',
+        duration: '60 min',
+        priceUsd: 20,
+        rateBcv: 41.00,
+        priceBs: 820.00,
+        paymentMethod: 'pago_movil',
+        paymentMeta: 'Rechazado por comprobante duplicado',
+        status: 'CANCELLED',
+        checkedIn: false
+      }
+    ];
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_catalogs: "Catálogos Maestros",
+        nav_settings: "Configuración Club",
+        topbar_title: "Control Maestro de Reservas",
+        topbar_subtitle: "Historial de partidos, check-in en mostrador, conciliación de pagos y exportación contable",
+        badge_realtime: "Tiempo Real",
+        btn_walkin: "Reserva Walk-in",
+        btn_export: "Exportar CSV",
+        tab_agenda_view: "Vista Grilla / Timeline",
+        tab_list_view: "Lista de Reservas & Auditoría",
+        kpi_total_bookings: "Total Reservas del Mes",
+        kpi_total_growth: "+18% vs mes anterior",
+        kpi_confirmed: "Confirmadas & Pagadas",
+        kpi_confirmed_desc: "Vía Pago Móvil & Tarjeta",
+        kpi_walkin: "Walk-in Mostrador (Caja)",
+        kpi_walkin_desc: "Cobros directos en efectivo/punto",
+        kpi_volume: "Facturación en Canchas",
+        label_date_filter: "Fecha:",
+        chip_all: "Todas",
+        chip_today: "Hoy (12 Oct)",
+        chip_tomorrow: "Mañana (13 Oct)",
+        chip_week: "Esta Semana",
+        chip_month: "Este Mes",
+        btn_clear: "Limpiar",
+        th_code: "Código & Origen",
+        th_client: "Cliente & WhatsApp",
+        th_court: "Cancha & Recinto",
+        th_schedule: "Horario & Turno",
+        th_financial: "Monto USD / Bs.",
+        th_payment: "Método Pago",
+        th_status: "Estatus",
+        th_actions: "Acciones",
+        label_checkin_title: "Control de Ingreso a Cancha:",
+        section_player: "👤 Datos del Jugador / Titular:",
+        section_court: "🏟️ Cancha & Turno Asignado:",
+        section_finance: "💳 Liquidación Financiera & Comprobante:",
+        btn_close: "Cerrar",
+        btn_cancel_booking: "Cancelar Reserva",
+        modal_walkin_title: "Nueva Reserva Walk-in (Mostrador)",
+        modal_walkin_desc: "Bloqueo manual presencial sin comisión de app (Tarifa 100% para el club).",
+        label_client_name: "Nombre del Cliente *",
+        label_client_phone: "WhatsApp del Cliente *",
+        label_venue: "Sede Deportiva *",
+        label_court: "Cancha *",
+        btn_cancel: "Cancelar",
+        btn_confirm_walkin: "Confirmar Reserva ✓",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_profile: "Mi Perfil & Seguridad",
+        nav_hub: "Portal Maestro (Hub)",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Inbox",
+        nav_rate: "BCV Official Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Courts Builder",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Team",
+        nav_system: "System",
+        nav_catalogs: "Master Catalogs",
+        nav_settings: "Club Settings",
+        topbar_title: "Master Bookings & Check-In Hub",
+        topbar_subtitle: "Match logs, front-desk check-in, payment reconciliation and accounting export",
+        badge_realtime: "Real-Time",
+        btn_walkin: "Walk-in Booking",
+        btn_export: "Export CSV",
+        tab_agenda_view: "Grid / Timeline View",
+        tab_list_view: "Bookings List & Audit Ledger",
+        kpi_total_bookings: "Total Monthly Bookings",
+        kpi_total_growth: "+18% vs last month",
+        kpi_confirmed: "Confirmed & Paid",
+        kpi_confirmed_desc: "Via Pago Móvil & Cards",
+        kpi_walkin: "Front-desk Walk-ins",
+        kpi_walkin_desc: "Direct cash & POS collections",
+        kpi_volume: "Gross Court Revenue",
+        label_date_filter: "Date:",
+        chip_all: "All",
+        chip_today: "Today (Oct 12)",
+        chip_tomorrow: "Tomorrow (Oct 13)",
+        chip_week: "This Week",
+        chip_month: "This Month",
+        btn_clear: "Clear",
+        th_code: "Code & Origin",
+        th_client: "Player & WhatsApp",
+        th_court: "Court & Venue",
+        th_schedule: "Schedule & Shift",
+        th_financial: "Amount USD / Bs.",
+        th_payment: "Payment Method",
+        th_status: "Status",
+        th_actions: "Actions",
+        label_checkin_title: "Court Access Control:",
+        section_player: "👤 Player Identity:",
+        section_court: "🏟️ Assigned Court & Slot:",
+        section_finance: "💳 Financial Settlement & Receipt:",
+        btn_close: "Close",
+        btn_cancel_booking: "Cancel Booking",
+        modal_walkin_title: "New Front-Desk Walk-In Booking",
+        modal_walkin_desc: "On-site manual reservation with 0% platform commission (100% ally revenue).",
+        label_client_name: "Customer Full Name *",
+        label_client_phone: "Customer WhatsApp *",
+        label_venue: "Sports Venue *",
+        label_court: "Court *",
+        btn_cancel: "Cancel",
+        btn_confirm_walkin: "Confirm Booking ✓",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_profile: "My Profile & Security",
+        nav_hub: "Master Portal (Hub)",
+      }
+    };
+
+    function renderBookingsTable(dataToRender = reservationsData) {
+      const tbody = document.getElementById('bookings-tbody');
+      tbody.innerHTML = '';
+
+      dataToRender.forEach(res => {
+        // Status Badge
+        let statusBadge = '<span class="badge badge-confirmed">Confirmada</span>';
+        if (res.status === 'PENDING_PAYMENT') statusBadge = '<span class="badge badge-hold">Pendiente Pago</span>';
+        else if (res.status === 'COMPLETED') statusBadge = '<span class="badge badge-available">Completada</span>';
+        else if (res.status === 'CANCELLED') statusBadge = '<span class="badge badge-cancelled">Cancelada</span>';
+        else if (res.status === 'BLOCKED') statusBadge = '<span class="badge badge-blocked">Bloqueo</span>';
+
+        // Payment Method Badge
+        let payBadge = '<span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #059669;">📱 Pago Móvil</span>';
+        if (res.paymentMethod === 'cash') payBadge = '<span class="badge" style="background: rgba(245, 158, 11, 0.14); color: #D97706;">💵 Efectivo</span>';
+        else if (res.paymentMethod === 'card') payBadge = '<span class="badge" style="background: rgba(14, 165, 233, 0.14); color: #0284C7;">💳 Tarjeta</span>';
+
+        // Origin icon
+        const originTag = res.origin === 'walk-in'
+          ? '<span title="Walk-in en Taquilla" style="font-size: 13px;">🎟️</span>'
+          : '<span title="App Móvil YoReservo" style="font-size: 13px;">📱</span>';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              ${originTag}
+              <div class="booking-code-pill" onclick="copyBookingCode('${res.code}')" style="cursor: pointer;" title="Copiar Código">
+                <span>#${res.code}</span>
+              </div>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">${res.origin === 'walk-in' ? 'Taquilla Mostrador' : 'YoReservo App'}</div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--text-main);">${res.clientName}</div>
+            <a href="https://wa.me/${res.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(res.clientName)},%20te%20escribimos%20de%20YoReservo%20sobre%20tu%20reserva%20${res.code}" target="_blank" style="font-size: 11.5px; color: #10B981; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;">
+              <span>💬</span> ${res.phone}
+            </a>
+          </td>
+          <td>
+            <div style="font-weight: 600; color: var(--text-main); font-size: 13px;">${res.court}</div>
+            <div style="font-size: 11.5px; color: var(--text-muted);">📍 ${res.venue}</div>
+          </td>
+          <td>
+            <strong style="color: var(--text-main); font-size: 13px;">${res.dateDisplay}</strong>
+            <div style="font-size: 11.5px; color: var(--text-link); font-weight: 600;">${res.timeSlot} (${res.duration})</div>
+          </td>
+          <td>
+            <div style="font-weight: 700; color: var(--text-main); font-size: 14px;">$${res.priceUsd.toFixed(2)}</div>
+            <div style="font-size: 11px; color: var(--text-muted);">≈ ${res.priceBs.toFixed(2)} Bs.</div>
+          </td>
+          <td>
+            ${payBadge}
+          </td>
+          <td>
+            ${statusBadge}
+            ${res.checkedIn ? '<div style="font-size: 10.5px; color: #10B981; font-weight: 700; margin-top: 2px;">✓ Check-in Realizado</div>' : ''}
+          </td>
+          <td style="text-align: right;">
+            <button class="btn-icon" title="Ver Detalles & Check-In" onclick="openDetailDrawer('${res.id}')">👁️</button>
+            <button class="btn-icon" title="WhatsApp Directo" onclick="openWhatsAppChat('${res.phone}', '${res.clientName}', '${res.code}')">💬</button>
+            <button class="btn-icon" title="Cancelar / Modificar" onclick="cancelReservationPrompt('${res.id}')">❌</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterReservations() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      const v = document.getElementById('filter-venue').value;
+      const s = document.getElementById('filter-sport').value;
+      const p = document.getElementById('filter-payment').value;
+      const st = document.getElementById('filter-status').value;
+
+      const filtered = reservationsData.filter(res => {
+        const matchesQuery = res.code.toLowerCase().includes(q) || res.clientName.toLowerCase().includes(q) || res.phone.includes(q);
+        const matchesVenue = v === 'all' || res.venue.includes(v);
+        const matchesSport = s === 'all' || res.sport === s;
+        const matchesPayment = p === 'all' || res.paymentMethod === p;
+        const matchesStatus = st === 'all' || res.status === st;
+
+        let matchesDate = true;
+        if (activeDateFilter === 'today') matchesDate = res.date === '2026-10-12';
+        else if (activeDateFilter === 'tomorrow') matchesDate = res.date === '2026-10-13';
+
+        return matchesQuery && matchesVenue && matchesSport && matchesPayment && matchesStatus && matchesDate;
+      });
+
+      renderBookingsTable(filtered);
+    }
+
+    function setDateFilter(filterType, btn) {
+      activeDateFilter = filterType;
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      filterReservations();
+    }
+
+    function resetFilters() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('filter-venue').value = 'all';
+      document.getElementById('filter-sport').value = 'all';
+      document.getElementById('filter-payment').value = 'all';
+      document.getElementById('filter-status').value = 'all';
+      activeDateFilter = 'all';
+      document.querySelectorAll('.filter-chip').forEach((c, idx) => c.classList.toggle('active', idx === 0));
+      renderBookingsTable();
+    }
+
+    function openDetailDrawer(resId) {
+      selectedBookingId = resId;
+      const res = reservationsData.find(r => r.id === resId);
+      if (!res) return;
+
+      document.getElementById('drawer-code-title').innerText = `Reserva #${res.code}`;
+      document.getElementById('drawer-player-name').innerText = res.clientName;
+      document.getElementById('drawer-player-dni').innerText = `C.I: ${res.dni} • Jugador Frecuente`;
+      document.getElementById('drawer-venue').innerText = res.venue;
+      document.getElementById('drawer-court').innerText = res.court;
+      document.getElementById('drawer-date').innerText = res.dateDisplay;
+      document.getElementById('drawer-time').innerText = `${res.timeSlot} (${res.duration})`;
+      document.getElementById('drawer-usd').innerText = `$${res.priceUsd.toFixed(2)}`;
+      document.getElementById('drawer-rate').innerText = `${res.rateBcv.toFixed(2)} Bs. / USD`;
+      document.getElementById('drawer-bs').innerText = `${res.priceBs.toFixed(2)} Bs.`;
+      document.getElementById('drawer-pay-meta').innerText = res.paymentMeta;
+
+      const waLink = document.getElementById('drawer-wa-btn');
+      waLink.href = `https://wa.me/${res.phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(res.clientName)},%20te%20escribimos%20de%20YoReservo%20sobre%20tu%20reserva%20${res.code}`;
+
+      // Checkin state
+      const checkinBtn = document.getElementById('drawer-checkin-btn');
+      const checkinDesc = document.getElementById('drawer-checkin-desc');
+      if (res.checkedIn) {
+        checkinBtn.className = 'btn btn-outline';
+        checkinBtn.innerText = '✓ Check-in Realizado';
+        checkinBtn.disabled = true;
+        checkinDesc.innerText = `Ingreso validado por: ${res.checkedInBy || 'Recepción'}`;
+      } else {
+        checkinBtn.className = 'btn btn-primary';
+        checkinBtn.innerText = '🎟️ Validar Entrada';
+        checkinBtn.disabled = false;
+        checkinDesc.innerText = 'Valida el pase de los jugadores al llegar al recinto.';
+      }
+
+      document.getElementById('detail-drawer-backdrop').classList.add('active');
+    }
+
+    function closeDetailDrawer() {
+      document.getElementById('detail-drawer-backdrop').classList.remove('active');
+    }
+
+    function executeCheckin() {
+      const res = reservationsData.find(r => r.id === selectedBookingId);
+      if (!res) return;
+
+      res.checkedIn = true;
+      res.checkedInBy = 'Mariana Duarte (Recepción Las Mercedes)';
+      renderBookingsTable();
+      openDetailDrawer(selectedBookingId);
+      alert(`✅ ¡Check-in confirmado para ${res.clientName} (#${res.code})! Acceso autorizado a cancha.`);
+    }
+
+    function openWhatsAppChat(phone, name, code) {
+      const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=Hola%20${encodeURIComponent(name)},%20te%20escribimos%20de%20YoReservo%20para%20confirmar%20tu%20partido%20(${code}).`;
+      window.open(url, '_blank');
+    }
+
+    function copyBookingCode(code) {
+      navigator.clipboard.writeText(code).then(() => {
+        alert(`📋 ¡Código de reserva #${code} copiado al portapapeles!`);
+      });
+    }
+
+    function cancelReservationPrompt(resId) {
+      const targetId = resId || selectedBookingId;
+      const res = reservationsData.find(r => r.id === targetId);
+      if (!res) return;
+
+      if (confirm(`⚠️ ¿Deseas cancelar la reserva #${res.code} de ${res.clientName}? Se registrará motivo de auditoría y se liberará la cancha.`)) {
+        res.status = 'CANCELLED';
+        renderBookingsTable();
+        closeDetailDrawer();
+        alert(`❌ Reserva #${res.code} cancelada exitosamente. Notificación enviada al cliente.`);
+      }
+    }
+
+    function openWalkinModal() {
+      document.getElementById('walkin-modal-backdrop').classList.add('active');
+    }
+
+    function closeWalkinModal() {
+      document.getElementById('walkin-modal-backdrop').classList.remove('active');
+    }
+
+    function handleWalkinSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('walkin-name').value;
+      const phone = document.getElementById('walkin-phone').value;
+      const venue = document.getElementById('walkin-venue').value;
+      const court = document.getElementById('walkin-court').value;
+      const time = document.getElementById('walkin-time').value;
+      const dur = document.getElementById('walkin-duration').value;
+      const pay = document.getElementById('walkin-payment').value;
+      const price = parseFloat(document.getElementById('walkin-price').value);
+
+      const newBooking = {
+        id: `res-${Date.now()}`,
+        code: `WK${Math.floor(1000 + Math.random() * 9000)}`,
+        origin: 'walk-in',
+        clientName: name,
+        dni: 'V-Mostrador',
+        phone: phone,
+        venue: venue,
+        sport: court.includes('Pádel') ? 'Pádel' : (court.includes('Fútbol') ? 'Fútbol' : 'Tenis'),
+        court: court,
+        date: '2026-10-12',
+        dateDisplay: 'Hoy, 12 Oct',
+        timeSlot: `${time} (+${dur} min)`,
+        duration: `${dur} min`,
+        priceUsd: price,
+        rateBcv: 41.00,
+        priceBs: price * 41.00,
+        paymentMethod: pay,
+        paymentMeta: `Cobro en Taquilla (${pay})`,
+        status: 'CONFIRMED',
+        checkedIn: true,
+        checkedInBy: 'Mariana Duarte (Recepción)'
+      };
+
+      reservationsData.unshift(newBooking);
+      renderBookingsTable();
+      closeWalkinModal();
+      alert(`✅ ¡Reserva Walk-in #${newBooking.code} creada con éxito!\nCancha reservada para ${name} con ingreso confirmado.`);
+    }
+
+    function exportReservationsCSV() {
+      let csv = "Codigo,Origen,Cliente,Telefono,Sede,Cancha,Fecha,Horario,Precio_USD,Precio_Bs,Metodo_Pago,Estatus,CheckIn\n";
+      reservationsData.forEach(r => {
+        csv += `"${r.code}","${r.origin}","${r.clientName}","${r.phone}","${r.venue}","${r.court}","${r.date}","${r.timeSlot}",${r.priceUsd},${r.priceBs},"${r.paymentMethod}","${r.status}","${r.checkedIn}"\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `YoReservo_Reservas_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      alert("📊 ¡Archivo CSV generado y descargado exitosamente!");
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Initialize
+    initTheme();
+    renderBookingsTable();
+  </script>
+</body>
+</html>

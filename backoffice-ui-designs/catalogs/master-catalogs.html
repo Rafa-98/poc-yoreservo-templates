@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Catálogos Maestros & Taxonomía Deportiva</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* Subnav Tabs */
+    .tab-nav-bar {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 20px;
+      background: var(--bg-surface);
+    }
+
+    .tab-btn {
+      padding: 14px 18px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      color: var(--text-link);
+      border-bottom-color: var(--brand-lime);
+      font-weight: 700;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px 20px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Taxonomy Tree Styles */
+    .activity-type-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 18px;
+      margin-bottom: 24px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .activity-type-header {
+      padding: 16px 20px;
+      background: var(--bg-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sport-row {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sport-row:last-child {
+      border-bottom: none;
+    }
+
+    .sport-main-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .category-chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
+      padding-left: 44px;
+    }
+
+    .category-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-medium);
+      font-size: 12.5px;
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .category-chip:hover {
+      border-color: var(--text-link);
+    }
+
+    /* Amenity Cards Grid */
+    .amenities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .amenity-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.15s ease;
+    }
+
+    .amenity-card:hover {
+      border-color: var(--text-link);
+      transform: translateY(-2px);
+    }
+
+    .amenity-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(198, 242, 59, 0.12);
+      border: 1px solid rgba(198, 242, 59, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    [data-theme="dark"] .amenity-icon-box {
+      background: rgba(198, 242, 59, 0.16);
+      border-color: rgba(198, 242, 59, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item ">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item active">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">Complejo Deportivo Ávila</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">RIF: J-50123890-4 • Aliado Pro</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button class="mobile-toggle-btn" onclick="toggleSidebar()">☰</button>
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 700; margin: 0;" data-i18n="topbar_title">Catálogos Maestros & Taxonomía</h2>
+              <span class="badge badge-confirmed" data-i18n="badge_taxonomy">3-Tier Taxonomy</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
+              Estructura jerárquica de actividades deportivas, formatos de cancha, superficies y amenidades de clubes
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Add Sport CTA -->
+          <button type="button" class="btn btn-primary" id="btn-add-sport" onclick="openAddSportModal()" style="font-size: 13px; padding: 7px 16px;">
+            <span>+</span>
+            <span data-i18n="btn_new_sport">Nuevo Deporte</span>
+          </button>
+
+          <!-- Language Selector -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- SUBNAV TABS -->
+      <nav class="tab-nav-bar">
+        <button type="button" class="tab-btn active" id="tab-btn-sports" onclick="switchTab('sports')">
+          <span>🎾</span>
+          <span data-i18n="tab_sports">Deportes & Categorías (Taxonomía 3 Niveles)</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-surfaces" onclick="switchTab('surfaces')">
+          <span>🌱</span>
+          <span data-i18n="tab_surfaces">Superficies de Cancha (5)</span>
+        </button>
+        <button type="button" class="tab-btn" id="tab-btn-amenities" onclick="switchTab('amenities')">
+          <span>✨</span>
+          <span data-i18n="tab_amenities">Amenidades & Servicios (7)</span>
+        </button>
+      </nav>
+
+      <!-- TAB 1: 3-TIER SPORTS TAXONOMY -->
+      <div class="tab-content active" id="tab-sports">
+        
+        <!-- EXPLANATORY ARCHITECTURE BANNER -->
+        <div class="card" style="padding: 18px 22px; margin-bottom: 24px; background: rgba(198, 242, 59, 0.12); border: 1px solid rgba(198, 242, 59, 0.25);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <div style="font-size: 14px; font-weight: 700; color: var(--text-main); margin-bottom: 4px;" data-i18n="tax_banner_title">
+                📐 Taxonomía Relacional en Base de Datos (Solución a Fallas de Modelo)
+              </div>
+              <div style="font-size: 12.5px; color: var(--text-muted); line-height: 1.5; max-width: 850px;" data-i18n="tax_banner_desc">
+                Las canchas físicas <strong>no</strong> se vinculan a un deporte genérico plano. Se estructuran en: 
+                <code>ActivityType</code> (Tipo de Actividad) ➔ <code>Activity</code> (Deporte específico con ícono) ➔ <code>ActivityCategory</code> (Formato de juego: 5v5, Dobles, etc., al cual se asocia <code>Space.activityCategoryId</code>).
+              </div>
+            </div>
+            <span class="badge" style="background: var(--bg-surface); color: var(--text-link); border: 1px solid var(--border-medium); font-weight: 700;">
+              i18n JSONB Parity (ES / EN)
+            </span>
+          </div>
+        </div>
+
+        <!-- TIER 1 CONTAINER: RACKET SPORTS -->
+        <div class="activity-type-card">
+          <div class="activity-type-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🎾</span>
+              <div>
+                <strong style="font-size: 15px; color: var(--text-main);">Deportes de Raqueta & Pala</strong>
+                <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">(ActivityType: <code>RACKET_SPORTS</code>)</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 5px 12px;" onclick="openAddSportModal('RACKET_SPORTS')">
+              + Agregar Deporte
+            </button>
+          </div>
+
+          <!-- SPORT: PADEL -->
+          <div class="sport-row">
+            <div class="sport-main-info">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(198, 242, 59, 0.15); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                  🎾
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 15px; color: var(--text-main);">Pádel</strong>
+                    <span style="font-size: 12px; color: var(--text-muted);">[EN: Padel]</span>
+                    <span class="badge badge-available">Activo</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                    18 canchas operativas en plataforma • Duración reglamentaria: 90 min
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-accent" style="font-size: 12px; padding: 5px 10px;" onclick="openAddCategoryModal('Pádel')">
+                  + Formato / Categoría
+                </button>
+                <button class="btn-icon" title="Editar Deporte" onclick="alert('Editar Pádel')">✏️</button>
+              </div>
+            </div>
+
+            <!-- Categories / Formats for Padel -->
+            <div class="category-chips-grid">
+              <div class="category-chip">
+                <span>🏆 Pádel Dobles (4 Jugadores)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 20x10m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+              <div class="category-chip">
+                <span>👤 Pádel Individual (1 vs 1)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 20x6m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SPORT: TENNIS -->
+          <div class="sport-row">
+            <div class="sport-main-info">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(198, 242, 59, 0.15); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                  🎾
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 15px; color: var(--text-main);">Tenis</strong>
+                    <span style="font-size: 12px; color: var(--text-muted);">[EN: Tennis]</span>
+                    <span class="badge badge-available">Activo</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                    6 canchas operativas en plataforma • Duración reglamentaria: 60/90 min
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-accent" style="font-size: 12px; padding: 5px 10px;" onclick="openAddCategoryModal('Tenis')">
+                  + Formato / Categoría
+                </button>
+                <button class="btn-icon" title="Editar Deporte" onclick="alert('Editar Tenis')">✏️</button>
+              </div>
+            </div>
+
+            <!-- Categories / Formats for Tennis -->
+            <div class="category-chips-grid">
+              <div class="category-chip">
+                <span>👤 Tenis Singles (Individual)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 23.77x8.23m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+              <div class="category-chip">
+                <span>👥 Tenis Dobles (Parejas)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 23.77x10.97m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TIER 1 CONTAINER: TEAM & BALL SPORTS -->
+        <div class="activity-type-card">
+          <div class="activity-type-header">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">⚽</span>
+              <div>
+                <strong style="font-size: 15px; color: var(--text-main);">Deportes de Balón & Equipo</strong>
+                <span style="font-size: 12px; color: var(--text-muted); margin-left: 8px;">(ActivityType: <code>TEAM_BALL_SPORTS</code>)</span>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 5px 12px;" onclick="openAddSportModal('TEAM_BALL_SPORTS')">
+              + Agregar Deporte
+            </button>
+          </div>
+
+          <!-- SPORT: FOOTBALL -->
+          <div class="sport-row">
+            <div class="sport-main-info">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(16, 185, 129, 0.15); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                  ⚽
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 15px; color: var(--text-main);">Fútbol</strong>
+                    <span style="font-size: 12px; color: var(--text-muted);">[EN: Soccer]</span>
+                    <span class="badge badge-available">Activo</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                    12 canchas operativas • Duración reglamentaria: 60 min
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-accent" style="font-size: 12px; padding: 5px 10px;" onclick="openAddCategoryModal('Fútbol')">
+                  + Formato / Categoría
+                </button>
+                <button class="btn-icon" title="Editar Deporte" onclick="alert('Editar Fútbol')">✏️</button>
+              </div>
+            </div>
+
+            <!-- Categories / Formats for Football -->
+            <div class="category-chips-grid">
+              <div class="category-chip">
+                <span>⚽ Fútbol 5 (5 vs 5)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 30x18m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+              <div class="category-chip">
+                <span>⚽ Fútbol 7 (7 vs 7)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 50x30m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+              <div class="category-chip">
+                <span>⚽ Fútbol 11 (Profesional)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 100x64m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SPORT: BASKETBALL -->
+          <div class="sport-row">
+            <div class="sport-main-info">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: rgba(245, 158, 11, 0.15); display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                  🏀
+                </div>
+                <div>
+                  <div style="display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 15px; color: var(--text-main);">Básquetbol</strong>
+                    <span style="font-size: 12px; color: var(--text-muted);">[EN: Basketball]</span>
+                    <span class="badge badge-available">Activo</span>
+                  </div>
+                  <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">
+                    4 canchas operativas • Duración reglamentaria: 60 min
+                  </div>
+                </div>
+              </div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" class="btn btn-accent" style="font-size: 12px; padding: 5px 10px;" onclick="openAddCategoryModal('Básquetbol')">
+                  + Formato / Categoría
+                </button>
+                <button class="btn-icon" title="Editar Deporte" onclick="alert('Editar Básquetbol')">✏️</button>
+              </div>
+            </div>
+
+            <!-- Categories / Formats for Basketball -->
+            <div class="category-chips-grid">
+              <div class="category-chip">
+                <span>🏀 Básquetbol 3x3 (Media Cancha)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 15x11m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+              <div class="category-chip">
+                <span>🏀 Básquetbol 5x5 (Cancha Completa FIBA)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">• 28x15m</span>
+                <button type="button" style="background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 11px;" onclick="alert('Editar categoría')">✏️</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TAB 2: COURT SURFACES -->
+      <div class="tab-content" id="tab-surfaces">
+        <div class="card" style="padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <h3 style="font-size: 16px; margin: 0 0 4px;" data-i18n="surfaces_banner_title">Catálogo Oficial de Superficies de Cancha</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" data-i18n="surfaces_banner_desc">
+              Especificación técnica de la base física de cada cancha para cálculo de desgaste y recomendaciones de calzado a jugadores.
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="openAddSurfaceModal()" style="font-size: 13px;">
+            <span>+</span>
+            <span data-i18n="btn_new_surface">Nueva Superficie</span>
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th data-i18n="th_surface_name">Superficie & Código</th>
+                <th data-i18n="th_sports_suited">Deportes Compatibles</th>
+                <th data-i18n="th_maintenance">Mantenimiento Recomendado</th>
+                <th data-i18n="th_status">Estatus</th>
+                <th style="text-align: right;" data-i18n="th_actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">Césped Monofilamento Pádel (WPT)</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted);"><code>SURF_PADEL_MONO_12MM</code> • Arena sílice 0.2-0.6mm</div>
+                </td>
+                <td><span class="badge" style="background: rgba(198, 242, 59, 0.15); color: var(--text-link);">Pádel Dobles / Singles</span></td>
+                <td>Cepillado y nivelación quincenal</td>
+                <td><span class="badge badge-available">Activo</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar superficie')">✏️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">Grama Sintética Pro (Fibrilada 50mm)</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted);"><code>SURF_SYNTH_GRASS_50MM</code> • Relleno de caucho SBR</div>
+                </td>
+                <td><span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #059669;">Fútbol 5 / 7 / 11</span></td>
+                <td>Descompactado y reposición de caucho trimestral</td>
+                <td><span class="badge badge-available">Activo</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar superficie')">✏️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">Poliuretano Multideporte Techado</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted);"><code>SURF_POLY_INDOOR_8MM</code> • Capa elástica amortiguante</div>
+                </td>
+                <td><span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #D97706;">Básquetbol / Futsal / Vóley</span></td>
+                <td>Limpieza técnica con jabón neutro semanal</td>
+                <td><span class="badge badge-available">Activo</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar superficie')">✏️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">Arcilla Batida / Polvo de Ladrillo</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted);"><code>SURF_CLAY_TENNIS_PRO</code> • Grano cerámico rojo</div>
+                </td>
+                <td><span class="badge" style="background: rgba(239, 68, 68, 0.15); color: #DC2626;">Tenis Singles / Dobles</span></td>
+                <td>Riego y pase de estera diario post-juego</td>
+                <td><span class="badge badge-available">Activo</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar superficie')">✏️</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <strong style="color: var(--text-main);">Cemento Pulido / Concreto Fratasado</strong>
+                  <div style="font-size: 11.5px; color: var(--text-muted);"><code>SURF_CONCRETE_OUTDOOR</code> • Pintura epóxica rugosa</div>
+                </td>
+                <td><span class="badge" style="background: var(--bg-muted); color: var(--text-main);">Bolas Criollas / Básquetbol</span></td>
+                <td>Re-sellado acrílico anual</td>
+                <td><span class="badge badge-available">Activo</span></td>
+                <td style="text-align: right;">
+                  <button class="btn-icon" title="Editar" onclick="alert('Editar superficie')">✏️</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 3: AMENITIES & SERVICES -->
+      <div class="tab-content" id="tab-amenities">
+        <div class="card" style="padding: 20px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div>
+            <h3 style="font-size: 16px; margin: 0 0 4px;" data-i18n="amenities_banner_title">Catálogo Global de Amenidades & Servicios</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;" data-i18n="amenities_banner_desc">
+              Características e infraestructura que los recintos deportivos pueden activar en su perfil público de YoReservo.
+            </p>
+          </div>
+          <button type="button" class="btn btn-primary" onclick="openAddAmenityModal()" style="font-size: 13px;">
+            <span>+</span>
+            <span data-i18n="btn_new_amenity">Nueva Amenidad</span>
+          </button>
+        </div>
+
+        <div class="amenities-grid" id="amenities-container">
+          
+          <div class="amenity-card">
+            <div class="amenity-icon-box">💡</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Iluminación LED Nocturna</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Estándar 500+ Lux para transmisión y partidos después de las 18:00
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 2 Sedes
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">🚿</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Vestuarios & Duchas</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Duchas con agua caliente, vestidores y casilleros de seguridad
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 2 Sedes
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">🚗</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Estacionamiento Privado</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Control de acceso con vigilancia armada y cámaras 24/7
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 2 Sedes
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">☕</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Cafetería & Sports Bar</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Bebidas isotónicas, snacks proteicos y pantallas con partidos en vivo
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 1 Sede
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">🎾</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Alquiler de Palas & Balones</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Utilería disponible en recepción (Palas de pádel, balones FIFA Pro)
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 2 Sedes
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">📶</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">WiFi de Alta Velocidad</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Conexión por fibra simétrica para jugadores y live scoring
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 2 Sedes
+              </div>
+            </div>
+          </div>
+
+          <div class="amenity-card">
+            <div class="amenity-icon-box">❄️</div>
+            <div style="flex: 1;">
+              <strong style="font-size: 14px; color: var(--text-main);">Gradas Climatizadas</strong>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 3px;">
+                Zona de espectadores con aire acondicionado y visor panorámico
+              </div>
+              <div style="margin-top: 8px; font-size: 11.5px; color: var(--text-link); font-weight: 700;">
+                ✓ Activo en 1 Sede
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: AGREGAR DEPORTE (ACTIVITY)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="sport-modal-backdrop" onclick="closeAddSportModal()">
+    <div class="modal-card" style="max-width: 520px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 22px;">🏅</span>
+          <div>
+            <h3 style="font-size: 18px; margin: 0;" data-i18n="modal_sport_title">Crear Nuevo Deporte (Activity)</h3>
+            <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" data-i18n="modal_sport_desc">
+              Agrega una disciplina deportiva vinculada a su ActivityType y nombres bilingües.
+            </p>
+          </div>
+        </div>
+        <button class="btn-icon" onclick="closeAddSportModal()">✕</button>
+      </div>
+
+      <form id="sport-form" onsubmit="handleAddSportSubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="form-label" data-i18n="label_activity_type">Tipo de Actividad (ActivityType) *</label>
+            <select class="form-control" id="sport-activity-type" required>
+              <option value="RACKET_SPORTS">🎾 Deportes de Raqueta & Pala (RACKET_SPORTS)</option>
+              <option value="TEAM_BALL_SPORTS">⚽ Deportes de Balón & Equipo (TEAM_BALL_SPORTS)</option>
+              <option value="TRADITIONAL_RECREATIONAL">🎳 Tradicionales & Recreativos (TRADITIONAL_RECREATIONAL)</option>
+              <option value="WELLNESS_FITNESS">🧘 Bienestar & Fitness (WELLNESS_FITNESS)</option>
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_sport_name_es">Nombre en Español *</label>
+              <input type="text" class="form-control" required id="sport-name-es" placeholder="Ej: Pickleball">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_sport_name_en">Nombre en Inglés *</label>
+              <input type="text" class="form-control" required id="sport-name-en" placeholder="Ej: Pickleball">
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 100px 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_icon">Ícono Emoji *</label>
+              <input type="text" class="form-control" required id="sport-icon" value="🏓" style="font-size: 18px; text-align: center;">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_slot_def">Duración Estándar de Partido</label>
+              <select class="form-control" id="sport-slot-def">
+                <option value="60">60 minutos (1 hora)</option>
+                <option value="90" selected>90 minutos (1.5 horas)</option>
+                <option value="120">120 minutos (2 horas)</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAddSportModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_save_sport">Guardar Deporte ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL: AGREGAR FORMATO / CATEGORÍA (ACTIVITY CATEGORY)
+       ========================================================================== -->
+  <div class="modal-backdrop" id="category-modal-backdrop" onclick="closeAddCategoryModal()">
+    <div class="modal-card" style="max-width: 500px;" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 18px; margin: 0;" data-i18n="modal_cat_title">Agregar Formato / Categoría</h3>
+          <p style="font-size: 12px; color: var(--text-muted); margin: 3px 0 0;" id="cat-modal-subtitle">
+            Nueva modalidad de juego para el deporte
+          </p>
+        </div>
+        <button class="btn-icon" onclick="closeAddCategoryModal()">✕</button>
+      </div>
+
+      <form id="category-form" onsubmit="handleAddCategorySubmit(event)">
+        <div class="modal-body" style="display: flex; flex-direction: column; gap: 14px;">
+          <div>
+            <label class="form-label" data-i18n="label_parent_sport">Deporte Padre</label>
+            <input type="text" class="form-control" id="cat-parent-sport" readonly style="opacity: 0.85;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div>
+              <label class="form-label" data-i18n="label_cat_name_es">Nombre Formato (ES) *</label>
+              <input type="text" class="form-control" required id="cat-name-es" placeholder="Ej: Pádel Americano">
+            </div>
+            <div>
+              <label class="form-label" data-i18n="label_cat_name_en">Nombre Formato (EN) *</label>
+              <input type="text" class="form-control" required id="cat-name-en" placeholder="Ej: American Padel">
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_dimensions">Dimensiones Típicas de Cancha</label>
+            <input type="text" class="form-control" id="cat-dimensions" placeholder="Ej: 20m x 10m">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline" onclick="closeAddCategoryModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" data-i18n="btn_save_cat">Crear Categoría ✓</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    let currentLang = 'es';
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Sedes",
+        nav_spaces: "Configurador Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_catalogs: "Catálogos Maestros",
+        nav_settings: "Configuración Club",
+        topbar_title: "Catálogos Maestros & Taxonomía",
+        topbar_subtitle: "Estructura jerárquica de actividades deportivas, formatos de cancha, superficies y amenidades de clubes",
+        badge_taxonomy: "3-Tier Taxonomy",
+        btn_new_sport: "Nuevo Deporte",
+        tab_sports: "Deportes & Categorías (Taxonomía 3 Niveles)",
+        tab_surfaces: "Superficies de Cancha (5)",
+        tab_amenities: "Amenidades & Servicios (7)",
+        tax_banner_title: "📐 Taxonomía Relacional en Base de Datos (Solución a Fallas de Modelo)",
+        tax_banner_desc: "Las canchas físicas no se vinculan a un deporte genérico plano. Se estructuran en: ActivityType (Tipo de Actividad) ➔ Activity (Deporte específico con ícono) ➔ ActivityCategory (Formato de juego: 5v5, Dobles, etc., al cual se asocia Space.activityCategoryId).",
+        surfaces_banner_title: "Catálogo Oficial de Superficies de Cancha",
+        surfaces_banner_desc: "Especificación técnica de la base física de cada cancha para cálculo de desgaste y recomendaciones de calzado a jugadores.",
+        btn_new_surface: "Nueva Superficie",
+        th_surface_name: "Superficie & Código",
+        th_sports_suited: "Deportes Compatibles",
+        th_maintenance: "Mantenimiento Recomendado",
+        th_status: "Estatus",
+        th_actions: "Acciones",
+        amenities_banner_title: "Catálogo Global de Amenidades & Servicios",
+        amenities_banner_desc: "Características e infraestructura que los recintos deportivos pueden activar en su perfil público de YoReservo.",
+        btn_new_amenity: "Nueva Amenidad",
+        modal_sport_title: "Crear Nuevo Deporte (Activity)",
+        modal_sport_desc: "Agrega una disciplina deportiva vinculada a su ActivityType y nombres bilingües.",
+        label_activity_type: "Tipo de Actividad (ActivityType) *",
+        label_sport_name_es: "Nombre en Español *",
+        label_sport_name_en: "Nombre en Inglés *",
+        label_icon: "Ícono Emoji *",
+        label_slot_def: "Duración Estándar de Partido",
+        btn_cancel: "Cancelar",
+        btn_save_sport: "Guardar Deporte ✓",
+        modal_cat_title: "Agregar Formato / Categoría",
+        label_parent_sport: "Deporte Padre",
+        label_cat_name_es: "Nombre Formato (ES) *",
+        label_cat_name_en: "Nombre Formato (EN) *",
+        label_dimensions: "Dimensiones Típicas de Cancha",
+        btn_save_cat: "Crear Categoría ✓",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_profile: "Mi Perfil & Seguridad",
+        nav_hub: "Portal Maestro (Hub)",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Inbox",
+        nav_rate: "BCV Official Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Locations",
+        nav_spaces: "Courts Builder",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Team",
+        nav_system: "System",
+        nav_catalogs: "Master Catalogs",
+        nav_settings: "Club Settings",
+        topbar_title: "Master Catalogs & Taxonomy",
+        topbar_subtitle: "Hierarchical structure of sports activities, court formats, surfaces and club amenities",
+        badge_taxonomy: "3-Tier Taxonomy",
+        btn_new_sport: "New Sport",
+        tab_sports: "Sports & Categories (3-Tier Taxonomy)",
+        tab_surfaces: "Court Surfaces (5)",
+        tab_amenities: "Amenities & Services (7)",
+        tax_banner_title: "📐 Database Relational Taxonomy (Solving Design Architecture Flaws)",
+        tax_banner_desc: "Physical courts are not tied to flat generic strings. They follow: ActivityType ➔ Activity (with icon) ➔ ActivityCategory (Match format: 5v5, Doubles, etc., linked directly to Space.activityCategoryId).",
+        surfaces_banner_title: "Official Court Surfaces Catalog",
+        surfaces_banner_desc: "Technical specifications of physical playing surfaces for wear calculation and player footwear recommendations.",
+        btn_new_surface: "New Surface",
+        th_surface_name: "Surface & Code",
+        th_sports_suited: "Suited Sports",
+        th_maintenance: "Recommended Maintenance",
+        th_status: "Status",
+        th_actions: "Actions",
+        amenities_banner_title: "Global Amenities & Services Catalog",
+        amenities_banner_desc: "Infrastructure characteristics that sports venues can highlight on their public YoReservo profile.",
+        btn_new_amenity: "New Amenity",
+        modal_sport_title: "Create New Sport (Activity)",
+        modal_sport_desc: "Add a sports discipline linked to its ActivityType with bilingual localized names.",
+        label_activity_type: "Activity Type (ActivityType) *",
+        label_sport_name_es: "Name in Spanish *",
+        label_sport_name_en: "Name in English *",
+        label_icon: "Emoji Icon *",
+        label_slot_def: "Standard Match Duration",
+        btn_cancel: "Cancel",
+        btn_save_sport: "Save Sport ✓",
+        modal_cat_title: "Add Match Format / Category",
+        label_parent_sport: "Parent Sport",
+        label_cat_name_es: "Format Name (ES) *",
+        label_cat_name_en: "Format Name (EN) *",
+        label_dimensions: "Typical Court Dimensions",
+        btn_save_cat: "Create Category ✓",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_profile: "My Profile & Security",
+        nav_hub: "Master Portal (Hub)",
+      }
+    };
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(ct => ct.classList.remove('active'));
+
+      document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+      document.getElementById(`tab-${tabId}`).classList.add('active');
+    }
+
+    function openAddSportModal(presetType = 'RACKET_SPORTS') {
+      if (presetType) {
+        document.getElementById('sport-activity-type').value = presetType;
+      }
+      document.getElementById('sport-modal-backdrop').classList.add('active');
+    }
+
+    function closeAddSportModal() {
+      document.getElementById('sport-modal-backdrop').classList.remove('active');
+    }
+
+    function handleAddSportSubmit(e) {
+      e.preventDefault();
+      const nameEs = document.getElementById('sport-name-es').value;
+      const nameEn = document.getElementById('sport-name-en').value;
+      const icon = document.getElementById('sport-icon').value;
+      closeAddSportModal();
+      alert(`✅ ¡Nuevo Deporte creado en el catálogo!\n${icon} ${nameEs} [${nameEn}] registrado en la base de datos.`);
+    }
+
+    function openAddCategoryModal(sportName) {
+      document.getElementById('cat-parent-sport').value = sportName;
+      document.getElementById('cat-modal-subtitle').innerText = `Nueva modalidad de juego para ${sportName}:`;
+      document.getElementById('category-modal-backdrop').classList.add('active');
+    }
+
+    function closeAddCategoryModal() {
+      document.getElementById('category-modal-backdrop').classList.remove('active');
+    }
+
+    function handleAddCategorySubmit(e) {
+      e.preventDefault();
+      const sport = document.getElementById('cat-parent-sport').value;
+      const nameEs = document.getElementById('cat-name-es').value;
+      closeAddCategoryModal();
+      alert(`✅ ¡Categoría [${nameEs}] agregada con éxito al deporte [${sport}]! Lista para ser asignada a canchas físicas.`);
+    }
+
+    function openAddSurfaceModal() {
+      alert("🌱 Apertura del configurador de nuevas superficies de cancha.");
+    }
+
+    function openAddAmenityModal() {
+      alert("✨ Apertura del configurador de nuevas amenidades e instalaciones.");
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // Initialize
+    initTheme();
+  </script>
+</body>
+</html>

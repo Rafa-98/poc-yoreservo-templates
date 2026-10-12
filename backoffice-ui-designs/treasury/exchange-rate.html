@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Tasa Oficial BCV & Historial | Backoffice</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    .rate-hero-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    @media (min-width: 768px) {
+      .rate-hero-card {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .rate-display-box {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+    .rate-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 44px;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1;
+    }
+    .status-beacon {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #059669;
+      box-shadow: 0 0 10px #059669;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      
+      <!-- BRAND LOGO -->
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; color: #FFFFFF; display: none;" onclick="toggleSidebar()">✕</button>
+      </div>
+
+      <!-- NAVIGATION MENU -->
+      <nav class="sidebar-nav">
+        <div class="nav-section-title" data-i18n="nav_overview">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item ">
+          <span>📊</span>
+          <span data-i18n="nav_dashboard">Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_ops">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item ">
+          <span>📅</span>
+          <span data-i18n="nav_agenda">Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item ">
+          <span>📋</span>
+          <span data-i18n="nav_reservations">Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_finance">Finanzas & Tasa</div>
+        <a href="../treasury/pago-movil-inbox.html" class="nav-item ">
+          <span>💳</span>
+          <span data-i18n="nav_reconciliation">Conciliación Pago Móvil</span>
+          <span class="nav-badge">3</span>
+        </a>
+        <a href="../treasury/exchange-rate.html" class="nav-item active">
+          <span>💵</span>
+          <span data-i18n="nav_rate">Tasa Oficial BCV</span>
+        </a>
+        <a href="../treasury/settlements.html" class="nav-item ">
+          <span>🏦</span>
+          <span data-i18n="nav_settlements">Liquidaciones a Aliados</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_facilities">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item ">
+          <span>🏟️</span>
+          <span data-i18n="nav_venues">Recintos & Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item ">
+          <span>⚙️</span>
+          <span data-i18n="nav_spaces">Configurador Canchas</span>
+        </a>
+        <a href="../venues/schedules-editor.html" class="nav-item ">
+          <span>🕒</span>
+          <span data-i18n="nav_schedules">Turnos & Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item ">
+          <span>👥</span>
+          <span data-i18n="nav_staff">Personal & Staff</span>
+        </a>
+
+        <div class="nav-section-title" data-i18n="nav_system">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item ">
+          <span>🎾</span>
+          <span data-i18n="nav_catalogs">Catálogos Maestros</span>
+        </a>
+        <a href="../auth/profile.html" class="nav-item ">
+          <span>👤</span>
+          <span data-i18n="nav_profile">Mi Perfil & Seguridad</span>
+        </a>
+        <a href="../index.html" class="nav-item" style="color: var(--brand-lime);">
+          <span>🏠</span>
+          <span data-i18n="nav_hub">Portal Maestro (Hub)</span>
+        </a>
+      </nav>
+
+      <!-- USER FOOTER -->
+      <div class="sidebar-user" onclick="window.location.href='../auth/profile.html'" style="cursor: pointer;" title="Ver Mi Perfil">
+        <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(198, 242, 59, 0.2); color: var(--brand-lime); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px;">
+          SA
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-size: 13px; font-weight: 600; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            Colegio San Agustín
+          </div>
+          <div style="font-size: 11px; color: var(--brand-lime);" data-i18n="user_role">
+            Aliado Propietario
+          </div>
+        </div>
+        <a href="../auth/login.html" title="Cerrar sesión" style="color: var(--text-sidebar); text-decoration: none; font-size: 16px;">
+          ⎋
+        </a>
+      </div>
+
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="app-main">
+      
+      <!-- STICKY TOPBAR -->
+      <header class="app-topbar">
+        
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <button type="button" class="btn btn-outline" style="padding: 8px 12px; display: inline-flex;" onclick="toggleSidebar()">
+            ☰
+          </button>
+
+          <div>
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-link);" data-i18n="rate_top_sub">
+              Auditoría Cambiaria Institucional
+            </div>
+            <h2 style="font-size: 18px; font-weight: 700;" data-i18n="rate_top_title">
+              Gestor de Tasa Oficial BCV & Historial
+            </h2>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- THEME TOGGLE -->
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+            🌙
+          </button>
+
+          <!-- LANGUAGE SWITCHER -->
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- RATE HERO STATUS CARD -->
+      <section style="padding: 24px 20px 16px;">
+        <div class="rate-hero-card">
+          
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <span class="status-beacon"></span>
+              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #059669;" data-i18n="rate_active_badge">
+                Tasa Oficial Activa en Plataforma
+              </span>
+            </div>
+
+            <div class="rate-display-box">
+              <span class="rate-number" id="current-bcv-rate">41.00</span>
+              <span style="font-size: 18px; font-weight: 700; color: var(--text-muted);">Bs. / USD</span>
+              <span class="badge badge-available" style="font-size: 12px;">+0.24% vs ayer</span>
+            </div>
+
+            <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
+              <span data-i18n="rate_sync_info">Sincronizado vía API oficial del Banco Central de Venezuela. Aplica automáticamente a todas las reservas de canchas y cobros en Pago Móvil.</span>
+            </div>
+          </div>
+
+          <!-- WORKER STATUS & FORCE SYNC -->
+          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 260px;">
+            <div style="background: var(--bg-muted); border-radius: 12px; padding: 12px 14px; font-size: 12px; border: 1px solid var(--border-subtle);">
+              <div style="font-weight: 600; margin-bottom: 2px;" data-i18n="worker_title">Worker Automatizado:</div>
+              <div style="color: var(--text-muted);" data-i18n="worker_last">Última sync: Hoy a las 09:00 AM</div>
+              <div style="color: var(--text-muted);" data-i18n="worker_next">Próxima sync: Mañana 09:00 AM</div>
+            </div>
+
+            <button type="button" class="btn btn-primary" id="btn-force-sync" onclick="handleForceSync()" style="width: 100%;">
+              <span>🔄</span>
+              <span data-i18n="btn_sync_now">Forzar Sincronización BCV</span>
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- MANUAL ADJUSTMENT & LOGS GRID -->
+      <section style="padding: 0 20px 32px; display: grid; grid-template-columns: 1fr; gap: 24px;">
+        
+        <!-- MANUAL OVERRIDE CARD -->
+        <div class="card" style="border-top: 4px solid var(--status-hold-text);">
+          <div style="margin-bottom: 18px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--status-hold-text);" data-i18n="manual_override_sub">
+              Procedimiento Excepcional
+            </div>
+            <h3 style="font-size: 18px; margin-top: 2px;" data-i18n="manual_override_title">
+              Ajuste Manual Extraordinario de Tasa
+            </h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" data-i18n="manual_override_desc">
+              Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo <code>ExchangeRateLog</code>.
+            </p>
+          </div>
+
+          <form id="manual-rate-form" onsubmit="handleManualRateSubmit(event)">
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="manual-rate-input" data-i18n="label_new_rate">Nueva Tasa en Bs. / USD *</label>
+                <div class="input-wrapper">
+                  <input type="number" step="0.01" id="manual-rate-input" class="input-field" placeholder="ej. 41.50" required value="41.25">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="manual-operator" data-i18n="label_operator">Operador Responsable</label>
+                <div class="input-wrapper">
+                  <input type="text" id="manual-operator" class="input-field" readonly value="Colegio San Agustín (Aliado)" style="background: var(--bg-muted); color: var(--text-muted);">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="manual-justification" data-i18n="label_justification">Justificación de Auditoría *</label>
+              <textarea id="manual-justification" class="input-field" rows="2" placeholder="ej. Ajuste preventivo por cierre bancario nacional (feriado bancario lunes)." required>Ajuste preventivo por feriado bancario nacional lunes.</textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end;">
+              <button type="submit" class="btn btn-outline" style="border-color: var(--status-hold-border); color: var(--status-hold-text);" id="btn-save-manual-rate">
+                <span>💾</span>
+                <span data-i18n="btn_save_rate">Registrar Tasa Manual en el Ledger</span>
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <!-- RATE HISTORY LEDGER TABLE -->
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <h3 style="font-size: 18px;" data-i18n="ledger_title">Libro Histórico de Tasas (ExchangeRateLog)</h3>
+              <p style="font-size: 13px; color: var(--text-muted);" data-i18n="ledger_desc">Trazabilidad inmutable de cada tasa aplicada en YoReservo para fines fiscales y contables.</p>
+            </div>
+
+            <button type="button" class="btn btn-outline" style="font-size: 12px;" onclick="alert('Exportando registro histórico en formato CSV/Excel...')">
+              📊 <span data-i18n="btn_export_ledger">Exportar Historial</span>
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table" id="rate-ledger-table">
+              <thead>
+                <tr>
+                  <th data-i18n="th_date">Fecha & Hora</th>
+                  <th data-i18n="th_rate_val">Tasa (Bs/USD)</th>
+                  <th data-i18n="th_origin">Origen / Generado Por</th>
+                  <th data-i18n="th_justification">Operador / Justificación</th>
+                  <th data-i18n="th_status_rate">Estado</th>
+                </tr>
+              </thead>
+              <tbody id="rate-ledger-tbody">
+                
+                <!-- ROW 1: ACTIVE (Today) -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">12/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">09:00:15 AM</div>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-link);">
+                      41.00 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px;">Sincronización matutina automática BCV</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available" data-i18n="badge_active">ACTIVA</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 2: YESTERDAY -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">11/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">09:00:22 AM</div>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
+                      40.90 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px;">Sincronización diaria programada</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 3: MANUAL ADJUSTMENT -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">08/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">14:30:00 PM</div>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--status-hold-text);">
+                      40.85 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-hold">👤 MANUAL</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px; font-weight: 600;">Admin Central YoReservo</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">Ajuste por desactualización de feed bancario</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 4: OCTOBER 7 -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">07/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">09:00:10 AM</div>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
+                      40.75 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px;">Sincronización diaria programada</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- SCRIPT CONTROLLER -->
+  <script>
+    let currentLang = 'es';
+
+    const i18n = {
+      es: {
+        nav_ops: "Operaciones",
+        nav_agenda: "Agenda Multi-Cancha",
+        nav_reservations: "Lista de Reservas",
+        nav_finance: "Finanzas & Tasa",
+        nav_reconciliation: "Conciliación Pago Móvil",
+        nav_rate: "Tasa Oficial BCV",
+        nav_facilities: "Instalaciones",
+        nav_venues: "Recintos & Canchas",
+        nav_schedules: "Turnos & Horarios",
+        nav_staff: "Personal & Staff",
+        nav_system: "Sistema",
+        nav_settings: "Configuración Club",
+        nav_hub: "Portal Maestro (Hub)",
+        user_role: "Aliado Propietario",
+        rate_top_sub: "Auditoría Cambiaria Institucional",
+        rate_top_title: "Gestor de Tasa Oficial BCV & Historial",
+        rate_active_badge: "Tasa Oficial Activa en Plataforma",
+        rate_sync_info: "Sincronizado vía API oficial del Banco Central de Venezuela. Aplica automáticamente a todas las reservas de canchas y cobros en Pago Móvil.",
+        worker_title: "Worker Automatizado:",
+        worker_last: "Última sync: Hoy a las 09:00 AM",
+        worker_next: "Próxima sync: Mañana 09:00 AM",
+        btn_sync_now: "Forzar Sincronización BCV",
+        manual_override_sub: "Procedimiento Excepcional",
+        manual_override_title: "Ajuste Manual Extraordinario de Tasa",
+        manual_override_desc: "Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo ExchangeRateLog.",
+        label_new_rate: "Nueva Tasa en Bs. / USD *",
+        label_operator: "Operador Responsable",
+        label_justification: "Justificación de Auditoría *",
+        btn_save_rate: "Registrar Tasa Manual en el Ledger",
+        ledger_title: "Libro Histórico de Tasas (ExchangeRateLog)",
+        ledger_desc: "Trazabilidad inmutable de cada tasa aplicada en YoReservo para fines fiscales y contables.",
+        btn_export_ledger: "Exportar Historial",
+        th_date: "Fecha & Hora",
+        th_rate_val: "Tasa (Bs/USD)",
+        th_origin: "Origen / Generado Por",
+        th_justification: "Operador / Justificación",
+        th_status_rate: "Estado",
+        badge_active: "ACTIVA",
+        badge_historical: "HISTÓRICA",
+        nav_overview: "Resumen",
+        nav_dashboard: "Panel Ejecutivo",
+        nav_settlements: "Liquidaciones a Aliados",
+        nav_spaces: "Configurador Canchas",
+        nav_catalogs: "Catálogos Maestros",
+        nav_profile: "Mi Perfil & Seguridad",
+      },
+      en: {
+        nav_ops: "Operations",
+        nav_agenda: "Multi-Court Agenda",
+        nav_reservations: "Bookings List",
+        nav_finance: "Finance & Rates",
+        nav_reconciliation: "Pago Móvil Reconciliation",
+        nav_rate: "Official BCV Rate",
+        nav_facilities: "Facilities",
+        nav_venues: "Venues & Courts",
+        nav_schedules: "Shifts & Schedules",
+        nav_staff: "Staff & Receptionists",
+        nav_system: "System",
+        nav_settings: "Club Settings",
+        nav_hub: "Master Portal (Hub)",
+        user_role: "Venue Owner (Ally)",
+        rate_top_sub: "Institutional Exchange Rate Audit",
+        rate_top_title: "Official BCV Rate Manager & Ledger",
+        rate_active_badge: "Active Platform Exchange Rate",
+        rate_sync_info: "Synchronized with official Central Bank of Venezuela (BCV) API. Automatically applied to all court bookings and Pago Móvil payments.",
+        worker_title: "Automated Worker:",
+        worker_last: "Last sync: Today at 09:00 AM",
+        worker_next: "Next scheduled sync: Tomorrow 09:00 AM",
+        btn_sync_now: "Force BCV Sync Now",
+        manual_override_sub: "Emergency Procedure",
+        manual_override_title: "Extraordinary Manual Rate Override",
+        manual_override_desc: "Use during banking holidays or emergency feed downtime. Mandatory audit note is permanently stored in the ExchangeRateLog database model.",
+        label_new_rate: "New Rate in Bs. / USD *",
+        label_operator: "Responsible Operator",
+        label_justification: "Audit Justification *",
+        btn_save_rate: "Log Manual Rate in Ledger",
+        ledger_title: "Exchange Rate History Ledger (ExchangeRateLog)",
+        ledger_desc: "Immutable traceability of every rate applied across YoReservo for fiscal and accounting audits.",
+        btn_export_ledger: "Export Ledger",
+        th_date: "Date & Time",
+        th_rate_val: "Rate (Bs/USD)",
+        th_origin: "Origin / Generated By",
+        th_justification: "Operator / Justification",
+        th_status_rate: "Status",
+        badge_active: "ACTIVE",
+        badge_historical: "HISTORICAL",
+        nav_overview: "Overview",
+        nav_dashboard: "Executive Dashboard",
+        nav_settlements: "Ally Settlements",
+        nav_spaces: "Court Configurator",
+        nav_catalogs: "Master Catalogs",
+        nav_profile: "My Profile & Security",
+      }
+    };
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.setAttribute('lang', lang);
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // FORCE SYNC SIMULATOR
+    function handleForceSync() {
+      const btn = document.getElementById('btn-force-sync');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '<span>⏳</span> ' + (currentLang === 'es' ? 'Consultando API BCV...' : 'Querying BCV API...');
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        alert(currentLang === 'es'
+          ? '✅ Sincronización exitosa con BCV API.\nTasa confirmada: 41.00 Bs/USD.\nEstado del worker: Óptimo.'
+          : '✅ Successfully synchronized with BCV API.\nConfirmed rate: 41.00 Bs/USD.\nWorker status: Optimal.'
+        );
+      }, 700);
+    }
+
+    // MANUAL RATE SUBMIT
+    function handleManualRateSubmit(e) {
+      e.preventDefault();
+      const newRate = parseFloat(document.getElementById('manual-rate-input').value).toFixed(2);
+      const justification = document.getElementById('manual-justification').value;
+
+      if (!newRate || isNaN(newRate)) return;
+
+      document.getElementById('current-bcv-rate').innerText = newRate;
+
+      // Prepend to ledger
+      const tbody = document.getElementById('rate-ledger-tbody');
+      const newRow = document.createElement('tr');
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+      const dateStr = now.toLocaleDateString('es-VE');
+
+      newRow.innerHTML = `
+        <td>
+          <div style="font-weight: 700;">${dateStr}</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${timeStr}</div>
+        </td>
+        <td>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--status-hold-text);">
+            ${newRate} Bs.
+          </div>
+        </td>
+        <td>
+          <span class="badge badge-hold">👤 MANUAL</span>
+        </td>
+        <td>
+          <div style="font-size: 12.5px; font-weight: 600;">Colegio San Agustín (Aliado)</div>
+          <div style="font-size: 11px; color: var(--text-muted);">${justification}</div>
+        </td>
+        <td>
+          <span class="badge badge-available">${i18n[currentLang].badge_active}</span>
+        </td>
+      `;
+
+      // Demote previous rows
+      tbody.querySelectorAll('span.badge-available').forEach(badge => {
+        badge.className = 'badge badge-blocked';
+        badge.innerText = i18n[currentLang].badge_historical;
+      });
+
+      tbody.insertBefore(newRow, tbody.firstChild);
+
+      alert(currentLang === 'es'
+        ? `¡Tasa manual ${newRate} Bs/USD registrada exitosamente en el ledger!\nLa plataforma operará inmediatamente con este valor.`
+        : `Manual rate ${newRate} Bs/USD successfully logged into ledger!\nPlatform is now operating with this rate.`
+      );
+    }
+
+    // Initialize
+    initTheme();
+  </script>
+</body>
+</html>

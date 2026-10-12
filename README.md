@@ -10,7 +10,8 @@ Repositorio centralizado de recursos estáticos, plantillas transaccionales, inf
 |---|---|---|
 | [`database/`](#1-base-de-datos-local-database) | Entorno local de PostgreSQL listo para desarrollo | Docker Compose, PostgreSQL 16 Alpine |
 | [`emails/`](#2-plantillas-de-correo-transaccional-emails) | Plantillas de correo responsive multi-idioma (ES / EN) | HTML Email, Inline CSS, VML |
-| [`ui-designs/`](#3-prototipos-y-diseños-de-interfaz-ui-designs) | Prototipos navegables de pantallas de Auth y Mi Cuenta | HTML5, CSS3 Tokens, Vanilla JS |
+| [`ui-designs/`](#3-prototipos-y-diseños-de-interfaz-ui-designs) | Prototipos navegables de pantallas de Auth y Mi Cuenta (Cliente) | HTML5, CSS3 Tokens, Vanilla JS |
+| [`backoffice-ui-designs/`](./backoffice-ui-designs/README.md) | Especificaciones y prototipos de la consola de administración y recintos | HTML5, CSS3 Tokens, Vanilla JS |
 | [`scripts/`](#4-scripts-scripts) | Scripts de utilidad, automatización y mantenimiento | Bash / Node / SQL |
 
 ---

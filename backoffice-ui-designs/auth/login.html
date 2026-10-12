@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Iniciar Sesión | Backoffice</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    .role-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--border-subtle);
+    }
+    .role-pill-btn {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-medium);
+      background-color: var(--bg-surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .role-pill-btn:hover {
+      background-color: var(--bg-muted);
+      color: var(--text-main);
+      border-color: var(--text-link);
+    }
+    .role-pill-btn.active {
+      background-color: var(--bg-muted);
+      color: var(--text-link);
+      border-color: var(--text-link);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="auth-shell">
+    
+    <!-- LEFT BRANDING PANE (DESKTOP) -->
+    <div class="auth-brand-pane">
+      <div class="auth-brand-bg" style="background-image: url('../assets/pitch-aerial.jpg');"></div>
+      <div class="auth-brand-overlay"></div>
+
+      <div class="auth-brand-content" style="display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo Logo" style="height: 38px; filter: brightness(0) invert(1);">
+          <span style="font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--brand-lime); background: rgba(198, 242, 59, 0.12); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(198, 242, 59, 0.25);">
+            Backoffice Pro
+          </span>
+        </div>
+      </div>
+
+      <div class="auth-brand-content" style="margin-top: auto; margin-bottom: auto; max-width: 520px;">
+        <span style="display: inline-block; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--brand-lime); margin-bottom: 12px;" data-i18n="brand_subtitle">
+          Ecosistema YoReservo
+        </span>
+        <h1 style="font-size: 40px; line-height: 1.15; color: #FFFFFF; margin-bottom: 20px;" data-i18n="brand_heading">
+          Gestión inteligente de canchas, operaciones y tesorería
+        </h1>
+        <p style="font-size: 16px; color: var(--text-sidebar); line-height: 1.6; margin-bottom: 32px;" data-i18n="brand_description">
+          Consola operativa unificada para administradores de plataforma, dueños de complejos deportivos y personal de recepción.
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 12px; color: #FFFFFF; font-size: 14px;">
+            <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(198, 242, 59, 0.15); display: flex; align-items: center; justify-content: center; color: var(--brand-lime); font-size: 14px;">✓</div>
+            <span data-i18n="feat_1">Agenda interactiva multi-cancha en tiempo real</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; color: #FFFFFF; font-size: 14px;">
+            <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(198, 242, 59, 0.15); display: flex; align-items: center; justify-content: center; color: var(--brand-lime); font-size: 14px;">✓</div>
+            <span data-i18n="feat_2">Bandeja ágil de conciliación Pago Móvil y tasa BCV</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; color: #FFFFFF; font-size: 14px;">
+            <div style="width: 28px; height: 28px; border-radius: 8px; background: rgba(198, 242, 59, 0.15); display: flex; align-items: center; justify-content: center; color: var(--brand-lime); font-size: 14px;">✓</div>
+            <span data-i18n="feat_3">Check-in express de jugadores con código QR y código corto</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-brand-content" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-sidebar); border-top: 1px solid var(--border-sidebar); padding-top: 24px;">
+        <span>© 2026 YoReservo Inc. Todos los derechos reservados.</span>
+        <span>v2.4.0 — Enterprise</span>
+      </div>
+    </div>
+
+    <!-- RIGHT FORM PANE (MOBILE & DESKTOP) -->
+    <div class="auth-form-pane">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <!-- Mobile logo -->
+          <img src="../assets/yoreservo-logo.png" alt="YoReservo" style="height: 28px;" class="mobile-logo">
+          <span class="badge badge-hold" style="font-size: 11px;" data-i18n="portal_badge">Portal Backoffice</span>
+        </div>
+
+        <!-- CONTROLS: THEME & LANG -->
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar tema">
+            🌙
+          </button>
+          <div class="lang-switcher">
+            <button type="button" class="lang-btn active" id="btn-lang-es" onclick="setLanguage('es')">ES</button>
+            <button type="button" class="lang-btn" id="btn-lang-en" onclick="setLanguage('en')">EN</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- AUTH CARD -->
+      <div class="auth-card">
+        <div style="margin-bottom: 28px;">
+          <h2 style="font-size: 28px; margin-bottom: 8px;" data-i18n="login_title">Iniciar Sesión</h2>
+          <p style="font-size: 14px; color: var(--text-muted);" data-i18n="login_subtitle">
+            Ingresa tus credenciales para acceder a la consola de gestión.
+          </p>
+        </div>
+
+        <form id="login-form" onsubmit="handleLogin(event)">
+          
+          <div class="form-group">
+            <label class="form-label" for="email" data-i18n="label_email">Correo electrónico</label>
+            <div class="input-wrapper">
+              <input type="email" id="email" class="input-field" placeholder="ejemplo@yoreservo.com" required value="aliado@sanagustin.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="form-label">
+              <span data-i18n="label_password">Contraseña</span>
+              <a href="recover-password.html" class="text-link" style="font-size: 12px;" data-i18n="link_forgot">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div>
+            <div class="input-wrapper">
+              <input type="password" id="password" class="input-field" placeholder="••••••••" required value="Password123">
+              <button type="button" class="input-toggle-btn" onclick="togglePasswordVisibility('password', this)" title="Ver contraseña">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+            <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-muted); cursor: pointer;">
+              <input type="checkbox" id="remember" style="accent-color: var(--brand-forest); width: 16px; height: 16px; border-radius: 4px;">
+              <span data-i18n="label_remember">Recordar sesión</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px; font-size: 15px;" id="btn-submit">
+            <span data-i18n="btn_login">Entrar al Backoffice</span>
+            <span>→</span>
+          </button>
+
+          <!-- ROLE SIMULATOR PILLS (PROTOTYPE FEATURE) -->
+          <div class="role-pills">
+            <div style="width: 100%; font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px;" data-i18n="role_sim_title">
+              Simulador de Rol (Prototipo):
+            </div>
+            <button type="button" class="role-pill-btn active" onclick="fillRole('aliado')">⚽ Aliado (Dueño Club)</button>
+            <button type="button" class="role-pill-btn" onclick="fillRole('validator')">🎫 Recepción (Check-in)</button>
+            <button type="button" class="role-pill-btn" onclick="fillRole('admin')">👑 Admin Global</button>
+            <button type="button" class="role-pill-btn" onclick="fillRole('accounting')">💳 Contabilidad</button>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- FOOTER INFO -->
+      <div style="text-align: center; font-size: 12px; color: var(--text-muted);">
+        <span data-i18n="footer_security">Sistema protegido con cifrado SSL y auditoría de sesiones.</span>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // i18n Dictionaries
+    const i18n = {
+      es: {
+        brand_subtitle: "Ecosistema YoReservo",
+        brand_heading: "Gestión inteligente de canchas, operaciones y tesorería",
+        brand_description: "Consola operativa unificada para administradores de plataforma, dueños de complejos deportivos y personal de recepción.",
+        feat_1: "Agenda interactiva multi-cancha en tiempo real",
+        feat_2: "Bandeja ágil de conciliación Pago Móvil y tasa BCV",
+        feat_3: "Check-in express de jugadores con código QR y código corto",
+        portal_badge: "Portal Backoffice",
+        login_title: "Iniciar Sesión",
+        login_subtitle: "Ingresa tus credenciales para acceder a la consola de gestión.",
+        label_email: "Correo electrónico",
+        label_password: "Contraseña",
+        link_forgot: "¿Olvidaste tu contraseña?",
+        label_remember: "Recordar sesión",
+        btn_login: "Entrar al Backoffice",
+        role_sim_title: "Simulador de Rol (Prototipo):",
+        footer_security: "Sistema protegido con cifrado SSL y auditoría de sesiones.",
+        logging_in: "Iniciando sesión..."
+      },
+      en: {
+        brand_subtitle: "YoReservo Ecosystem",
+        brand_heading: "Intelligent court management, operations & treasury",
+        brand_description: "Unified operations console for platform administrators, sports complex owners, and front-desk staff.",
+        feat_1: "Real-time interactive multi-court schedule grid",
+        feat_2: "High-velocity Pago Móvil reconciliation & BCV rate control",
+        feat_3: "Express player check-in with QR code and 6-char short code",
+        portal_badge: "Backoffice Portal",
+        login_title: "Sign In",
+        login_subtitle: "Enter your credentials to access the management console.",
+        label_email: "Email address",
+        label_password: "Password",
+        link_forgot: "Forgot your password?",
+        label_remember: "Remember me",
+        btn_login: "Enter Backoffice",
+        role_sim_title: "Role Simulator (Prototype):",
+        footer_security: "Protected system with SSL encryption and active session auditing.",
+        logging_in: "Signing in..."
+      }
+    };
+
+    let currentLang = 'es';
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      document.documentElement.setAttribute('data-lang', lang);
+
+      document.getElementById('btn-lang-es').classList.toggle('active', lang === 'es');
+      document.getElementById('btn-lang-en').classList.toggle('active', lang === 'en');
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    function togglePasswordVisibility(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>`;
+      } else {
+        input.type = 'password';
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
+      }
+    }
+
+    function fillRole(role) {
+      document.querySelectorAll('.role-pill-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      const emailInput = document.getElementById('email');
+      const passInput = document.getElementById('password');
+
+      if (role === 'aliado') {
+        emailInput.value = 'aliado@sanagustin.com';
+        passInput.value = 'AliadoPass123';
+      } else if (role === 'validator') {
+        emailInput.value = 'recepcion@sanagustin.com';
+        passInput.value = 'StaffPass123';
+      } else if (role === 'admin') {
+        emailInput.value = 'admin@yoreservo.com';
+        passInput.value = 'AdminPass123';
+      } else if (role === 'accounting') {
+        emailInput.value = 'tesoreria@yoreservo.com';
+        passInput.value = 'FinancePass123';
+      }
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btn-submit');
+      const originalText = btn.innerHTML;
+      btn.innerText = i18n[currentLang].logging_in;
+      btn.disabled = true;
+
+      setTimeout(() => {
+        // Redirect to prototype hub or agenda
+        window.location.href = '../index.html';
+      }, 700);
+    }
+
+    // THEME CONTROLLER
+    function initTheme() {
+      const savedTheme = localStorage.getItem('yoreservo_theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeIcon(savedTheme);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const newTheme = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('yoreservo_theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function updateThemeIcon(theme) {
+      const btn = document.getElementById('theme-toggle');
+      if (btn) btn.innerText = theme === 'dark' ? '☀️' : '🌙';
+    }
+
+    initTheme();
+  </script>
+</body>
+</html>
