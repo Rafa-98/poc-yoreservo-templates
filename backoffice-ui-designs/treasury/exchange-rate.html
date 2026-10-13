@@ -183,43 +183,86 @@
 
       </header>
 
-      <!-- RATE HERO STATUS CARD -->
+      <!-- DUAL BCV RATE HERO SECTION -->
       <section style="padding: 24px 20px 16px;">
-        <div class="rate-hero-card">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 16px;">
           
-          <div>
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-              <span class="status-beacon"></span>
-              <span style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #059669;" data-i18n="rate_active_badge">
-                Tasa Oficial Activa en Plataforma
-              </span>
-            </div>
+          <!-- BCV USD CARD -->
+          <div class="rate-hero-card" style="border-left: 5px solid var(--brand-lime); padding: 22px;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="status-beacon"></span>
+                  <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #059669;" data-i18n="rate_usd_active">
+                    Tasa Oficial BCV — Dólar
+                  </span>
+                </div>
+                <span class="badge badge-available" style="font-size: 11px;">USD / VES</span>
+              </div>
 
-            <div class="rate-display-box">
-              <span class="rate-number" id="current-bcv-rate">41.00</span>
-              <span style="font-size: 18px; font-weight: 700; color: var(--text-muted);">Bs. / USD</span>
-              <span class="badge badge-available" style="font-size: 12px;">+0.24% vs ayer</span>
-            </div>
+              <div class="rate-display-box">
+                <span class="rate-number" id="current-bcv-usd">876.80</span>
+                <span style="font-size: 16px; font-weight: 700; color: var(--text-muted);">Bs. / USD</span>
+              </div>
+              <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                <strong style="color: var(--text-main);">876,79760000 Bs.</strong> • <span data-i18n="val_date">Fecha Valor:</span> 13/10/2026
+              </div>
 
-            <div style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">
-              <span data-i18n="rate_sync_info">Sincronizado vía API oficial del Banco Central de Venezuela. Aplica automáticamente a todas las reservas de canchas y cobros en Pago Móvil.</span>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" data-i18n="rate_usd_desc">
+                Referencia aplicada a los aliados que cobran en Dólares ($).
+              </div>
             </div>
           </div>
 
-          <!-- WORKER STATUS & FORCE SYNC -->
-          <div style="display: flex; flex-direction: column; gap: 10px; min-width: 260px;">
-            <div style="background: var(--bg-muted); border-radius: 12px; padding: 12px 14px; font-size: 12px; border: 1px solid var(--border-subtle);">
-              <div style="font-weight: 600; margin-bottom: 2px;" data-i18n="worker_title">Worker Automatizado:</div>
-              <div style="color: var(--text-muted);" data-i18n="worker_last">Última sync: Hoy a las 09:00 AM</div>
-              <div style="color: var(--text-muted);" data-i18n="worker_next">Próxima sync: Mañana 09:00 AM</div>
-            </div>
+          <!-- BCV EUR CARD -->
+          <div class="rate-hero-card" style="border-left: 5px solid #2563EB; padding: 22px;">
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="status-beacon" style="background-color: #2563EB; box-shadow: 0 0 10px #2563EB;"></span>
+                  <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2563EB;" data-i18n="rate_eur_active">
+                    Tasa Oficial BCV — Euro
+                  </span>
+                </div>
+                <span class="badge badge-confirmed" style="font-size: 11px;">EUR / VES</span>
+              </div>
 
-            <button type="button" class="btn btn-primary" id="btn-force-sync" onclick="handleForceSync()" style="width: 100%;">
+              <div class="rate-display-box">
+                <span class="rate-number" id="current-bcv-eur">982.00</span>
+                <span style="font-size: 16px; font-weight: 700; color: var(--text-muted);">Bs. / EUR</span>
+              </div>
+              <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 4px;">
+                <strong style="color: var(--text-main);">982,00454402 Bs.</strong> • <span data-i18n="val_date">Fecha Valor:</span> 13/10/2026
+              </div>
+
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" data-i18n="rate_eur_desc">
+                Referencia aplicada a los aliados que cobran en Euros (€).
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TICKER & WORKER CONTROL RIBBON -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+          <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap; font-size: 12px;">
+            <span style="font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 6px;">
+              <span>🏛️</span> <span data-i18n="bcv_feed_title">Otras Divisas Publicadas por el BCV:</span>
+            </span>
+            <span style="background: var(--bg-muted); padding: 4px 8px; border-radius: 6px; font-family: monospace;">¥ CNY: 131,03 Bs.</span>
+            <span style="background: var(--bg-muted); padding: 4px 8px; border-radius: 6px; font-family: monospace;">₺ TRY: 17,77 Bs.</span>
+            <span style="background: var(--bg-muted); padding: 4px 8px; border-radius: 6px; font-family: monospace;">₽ RUB: 10,34 Bs.</span>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="font-size: 11.5px; color: var(--text-muted); text-align: right;">
+              <span data-i18n="worker_last">Última sync: Hoy a las 09:00 AM</span>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-force-sync" onclick="handleForceSync()" style="font-size: 12.5px; padding: 8px 14px;">
               <span>🔄</span>
               <span data-i18n="btn_sync_now">Forzar Sincronización BCV</span>
             </button>
           </div>
-
         </div>
       </section>
 
@@ -236,31 +279,42 @@
               Ajuste Manual Extraordinario de Tasa
             </h3>
             <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" data-i18n="manual_override_desc">
-              Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo <code>ExchangeRateLog</code>.
+              Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo <code>ExchangeRate</code>.
             </p>
           </div>
 
           <form id="manual-rate-form" onsubmit="handleManualRateSubmit(event)">
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+              
               <div class="form-group">
-                <label class="form-label" for="manual-rate-input" data-i18n="label_new_rate">Nueva Tasa en Bs. / USD *</label>
+                <label class="form-label" for="manual-currency-select" data-i18n="label_currency_target">Moneda a Ajustar *</label>
                 <div class="input-wrapper">
-                  <input type="number" step="0.01" id="manual-rate-input" class="input-field" placeholder="ej. 41.50" required value="41.25">
+                  <select id="manual-currency-select" class="input-field" required onchange="handleCurrencyTargetChange(this.value)">
+                    <option value="USD">Dólar BCV ($ USD)</option>
+                    <option value="EUR">Euro BCV (€ EUR)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="manual-rate-input" data-i18n="label_new_rate">Nueva Tasa en Bolívares (Bs.) *</label>
+                <div class="input-wrapper">
+                  <input type="number" step="0.000001" id="manual-rate-input" class="input-field" placeholder="ej. 880.50" required value="878.00">
                 </div>
               </div>
 
               <div class="form-group">
                 <label class="form-label" for="manual-operator" data-i18n="label_operator">Operador Responsable</label>
                 <div class="input-wrapper">
-                  <input type="text" id="manual-operator" class="input-field" readonly value="Colegio San Agustín (Aliado)" style="background: var(--bg-muted); color: var(--text-muted);">
+                  <input type="text" id="manual-operator" class="input-field" readonly value="Grupo Ávila (Aliado)" style="background: var(--bg-muted); color: var(--text-muted);">
                 </div>
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="manual-justification" data-i18n="label_justification">Justificación de Auditoría *</label>
-              <textarea id="manual-justification" class="input-field" rows="2" placeholder="ej. Ajuste preventivo por cierre bancario nacional (feriado bancario lunes)." required>Ajuste preventivo por feriado bancario nacional lunes.</textarea>
+              <textarea id="manual-justification" class="input-field" rows="2" placeholder="ej. Ajuste preventivo por cierre bancario nacional (feriado bancario lunes)." required>Ajuste preventivo por cierre bancario y fecha valor extendida del BCV.</textarea>
             </div>
 
             <div style="display: flex; justify-content: flex-end;">
@@ -277,7 +331,7 @@
         <div class="card">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 12px;">
             <div>
-              <h3 style="font-size: 18px;" data-i18n="ledger_title">Libro Histórico de Tasas (ExchangeRateLog)</h3>
+              <h3 style="font-size: 18px;" data-i18n="ledger_title">Libro Histórico de Tasas (ExchangeRate)</h3>
               <p style="font-size: 13px; color: var(--text-muted);" data-i18n="ledger_desc">Trazabilidad inmutable de cada tasa aplicada en YoReservo para fines fiscales y contables.</p>
             </div>
 
@@ -291,7 +345,8 @@
               <thead>
                 <tr>
                   <th data-i18n="th_date">Fecha & Hora</th>
-                  <th data-i18n="th_rate_val">Tasa (Bs/USD)</th>
+                  <th data-i18n="th_currency">Moneda / Par</th>
+                  <th data-i18n="th_rate_val">Tasa Oficial (Bs.)</th>
                   <th data-i18n="th_origin">Origen / Generado Por</th>
                   <th data-i18n="th_justification">Operador / Justificación</th>
                   <th data-i18n="th_status_rate">Estado</th>
@@ -299,37 +354,68 @@
               </thead>
               <tbody id="rate-ledger-tbody">
                 
-                <!-- ROW 1: ACTIVE (Today) -->
+                <!-- ROW 1: ACTIVE EUR (Today) -->
                 <tr>
                   <td>
-                    <div style="font-weight: 700;">12/10/2026</div>
+                    <div style="font-weight: 700;">13/10/2026</div>
                     <div style="font-size: 11px; color: var(--text-muted);">09:00:15 AM</div>
                   </td>
                   <td>
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-link);">
-                      41.00 Bs.
+                    <span class="badge badge-confirmed" style="font-weight: 700;">EUR / VES</span>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #2563EB;">
+                      982,004544 Bs.
                     </div>
                   </td>
                   <td>
                     <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
                   </td>
                   <td>
-                    <div style="font-size: 12.5px;">Sincronización matutina automática BCV</div>
+                    <div style="font-size: 12.5px;">Sincronización matutina automática BCV (Fecha Valor 13/10/2026)</div>
                   </td>
                   <td>
                     <span class="badge badge-available" data-i18n="badge_active">ACTIVA</span>
                   </td>
                 </tr>
 
-                <!-- ROW 2: YESTERDAY -->
+                <!-- ROW 2: ACTIVE USD (Today) -->
                 <tr>
                   <td>
-                    <div style="font-weight: 700;">11/10/2026</div>
+                    <div style="font-weight: 700;">13/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">09:00:15 AM</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available" style="font-weight: 700;">USD / VES</span>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-link);">
+                      876,797600 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px;">Sincronización matutina automática BCV (Fecha Valor 13/10/2026)</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available" data-i18n="badge_active">ACTIVA</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 3: YESTERDAY EUR -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">12/10/2026</div>
                     <div style="font-size: 11px; color: var(--text-muted);">09:00:22 AM</div>
                   </td>
                   <td>
+                    <span class="badge badge-blocked">EUR / VES</span>
+                  </td>
+                  <td>
                     <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
-                      40.90 Bs.
+                      979,451200 Bs.
                     </div>
                   </td>
                   <td>
@@ -343,15 +429,43 @@
                   </td>
                 </tr>
 
-                <!-- ROW 3: MANUAL ADJUSTMENT -->
+                <!-- ROW 4: YESTERDAY USD -->
+                <tr>
+                  <td>
+                    <div style="font-weight: 700;">12/10/2026</div>
+                    <div style="font-size: 11px; color: var(--text-muted);">09:00:22 AM</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blocked">USD / VES</span>
+                  </td>
+                  <td>
+                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
+                      874,120500 Bs.
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12.5px;">Sincronización diaria programada</div>
+                  </td>
+                  <td>
+                    <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
+                  </td>
+                </tr>
+
+                <!-- ROW 5: MANUAL ADJUSTMENT -->
                 <tr>
                   <td>
                     <div style="font-weight: 700;">08/10/2026</div>
                     <div style="font-size: 11px; color: var(--text-muted);">14:30:00 PM</div>
                   </td>
                   <td>
+                    <span class="badge badge-blocked">USD / VES</span>
+                  </td>
+                  <td>
                     <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--status-hold-text);">
-                      40.85 Bs.
+                      872,500000 Bs.
                     </div>
                   </td>
                   <td>
@@ -360,28 +474,6 @@
                   <td>
                     <div style="font-size: 12.5px; font-weight: 600;">Admin Central YoReservo</div>
                     <div style="font-size: 11px; color: var(--text-muted);">Ajuste por desactualización de feed bancario</div>
-                  </td>
-                  <td>
-                    <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
-                  </td>
-                </tr>
-
-                <!-- ROW 4: OCTOBER 7 -->
-                <tr>
-                  <td>
-                    <div style="font-weight: 700;">07/10/2026</div>
-                    <div style="font-size: 11px; color: var(--text-muted);">09:00:10 AM</div>
-                  </td>
-                  <td>
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700;">
-                      40.75 Bs.
-                    </div>
-                  </td>
-                  <td>
-                    <span class="badge badge-available">🤖 SYSTEM (BCV API)</span>
-                  </td>
-                  <td>
-                    <div style="font-size: 12.5px;">Sincronización diaria programada</div>
                   </td>
                   <td>
                     <span class="badge badge-blocked" data-i18n="badge_historical">HISTÓRICA</span>
@@ -421,24 +513,28 @@
         user_role: "Aliado Propietario",
         rate_top_sub: "Auditoría Cambiaria Institucional",
         rate_top_title: "Gestor de Tasa Oficial BCV & Historial",
-        rate_active_badge: "Tasa Oficial Activa en Plataforma",
-        rate_sync_info: "Sincronizado vía API oficial del Banco Central de Venezuela. Aplica automáticamente a todas las reservas de canchas y cobros en Pago Móvil.",
-        worker_title: "Worker Automatizado:",
+        rate_usd_active: "Tasa Oficial BCV — Dólar",
+        rate_eur_active: "Tasa Oficial BCV — Euro",
+        val_date: "Fecha Valor:",
+        rate_usd_desc: "Referencia aplicada a los aliados que cobran en Dólares ($).",
+        rate_eur_desc: "Referencia aplicada a los aliados que cobran en Euros (€).",
+        bcv_feed_title: "Otras Divisas Publicadas por el BCV:",
         worker_last: "Última sync: Hoy a las 09:00 AM",
-        worker_next: "Próxima sync: Mañana 09:00 AM",
         btn_sync_now: "Forzar Sincronización BCV",
         manual_override_sub: "Procedimiento Excepcional",
         manual_override_title: "Ajuste Manual Extraordinario de Tasa",
-        manual_override_desc: "Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo ExchangeRateLog.",
-        label_new_rate: "Nueva Tasa en Bs. / USD *",
+        manual_override_desc: "Úsalo en días de feriado bancario o contingencia. Requiere justificación de auditoría obligatoria que quedará registrada en el modelo ExchangeRate.",
+        label_currency_target: "Moneda a Ajustar *",
+        label_new_rate: "Nueva Tasa en Bolívares (Bs.) *",
         label_operator: "Operador Responsable",
         label_justification: "Justificación de Auditoría *",
         btn_save_rate: "Registrar Tasa Manual en el Ledger",
-        ledger_title: "Libro Histórico de Tasas (ExchangeRateLog)",
+        ledger_title: "Libro Histórico de Tasas (ExchangeRate)",
         ledger_desc: "Trazabilidad inmutable de cada tasa aplicada en YoReservo para fines fiscales y contables.",
         btn_export_ledger: "Exportar Historial",
         th_date: "Fecha & Hora",
-        th_rate_val: "Tasa (Bs/USD)",
+        th_currency: "Moneda / Par",
+        th_rate_val: "Tasa Oficial (Bs.)",
         th_origin: "Origen / Generado Por",
         th_justification: "Operador / Justificación",
         th_status_rate: "Estado",
@@ -468,24 +564,28 @@
         user_role: "Venue Owner (Ally)",
         rate_top_sub: "Institutional Exchange Rate Audit",
         rate_top_title: "Official BCV Rate Manager & Ledger",
-        rate_active_badge: "Active Platform Exchange Rate",
-        rate_sync_info: "Synchronized with official Central Bank of Venezuela (BCV) API. Automatically applied to all court bookings and Pago Móvil payments.",
-        worker_title: "Automated Worker:",
+        rate_usd_active: "Official BCV Rate — USD Dollar",
+        rate_eur_active: "Official BCV Rate — Euro",
+        val_date: "Value Date:",
+        rate_usd_desc: "Reference applied to allies billing in USD ($).",
+        rate_eur_desc: "Reference applied to allies billing in Euros (€).",
+        bcv_feed_title: "Other Currencies Published by BCV:",
         worker_last: "Last sync: Today at 09:00 AM",
-        worker_next: "Next scheduled sync: Tomorrow 09:00 AM",
         btn_sync_now: "Force BCV Sync Now",
         manual_override_sub: "Emergency Procedure",
         manual_override_title: "Extraordinary Manual Rate Override",
-        manual_override_desc: "Use during banking holidays or emergency feed downtime. Mandatory audit note is permanently stored in the ExchangeRateLog database model.",
-        label_new_rate: "New Rate in Bs. / USD *",
+        manual_override_desc: "Use during banking holidays or emergency feed downtime. Mandatory audit note is permanently stored in the ExchangeRate database model.",
+        label_currency_target: "Target Currency *",
+        label_new_rate: "New Rate in Bolívares (Bs.) *",
         label_operator: "Responsible Operator",
         label_justification: "Audit Justification *",
         btn_save_rate: "Log Manual Rate in Ledger",
-        ledger_title: "Exchange Rate History Ledger (ExchangeRateLog)",
+        ledger_title: "Exchange Rate History Ledger (ExchangeRate)",
         ledger_desc: "Immutable traceability of every rate applied across YoReservo for fiscal and accounting audits.",
         btn_export_ledger: "Export Ledger",
         th_date: "Date & Time",
-        th_rate_val: "Rate (Bs/USD)",
+        th_currency: "Currency / Pair",
+        th_rate_val: "Official Rate (Bs.)",
         th_origin: "Origin / Generated By",
         th_justification: "Operator / Justification",
         th_status_rate: "Status",
@@ -540,6 +640,15 @@
       document.getElementById('sidebar').classList.toggle('open');
     }
 
+    function handleCurrencyTargetChange(val) {
+      const input = document.getElementById('manual-rate-input');
+      if (val === 'USD') {
+        input.value = '878.00';
+      } else if (val === 'EUR') {
+        input.value = '985.00';
+      }
+    }
+
     // FORCE SYNC SIMULATOR
     function handleForceSync() {
       const btn = document.getElementById('btn-force-sync');
@@ -551,8 +660,8 @@
         btn.innerHTML = originalText;
         btn.disabled = false;
         alert(currentLang === 'es'
-          ? '✅ Sincronización exitosa con BCV API.\nTasa confirmada: 41.00 Bs/USD.\nEstado del worker: Óptimo.'
-          : '✅ Successfully synchronized with BCV API.\nConfirmed rate: 41.00 Bs/USD.\nWorker status: Optimal.'
+          ? '✅ Sincronización exitosa con BCV API (Fecha Valor: 13/10/2026).\n• USD: 876,797600 Bs.\n• EUR: 982,004544 Bs.\nEstado del worker: Óptimo.'
+          : '✅ Successfully synchronized with BCV API (Value Date: 13/10/2026).\n• USD: 876.797600 Bs.\n• EUR: 982.004544 Bs.\nWorker status: Optimal.'
         );
       }, 700);
     }
@@ -560,19 +669,30 @@
     // MANUAL RATE SUBMIT
     function handleManualRateSubmit(e) {
       e.preventDefault();
-      const newRate = parseFloat(document.getElementById('manual-rate-input').value).toFixed(2);
+      const curr = document.getElementById('manual-currency-select').value;
+      const newRate = parseFloat(document.getElementById('manual-rate-input').value).toFixed(6);
       const justification = document.getElementById('manual-justification').value;
 
       if (!newRate || isNaN(newRate)) return;
 
-      document.getElementById('current-bcv-rate').innerText = newRate;
+      if (curr === 'USD') {
+        document.getElementById('current-bcv-usd').innerText = parseFloat(newRate).toFixed(2);
+      } else {
+        document.getElementById('current-bcv-eur').innerText = parseFloat(newRate).toFixed(2);
+      }
 
       // Prepend to ledger
       const tbody = document.getElementById('rate-ledger-tbody');
       const newRow = document.createElement('tr');
       const now = new Date();
       const timeStr = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-      const dateStr = now.toLocaleDateString('es-VE');
+      const dateStr = '13/10/2026';
+
+      const pairBadge = curr === 'USD' 
+        ? '<span class="badge badge-available" style="font-weight: 700;">USD / VES</span>'
+        : '<span class="badge badge-confirmed" style="font-weight: 700;">EUR / VES</span>';
+
+      const rateColor = curr === 'USD' ? 'var(--text-link)' : '#2563EB';
 
       newRow.innerHTML = `
         <td>
@@ -580,7 +700,10 @@
           <div style="font-size: 11px; color: var(--text-muted);">${timeStr}</div>
         </td>
         <td>
-          <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: var(--status-hold-text);">
+          ${pairBadge}
+        </td>
+        <td>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: ${rateColor};">
             ${newRate} Bs.
           </div>
         </td>
@@ -588,7 +711,7 @@
           <span class="badge badge-hold">👤 MANUAL</span>
         </td>
         <td>
-          <div style="font-size: 12.5px; font-weight: 600;">Colegio San Agustín (Aliado)</div>
+          <div style="font-size: 12.5px; font-weight: 600;">Grupo Ávila (Aliado)</div>
           <div style="font-size: 11px; color: var(--text-muted);">${justification}</div>
         </td>
         <td>
@@ -596,17 +719,11 @@
         </td>
       `;
 
-      // Demote previous rows
-      tbody.querySelectorAll('span.badge-available').forEach(badge => {
-        badge.className = 'badge badge-blocked';
-        badge.innerText = i18n[currentLang].badge_historical;
-      });
-
       tbody.insertBefore(newRow, tbody.firstChild);
 
       alert(currentLang === 'es'
-        ? `¡Tasa manual ${newRate} Bs/USD registrada exitosamente en el ledger!\nLa plataforma operará inmediatamente con este valor.`
-        : `Manual rate ${newRate} Bs/USD successfully logged into ledger!\nPlatform is now operating with this rate.`
+        ? `¡Tasa manual ${curr}/VES (${newRate} Bs.) registrada exitosamente en el ledger!\nLa plataforma operará inmediatamente con este valor.`
+        : `Manual rate ${curr}/VES (${newRate} Bs.) successfully logged into ledger!\nPlatform is now operating with this rate.`
       );
     }
 

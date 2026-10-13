@@ -8,16 +8,53 @@ This directory contains the functional specifications, information architecture,
 
 | File / Folder | Description |
 |---|---|
-| [`BACKOFFICE_SPECIFICATIONS.md`](./BACKOFFICE_SPECIFICATIONS.md) | **Complete Specification**: Role analysis, critique of previous mockups, database mapping, and functional design of each module. |
+| [`BACKOFFICE_SPECIFICATIONS.md`](./BACKOFFICE_SPECIFICATIONS.md) | **Functional Specification**: Role analysis, A–Y forensic critique of legacy designs, and workflow requirements. |
+| [`backoffice_modules.md`](./backoffice_modules.md) | **Module Catalog & Delivery Index**: Full catalog of the 9 Backoffice modules, operational workflows, and verified prototypes. |
+| [`claude_comments.md`](./claude_comments.md) | **Architectural Review & Resolution Matrix**: Code quality, domain review, schema critique, and resolution status. |
 | [`STYLE_GUIDE.md`](./STYLE_GUIDE.md) | **Design System & Style Rules**: Executive palette, semantic CSS tokens, typography, and responsive rules. |
-| `index.html` *(Coming Soon)* | Master interactive portal to preview and test all Backoffice screens in Google Chrome. |
-| `auth/` *(Coming Soon)* | Login and Password Recovery designs built with the institutional Design System. |
-| `dashboard/` *(Coming Soon)* | Contextual operational dashboard tailored to user roles (`ADMIN` vs `ALLY` / `STAFF`). |
-| `agenda/` *(Coming Soon)* | Interactive multi-court Timeline Grid and quick-booking flyout drawer. |
-| `reservations/` *(Coming Soon)* | Reservation details with authentic Pago Móvil audit proofs, lifecycles, and QR check-in. |
-| `venues-spaces/` *(Coming Soon)* | Venues, courts, media gallery, and split-shift schedule configurators. |
-| `treasury/` *(Coming Soon)* | Pago Móvil reconciliation inbox, exchange rate controls, and ally payouts. |
-| `catalogs/` *(Coming Soon)* | Master catalogs (Sports, Categories, Geography) and user directory. |
+| [`index.html`](./index.html) | **Master Showcase Portal**: Interactive central portal to browse and launch all 16 Backoffice prototypes. |
+| [`404.html`](./404.html) | **Global 404 Error Screen**: Branded error page with quick return navigation. |
+| [`agenda/`](./agenda/) | **Module 2**: Hourly timeline grid (`agenda-grid.html`) with zero-fee walk-in drawer and express QR check-in. |
+| [`auth/`](./auth/) | **Modules 1 & 9**: Authentication (`login.html`), password recovery (`recover-password.html`), staff invitation (`set-password.html`), and self-service profile (`profile.html`). |
+| [`bookings/`](./bookings/) | **Module 6**: Master ledger (`reservations-list.html`) with short-code search, financial breakdown drawer, and WhatsApp launcher. |
+| [`catalogs/`](./catalogs/) | **Module 5**: Master taxonomy (`master-catalogs.html`) with 3-tier sports hierarchy, court surfaces, and facility amenities. |
+| [`dashboard/`](./dashboard/) | **Module 8**: Executive intelligence console (`executive-dashboard.html`) with role perspective switcher (Global Admin vs Avila Complex Ally). |
+| [`treasury/`](./treasury/) | **Modules 3 & 7**: Pago Móvil inbox (`pago-movil-inbox.html`), official BCV rate monitor (`exchange-rate.html`), and bi-weekly settlements (`settlements.html`). |
+| [`users/`](./users/) | **Module 5**: RBAC directory (`users-rbac.html`) with decoupled organization/venue authorization scopes and credential generator. |
+| [`venues/`](./venues/) | **Module 4**: Physical branches & Organization corporate card (`venues-management.html`), space builder (`spaces-builder.html`), and split-shift schedule editor (`schedules-editor.html`). |
+| [`scripts/`](./scripts/) | Prototype test suite ([`check-prototypes.js`](./scripts/check-prototypes.js)) for syntax, i18n parity, and link validation. |
+
+---
+
+## 🏛️ 3-Tier Enterprise Architecture (Multi-Vertical Ready)
+
+The backoffice UI prototypes and database schema ([`database/proposed_db.mermaid`](../database/proposed_db.mermaid)) adhere to a decoupled 3-tier domain model that scales beyond sports courts into event halls, auditoriums, and academies:
+
+```mermaid
+graph TD
+    ORG["🏢 ORGANIZATION<br/>(Legal Business / Ally Company / Tax RIF / Payout Bank Account)"]
+    USER["👤 USER (ALLY_OWNER / ALLY_ADMIN / ACCOUNTING)"]
+    VENUE1["📍 VENUE 1<br/>(Physical Branch / Sede El Paraíso)"]
+    VENUE2["📍 VENUE 2<br/>(Physical Branch / Sede Valle Arriba)"]
+    SPACE1["🎾 SPACE (Cancha Pádel 1)"]
+    SPACE2["⚽ SPACE (Cancha F7)"]
+    SPACE3["🎭 SPACE (Auditorio / Sala)"]
+    SETTLE["💳 SETTLEMENT_BATCH<br/>(Consolidated Net Payout to Org Bank Account)"]
+
+    ORG -->|owns| VENUE1
+    ORG -->|owns| VENUE2
+    ORG -->|employs / scopes| USER
+    ORG -->|receives payouts| SETTLE
+    VENUE1 -->|houses| SPACE1
+    VENUE1 -->|houses| SPACE2
+    VENUE2 -->|houses| SPACE3
+```
+
+1. **`ORGANIZATION`**: Represents the commercial Ally business partner (legal name, corporate tax RIF, payout bank account, commission rate %).
+2. **`VENUE`**: Represents a physical facility/branch (`organization_id`, address, GPS, local operating hours).
+3. **`SPACE`**: Multi-purpose operational resource (sports courts, halls, presentation rooms, stages) with capacity, surface type, and custom hourly pricing.
+4. **`SPACE_BLOCK`**: Dedicated entity for blocking time intervals (maintenance, rain, private tournaments) without polluting customer reservations.
+5. **Decoupled RBAC**: Users can have Organization-level scope (`ALLY_OWNER`, `ACCOUNTING`) or Venue-specific scope (`ALLY_ADMIN`, `VALIDATOR`).
 
 ---
 

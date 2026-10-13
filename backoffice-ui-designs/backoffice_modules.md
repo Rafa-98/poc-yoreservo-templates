@@ -80,7 +80,7 @@ All modules adhere to three universal pillars:
   - **Click-to-Book Calendar Matrix**: Clicking any open court slot immediately opens a side drawer with pre-filled court and time details.
   - **Zero-Fee Walk-In Bookings**: Counter transactions are club-direct (`is_manual: true`, `service_fee: 0`) at `$60.00` flat with cash, on-site POS, or direct Pago Móvil.
   - **Express Check-In Desk**: Modal with simulated camera QR scanner and rapid 6-character short-code validation (`#AB4553`).
-- **Mapped Database Entities**: `Reservation`, `Court`, `Venue`, `CourtSchedule`, `ReservationStatus`.
+- **Mapped Database Entities**: `Organization`, `Venue`, `Space` (`Court`), `Reservation`, `CourtSchedule`, `ReservationStatus`.
 - **Audit Verification & Recording**: `module2_agenda_test_1791817492992.webp` | Report: [`module2_agenda_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module2_agenda_verification_report.md).
 
 ---
@@ -97,9 +97,10 @@ All modules adhere to three universal pillars:
 - **Key Operational Workflows**:
   - Split-screen in-line bank receipt viewer with zoom controls.
   - Instant one-click approval or rejection with audit reasons (*"Reference Not Found"*, *"Insufficient Amount"*, *"Tampered Voucher"*).
-  - Automated dual USD/VES conversion displaying the exact BCV rate applied at transaction time.
-  - Exchange rate console with automated daily worker status (09:00 AM) and manual override modal requiring audit justification.
-- **Mapped Database Entities**: `Payment`, `ExchangeRateLog`, `Reservation`, `PaymentMethod`, `PaymentStatus`.
+  - **Multi-Currency BCV Exchange Console**: Dual real-time monitor for **Dólar BCV ($ USD)** and **Euro BCV (€ EUR)** plus published secondary currencies (CNY, TRY, RUB), showing exact 6-decimal official rates and Fecha Valor.
+  - Automated dual currency/VES conversion displaying the exact BCV rate applied at transaction time based on the Ally's configured reference currency.
+  - Exchange rate console with automated daily worker status (09:00 AM) and manual override modal requiring currency target selection and audit justification.
+- **Mapped Database Entities**: `Currency`, `ExchangeRate`, `Payment`, `Reservation`, `PaymentMethod`, `PaymentStatus`.
 - **Audit Verification & Recording**: `module3_treasury_test_1791818120609.webp` | Report: [`module3_treasury_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module3_treasury_verification_report.md).
 
 ---
@@ -107,8 +108,8 @@ All modules adhere to three universal pillars:
 ### MODULE 4: Venues, Courts & Visual Split-Shift Schedules
 
 - **Prototype Files**:
-  - [`venues/venues-management.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/venues/venues-management.html) — Sports venue directory with tax RIF, amenities, search filters, and cascading territory selector.
-  - [`venues/spaces-builder.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/venues/spaces-builder.html) — Court configurator with hourly rates in USD/VES and operational safety modal upon court deactivation.
+  - [`venues/venues-management.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/venues/venues-management.html) — Sports venue directory with tax RIF, amenities, search filters, cascading territory selector, and BCV reference currency selection.
+  - [`venues/spaces-builder.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/venues/spaces-builder.html) — Court configurator with hourly rates in reference currency (USD/EUR) with VES conversion and operational safety modal upon court deactivation.
   - [`venues/schedules-editor.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/venues/schedules-editor.html) — Visual operating hours editor supporting split morning/evening shifts.
 - **Problems Resolved from `BACKOFFICE_SPECIFICATIONS.md`**:
   - **Problem G**: Conflating the business entity ("Ally") with physical sports branches ("Venues").
@@ -118,11 +119,13 @@ All modules adhere to three universal pillars:
   - **Problem M**: Dangerous court deactivation when active future bookings exist.
   - **Problem Q**: Disconnection from the 4-tier backend geography tree (`Location`).
 - **Key Operational Workflows**:
+  - **Organization Master Card**: Displays Ally corporate legal name, trade name, tax RIF, commercial terms (5% fee), corporate payout bank account, active BCV reference currency ($ USD vs € EUR), and quick modal editor.
+  - **BCV Reference Currency Selector**: Allies configure their preferred billing currency (`USD` or `EUR`) in the Organization settings, which immediately informs checkout conversion rates for customer Pago Móvil payments.
   - Branch onboarding with cascading geographic selection (State $\to$ City $\to$ Municipality/Neighborhood).
-  - Hourly court pricing in USD with real-time BCV conversion.
+  - Hourly court pricing in reference currency with real-time BCV conversion.
   - **Safety Deactivation Modal**: When deactivating a court with upcoming bookings, prompts the user to reassign reservations or notify players before shutdown.
   - **Visual Split-Shift Editor**: Configures morning and evening shifts (e.g., 08:00–12:00 and 16:00–23:00), weekday synchronization, and holiday schedule overrides.
-- **Mapped Database Entities**: `Venue`, `Court` (`Space`), `CourtSchedule`, `ScheduleOverride`, `Location`, `Amenity`.
+- **Mapped Database Entities**: `Organization`, `Currency`, `Venue`, `Space` (`Court`), `CourtSchedule`, `ScheduleOverride`, `Location`, `Amenity`.
 - **Audit Verification & Recording**: `mod4_verification_final_1791819149192.webp` | Report: [`module4_venues_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module4_venues_verification_report.md).
 
 ---
@@ -140,10 +143,10 @@ All modules adhere to three universal pillars:
   - **Problem S**: Creating users without an initial password or invitation workflow.
   - **Problem V**: Confusing sports categories with physical court surfaces.
 - **Key Operational Workflows**:
-  - Strict venue scoping for receptionists and validators (`managedVenueId`).
+  - **Decoupled Authorization Scoping**: Staff can be invited with Organization-wide corporate access (`ALLY_OWNER`, `ACCOUNTING`) across all facilities, or restricted to a specific physical venue (`ALLY_ADMIN`, `VALIDATOR`).
   - Automatic secure temporary password generator with one-click clipboard copy.
   - 3-tier sports taxonomy editor with English/Spanish localized names and SVG icon pickers.
-- **Mapped Database Entities**: `User`, `UserRole`, `ActivityType`, `Activity`, `ActivityCategory`, `Amenity`, `SurfaceType`.
+- **Mapped Database Entities**: `Organization`, `User`, `UserRole`, `ActivityType`, `Activity`, `ActivityCategory`, `Amenity`, `SurfaceType`.
 - **Audit Verification & Recording**: `mod5_testing_audit_1791821038465.webp` | Report: [`module5_rbac_and_catalogs_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module5_rbac_and_catalogs_verification_report.md).
 
 ---
@@ -161,24 +164,26 @@ All modules adhere to three universal pillars:
   - Real-time search by short-code `#AB4553`, player name, or phone number.
   - Direct WhatsApp Web/App launcher with pre-formatted booking details for quick player communication.
   - Flyout drawer displaying the complete reservation lifecycle (`Pending` $\to$ `Confirmed` $\to$ `Completed`), USD/VES breakdown, and access validator logs.
-- **Mapped Database Entities**: `Reservation`, `Payment`, `Court`, `Venue`, `User`.
-- **Audit Verification & Recording**: `mod6_verification_audit_1791821687194.webp` | Report: [`module6_reservations_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module6_reservations_verification_report.md).
+- **Mapped Database Entities**: `Reservation`, `Payment`, `Venue`, `Space` (`Court`), `User`, `ReservationStatus`.
+- **Audit Verification & Recording**: `mod6_ledger_audit_1791821867160.webp` | Report: [`module6_bookings_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module6_bookings_verification_report.md).
 
 ---
 
-### MODULE 7: Ally Settlements & Financial Payouts Hub
+### MODULE 7: Ally Treasury, Payouts & Settlement Batches
 
 - **Prototype Files**:
-  - [`treasury/settlements.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/treasury/settlements.html) — Bi-weekly closing hub, automated 5% commission retention, bank disbursement logging, and downloadable statements.
+  - [`treasury/settlements.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/treasury/settlements.html) — Bi-weekly settlement ledger, financial drawer, and corporate payout disbursement execution modal.
 - **Problems Resolved from `BACKOFFICE_SPECIFICATIONS.md`**:
-  - **Problem T**: Critical confusion between client booking receipts and platform disbursements to venues.
-  - **Problem X**: Replacing an empty accounting table placeholder with a true financial settlement engine.
+  - **Problem T**: Conflation of customer booking payments with ally payout disbursements.
+  - **Problem U**: Inability to execute or reconcile bank disbursements to allies.
+  - **Problem W**: Ambiguity in "Earnings" vs "Revenue".
 - **Key Operational Workflows**:
   - Unambiguous financial metric naming: **GMV (Gross Merchandise Value)** vs **YoReservo Commission (5%)** vs **Net Payout to Ally (95%)**.
   - Grouping by bi-weekly closing batches (`1Q-OCT-2026`, `2Q-OCT-2026`).
-  - Bank disbursement execution modal capturing destination bank, transfer reference number, and settlement date.
+  - **Organization-Level Disbursement**: Payouts executed to the corporate entity's bank account with multi-venue itemized breakdowns.
+  - Bank disbursement execution modal capturing destination corporate bank, transfer reference number, and settlement date.
   - Detailed account statement drawer with PDF discharge receipt and CSV export.
-- **Mapped Database Entities**: `Settlement`, `SettlementBatch`, `SettlementItem`, `Venue`, `User` (`ALLY`), `Payment`.
+- **Mapped Database Entities**: `Organization`, `SettlementBatch`, `SettlementItem`, `Venue`, `User` (`ALLY_OWNER`), `Payment`.
 - **Audit Verification & Recording**: `mod7_settlements_test_1791822314030.webp` / `mod7_drawer_capture_1791822765748.webp` | Report: [`module7_settlements_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module7_settlements_verification_report.md).
 
 ---
@@ -191,12 +196,12 @@ All modules adhere to three universal pillars:
   - **Problem A**: Showing irrelevant SuperAdmin metrics to club owners (e.g., *"150 registered allies"*).
   - **Problem W**: Ambiguity in "Earnings" vs "Revenue" and broken chart axes (displaying days when month is selected).
 - **Key Operational Workflows**:
-  - **Live Perspective Switcher**: Toggles between Global Administrator (network volume, GMV, 5% net fee revenue) and local Ally (today's court occupancy rate, net venue earnings).
+  - **Live Perspective Switcher**: Toggles between Global Administrator (network volume, GMV, 5% net fee revenue) and Ally Organization (`Grupo Ávila`, consolidating performance across all registered venues).
   - **Dynamic Timeframe Aggregation**:
     - Selecting **"Hoy (Día)"** aggregates the X-axis by **hourly intervals** (`08:00` to `22:00`).
     - Selecting **"Este Mes"** aggregates the X-axis by **weeks** (`Sem 1` to `Sem 4`).
   - Horizontal live court ribbon providing real-time court occupancy and status indicators.
-- **Mapped Database Entities**: `Reservation`, `Court`, `Venue`, `Settlement`, `Payment`.
+- **Mapped Database Entities**: `Organization`, `Reservation`, `Space` (`Court`), `Venue`, `SettlementBatch`, `Payment`.
 - **Audit Verification & Recording**: `mod8_dashboard_test_1791823313952.webp` | Report: [`module8_dashboard_verification_report.md`](file:///C:/Users/Mende/.gemini/antigravity-ide/brain/12497f13-a621-4554-b786-f47c6a90bacc/module8_dashboard_verification_report.md).
 
 ---
@@ -254,6 +259,15 @@ All modules adhere to three universal pillars:
 - **Central Design System**: [`assets/backoffice.css`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/assets/backoffice.css) contains the HSL color palette, CSS custom properties, utility classes (`.card`, `.btn`, `.badge`, `.table`), keyframe animations, and responsive media queries.
 - **Cross-Screen Navigation**: Every screen includes top header links and a primary **"Volver al Portal"** action linking back to [`index.html`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/backoffice-ui-designs/index.html).
 - **Preference Persistence**: Theme selection (`yoreservo_theme`) and language mode (`data-lang`) synchronize seamlessly in `localStorage`, maintaining consistent states across page transitions.
+- **Venezuelan Document Type Selectors (`V`, `E`, `J`, `G`, `P`, `C`)**:
+  - Replaces free-text prefix typing with a standardized 2-part selector + digit input across all document fields (RIF, Cédula, Pasaporte).
+  - Types: `V` (Venezolano), `E` (Extranjero), `J` (Jurídico), `G` (Gubernamental), `P` (Pasaporte), `C` (Comunal).
+- **Worldwide Phone Number Composite Selectors**:
+  - Replaces open-ended string inputs with a 3-part composite component:
+    1. **Country Code Selector**: Full worldwide coverage (`+58` default, `+1`, `+34`, `+57`, `+507`, `+52`, `+56`, `+54`, `+51`, `+593`, `+55`, `+44`, `+39`, `+351`, etc.).
+    2. **Operator / Prefix Selector**: Venezuelan mobile prefixes (`0412`, `0414`, `0424`, `0416`, `0426`, `0422`), fixed line (`0212`), or international.
+    3. **Subscriber Number Input**: 7-digit numeric string.
+  - Automatically assembled in international E.164 format (e.g. `+58 412 1234567`) ensuring 100% interoperability with WhatsApp direct links (`https://wa.me/...`).
 
 ---
 

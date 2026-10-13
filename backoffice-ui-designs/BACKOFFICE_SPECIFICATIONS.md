@@ -25,7 +25,7 @@ The **YoReservo** Backoffice is the operational, commercial, and financial contr
 
 ## 2. Role-Based Access Control Architecture (RBAC)
 
-The Backoffice is a **unified, role-adaptive portal**: a single entry point whose sidebar navigation and data scopes adapt automatically based on the authenticated user's role:
+The Backoffice is a **unified, role-adaptive portal**: a single entry point whose sidebar navigation and data scopes adapt automatically based on the authenticated user's role and organizational authorization scope:
 
 ```
                                ┌────────────────────────────────┐
@@ -34,14 +34,24 @@ The Backoffice is a **unified, role-adaptive portal**: a single entry point whos
                                                 │
                  ┌──────────────────────────────┼──────────────────────────────┐
                  │                              │                              │
-         [ Role: ADMIN ]                 [ Role: ALLY ]               [ Role: ACCOUNTING ]
-       Platform SuperAdmin                Venue Owner                 Treasury & Finance
+         [ Role: ADMIN ]               [ Role: ALLY_OWNER ]           [ Role: ACCOUNTING ]
+       Platform SuperAdmin              Organization Owner             Treasury & Finance
+                 │                      (Corporate Scope)                      │
                  │                              │                              │
-  • Global Platform Dashboard    • Scoped Venue Dashboard       • Pago Móvil Verification Queue
-  • Ally Directory & Audits      • Multi-Court Timeline Grid    • BCV Exchange Rate Controls
-  • Master Catalogs (Sports/Geo) • Fast Walk-in Booking         • Ally Settlements & Payouts
-  • Global Financials (5% Fee)   • Court & Space Configurator   • Bank Reconciliation Ledger
-  • Global User Account Control  • Venue Staff / Validators     • Billing & Invoicing Reports
+  • Global Platform Dashboard    • Multi-Venue Overview         • Pago Móvil Verification Queue
+  • Organization / Ally Audits   • Corporate Payout Account     • BCV Exchange Rate Controls
+  • Master Catalogs (Sports/Geo) • Organization Staff Invites   • Organization Settlement Batches
+  • Global Financials (5% Fee)   • Legal RIF & Contract Terms   • Bank Reconciliation Ledger
+  • Global User Account Control  • Branch Performance Comp.     • Billing & Invoicing Reports
+                 │                              │
+                 │                     [ Role: ALLY_ADMIN ]
+                 │                      Venue Branch Manager
+                 │                        (Venue Scope)
+                 │                              │
+                 │               • Visual Multi-Court Grid
+                 │               • Shift & Schedule Editor
+                 │               • Court / Space Configurator
+                 │               • Walk-in Bookings & Cash Desk
                  │                              │
                  └──────────────┬───────────────┘
                                 │
@@ -85,12 +95,15 @@ After reviewing the initial 10 mockups, several major structural and UX flaws we
 - **Problem**: In *"Detalle de Reservación"*, reservations in status *"Pendiente de confirmación de pago"* displayed a *"Validar Pago"* button, but did not show the bank reference number, originating bank, payer phone number, or proof of payment voucher image.
 - **Real-world friction**: Cashiers and accountants cannot validate a payment without cross-referencing the bank reference against their bank portal.
 
-### G. Conflation of "Ally" (Business Partner) vs "Venue" (Physical Sports Complex)
-- **Problem**: In the *"Aliados"* directory and *"Detalles de aliado"*, physical venue branches ("Colegio San Agustín del Paraíso", "Ávila Fitness Center", "Directv Sports Park") are treated as if each were a separate "Ally". "Colegio San Agustín" even appears three times in the same list.
-- **Real-world reality**: In the database, `User` with role `ALLY` is the business entity/owner (`owner_id`), which can own **multiple `Venues`**.
-- **Mandatory fix**: Separate the concepts:
-  - **Ally Account**: Company/Owner name, RIF, Master Email, Master Phone, Payout Bank Account.
-  - **Venues / Branches**: Physical locations belonging to that Ally, with individual addresses, GPS coordinates, local staff, and court inventories.
+### G. Conflation of "Ally" (Business Partner) vs "Venue" (Physical Complex) — 3-Tier Multi-Vertical Decoupling
+- **Problem**: In previous mockups, physical venue branches ("Colegio San Agustín del Paraíso", "Ávila Fitness Center") were treated as if each were a separate "Ally", while the business entity, corporate tax RIF, and bank payout account were conflated.
+- **Multi-Vertical Scaling Reality**: YoReservo scales beyond sports clubs to event halls, concerts, training courses, presentations, and speeches. A corporate Ally (`ORGANIZATION`) can operate multiple physical venues/campuses (`VENUE`), or produce events across third-party facilities, while holding a single legal RIF and receiving consolidated payouts into one corporate bank account.
+- **Mandatory fix — 3-Tier Architecture**:
+  1. **Organization (`ORGANIZATION`)**: Corporate/Legal partner (Legal name, commercial trade name, RIF, master corporate phone/email, commission rate %, and corporate payout bank account).
+  2. **Physical Venues (`VENUE`)**: Physical sites/branches belonging to an Organization (`organization_id` FK), with distinct address, GPS coordinates, local reception phone, and facilities.
+  3. **Multi-Purpose Spaces (`SPACE`)**: Generic bookable units (courts, rooms, auditoriums, stages, fields) with capacity, surface type, indoor/outdoor indicator, and hourly tariff.
+  4. **Scoped Personnel (`USER`)**: `ALLY_OWNER` and `ACCOUNTING` operate across the entire Organization; `ALLY_ADMIN` and `VALIDATOR` are strictly scoped to their assigned `VENUE`.
+  5. **Settlement Batches (`SETTLEMENT_BATCH`)**: Disbursed to the `ORGANIZATION`'s bank account with itemized breakdowns showing the origin venue for each booking.
 
 ### H. Massive Omission: Operating Hours & Shift Schedules are Nowhere to be Found!
 - **Problem**: In *"Detalles de aliado"* and *"Agregar nueva cancha"*, you can define a court number, sport, and hourly price ($35/h), but **there is zero interface to set schedules or opening hours (`Schedule`)**!
@@ -207,14 +220,15 @@ After reviewing the initial 10 mockups, several major structural and UX flaws we
 
 The active PostgreSQL schema ([`prisma/schema.prisma`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-backend-service/prisma/schema.prisma) and [`new-db-er.mermaid`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-backend-service/docs/new-db-er.mermaid)) is ~90% ready. To support the full Backoffice lifecycle, the following refinements are documented:
 
-| Feature / Use Case | Current DB State | Proposed Backoffice Refinement |
+| Feature / Use Case | Current DB State | Proposed Backoffice Refinement (Implemented in `proposed_db.mermaid`) |
 |---|---|---|
-| **Manual Booking Identity (`is_manual = true`)** | `client_id` is nullable; no contact fields exist if not a registered client. | Add to `Reservation`: <br>• `customer_name: String?`<br>• `customer_phone: String?`<br>• `notes: String?` |
-| **Court Maintenance & Rain Closures** | Only transactional booking statuses exist (`PENDING_PAYMENT`, `CONFIRMED`, `COMPLETED`, `CANCELLED`). | Add `BLOCKED` status to `ReservationStatus` enum with an optional `cancellation_reason` / `notes`. |
-| **Accounting Audit Trail (Payment Approver)** | `Payment` has `status: PENDING, VERIFIED, FAILED`, but does not record which user approved it. | Add to `Payment`: <br>• `verified_by: UUID?` (FK to `User`)<br>• `verified_at: DateTime?` |
-| **Financial Refunds** | `PaymentStatus` only has `PENDING`, `VERIFIED`, `FAILED`. | Add `REFUNDED` status to `PaymentStatus` enum. |
-| **Venue Photo Galleries** | `ImageEntityType` only supports `SPACE` and `REVIEW`. `Venue` only has a scalar `image_url`. | Add `VENUE` to `ImageEntityType` enum for venue facility galleries (parking, clubhouse). |
-| **Ally Payouts & Settlements** | No model exists to track accumulated payout transfers between YoReservo and Allies. | Create a `Settlement` / `Payout` entity to log bi-weekly/monthly bank settlement transfers. |
+| **Ally Corporate Entity Decoupling** | Conflated `Venue` with Ally owner; single company could not own multiple branches or host events elsewhere. | Introduced `ORGANIZATION` entity (legal name, trade name, RIF, master corporate phone/email, commission rate %, corporate bank account). `VENUE` strictly represents physical sites linked via `organization_id`. |
+| **Multi-Purpose Bookable Spaces** | Schema assumed only sports courts. | Evolved `SPACE` to support sports, concerts, courses, presentations with `capacity`, `surface_type`, `is_covered`, and `hourly_rate`. |
+| **Court Maintenance & Closures** | Only transactional booking statuses existed (`PENDING_PAYMENT`, `CONFIRMED`). | Introduced dedicated `SPACE_BLOCK` entity (`space_id`, `start_time`, `end_time`, `reason`, `created_by`) separating operational closures from customer bookings. |
+| **Accounting Audit Trail (Payment Approver)** | `Payment` had `status: PENDING, VERIFIED, FAILED`, but omitted approver. | Added to `Payment`: `verified_by: UUID?` (FK to `User`), `verified_at: DateTime?`. |
+| **Payment Retry on Rejection** | `Payment.reservation_id` was unique 1:1, preventing re-uploading vouchers. | Decoupled `RESERVATION ||--o{ PAYMENT` (1:N) for payment audit history and retry flow. |
+| **Multi-Venue Personnel Scoping** | `User` had no organization link, only optional single venue. | Added `organization_id: UUID?` and `managed_venue_id: UUID?` to `USER` for corporate vs branch scoping. |
+| **Ally Payouts & Settlements** | No model existed for accumulated payouts. | Introduced `SETTLEMENT_BATCH` and `SETTLEMENT_ITEM` linked to `ORGANIZATION` with itemized venue breakdowns. |
 
 ---
 

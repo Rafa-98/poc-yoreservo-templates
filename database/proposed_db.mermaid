@@ -1,0 +1,416 @@
+%% =============================================================================
+%% YoReservo Proposed Unified Database ER Model (v2.0 - Decoupled Architecture)
+%% Platform Ecosystem: Client Web App + Backoffice Web App + Backend Service
+%% Core Decoupling: ORGANIZATION (Ally Company) separated from VENUE (Physical Site)
+%% Source of Requirements: poc-yoreservo-templates/backoffice-ui-designs/
+%% Reference Baseline: poc-yoreservo-backend-service/docs/new-db-er.mermaid
+%% =============================================================================
+
+erDiagram
+    %% =========================================================================
+    %% USERS, AUTHENTICATION & ACCESS CONTROL (RBAC)
+    %% =========================================================================
+    USER ||--o{ SESSION : "maintains active sessions"
+    USER ||--o{ ORGANIZATION : "owns as ALLY master account"
+    USER ||--o{ USER_INVITATION : "creates staff/ally invitations"
+    USER ||--o{ VENUE : "operates as assigned VALIDATOR staff"
+    USER ||--o{ RESERVATION : "books as CLIENT"
+    USER ||--o{ RESERVATION : "validates check-in as VALIDATOR"
+    USER ||--o{ RESERVATION : "cancels with audit trail"
+    USER ||--o{ SPACE_BLOCK : "creates closure or maintenance block"
+    USER ||--o{ PAYMENT : "verifies or rejects as ACCOUNTING/ADMIN"
+    USER ||--o{ SETTLEMENT_BATCH : "approves and disburses as ACCOUNTING"
+    USER ||--o{ EXCHANGE_RATE : "records manual rate override"
+    USER ||--o{ REVIEW : "writes feedback"
+
+    %% =========================================================================
+    %% CURRENCIES & OFFICIAL BCV EXCHANGE RATES (USD & EUR MULTI-REFERENCE)
+    %% =========================================================================
+    CURRENCY ||--o{ EXCHANGE_RATE : "tracks historical official rates per currency"
+    CURRENCY ||--o{ ORGANIZATION : "chosen as billing reference currency (USD or EUR)"
+    CURRENCY ||--o{ SPACE : "specifies tariff currency"
+    CURRENCY ||--o{ RESERVATION : "denotes reservation reference currency"
+    CURRENCY ||--o{ PAYMENT : "denotes transaction currency (VES, USD, EUR)"
+    CURRENCY ||--o{ SETTLEMENT_BATCH : "defines payout batch reference currency"
+    EXCHANGE_RATE ||--o{ RESERVATION : "exact rate applied at booking creation"
+    EXCHANGE_RATE ||--o{ PAYMENT : "exact rate applied to verify payment"
+
+    %% =========================================================================
+    %% ORGANIZATIONS (ALLY COMPANIES) & VENUES (PHYSICAL SITES / BRANCHES)
+    %% =========================================================================
+    ORGANIZATION ||--o{ VENUE : "operates and owns physical branches/sites"
+    ORGANIZATION ||--o{ USER : "employs team members (Allies, Staff)"
+    ORGANIZATION ||--o{ USER_INVITATION : "invites staff to join organization"
+    ORGANIZATION ||--o{ SETTLEMENT_BATCH : "receives financial payout disbursements"
+
+    %% =========================================================================
+    %% GEOGRAPHY & LOCATION HIERARCHY
+    %% =========================================================================
+    LOCATION ||--o{ LOCATION : "parent/child hierarchy (Country to Neighborhood)"
+    LOCATION ||--o{ USER : "preferred client location"
+    LOCATION ||--o{ VENUE : "physical neighborhood location"
+
+    %% =========================================================================
+    %% ACTIVITIES TAXONOMY & CATALOG (SPORTS, EVENTS, CONCERTS, COURSES)
+    %% =========================================================================
+    ACTIVITY_TYPE ||--o{ ACTIVITY : "groups activities (Sports, Entertainment, Education)"
+    ACTIVITY ||--o{ ACTIVITY_CATEGORY : "defines formats/categories (Futbol 5, Padel, Concierto, Taller)"
+    ACTIVITY_CATEGORY ||--o{ SPACE : "categorizes bookable resource/space"
+
+    %% =========================================================================
+    %% VENUES, SPACES (COURTS/HALLS), SCHEDULES & BLOCKS
+    %% =========================================================================
+    VENUE ||--o{ USER_INVITATION : "targets on-site staff assignment"
+    VENUE ||--o{ SPACE : "contains physical courts/halls/spaces"
+    VENUE ||--o{ SETTLEMENT_BATCH : "scoped in settlement batches"
+    VENUE ||--o{ REVIEW : "receives venue reviews"
+
+    SPACE ||--o{ SCHEDULE : "has recurring weekly shift schedule"
+    SPACE ||--o{ SPACE_BLOCK : "has temporary closure/rain/maintenance blocks"
+    SPACE ||--o{ RESERVATION : "is booked for time slots"
+    SPACE ||--o{ REVIEW : "receives space reviews"
+
+    %% =========================================================================
+    %% POLYMORPHIC MEDIA STORAGE
+    %% =========================================================================
+    ORGANIZATION ||--o{ IMAGE : "has brand assets/logos (polymorphic)"
+    VENUE ||--o{ IMAGE : "has facility gallery (polymorphic)"
+    SPACE ||--o{ IMAGE : "has space/court gallery (polymorphic)"
+    REVIEW ||--o{ IMAGE : "has user attached photos (polymorphic)"
+
+    %% =========================================================================
+    %% RESERVATIONS, PAYMENTS & CHECK-IN
+    %% =========================================================================
+    RESERVATION ||--o{ PAYMENT : "has payment attempts (1:N allows retry upon rejection)"
+    RESERVATION ||--o| REVIEW : "receives client review upon completion"
+    RESERVATION ||--o| SETTLEMENT_ITEM : "is settled in financial batch"
+
+    %% =========================================================================
+    %% SETTLEMENTS & FINANCIAL PAYOUTS (TREASURY)
+    %% =========================================================================
+    SETTLEMENT_BATCH ||--|{ SETTLEMENT_ITEM : "bundles multiple reservation items"
+    PAYMENT ||--o| SETTLEMENT_ITEM : "provides verified financial backing"
+
+    %% =========================================================================
+    %% ENTITY DEFINITIONS & SCHEMAS
+    %% =========================================================================
+
+    %% B2B BUSINESS PARTNERS (ALLY COMPANIES / PROMOTERS / ACADEMIES)
+    ORGANIZATION {
+        uuid id PK
+        uuid owner_id FK "References USER with role ALLY (Master account holder)"
+        string trade_name "Commercial / Brand name (e.g. Grupo Avila, Caracas Live)"
+        string legal_name "Fiscal legal entity name (e.g. Inversiones Avila C.A.)"
+        string document_type "Fiscal tax document type (Enum: J, G, V, E, C, P)"
+        string rif_number "Fiscal Tax ID number (e.g. 30492811-0)"
+        string rif "Formatted Fiscal Tax ID (e.g. J-30492811-0)"
+        string contact_email "Master billing and administrative email"
+        string contact_phone "Master contact / WhatsApp phone number (Composite: country + operator + number)"
+        string fiscal_address "Fiscal tax domicile address"
+        string reference_currency_code FK "References CURRENCY (default 'USD', or 'EUR' - Ally billing reference)"
+        decimal commission_rate "Platform commission percentage (default 5.00)"
+        string status "Enum: ACTIVE, INACTIVE, IN_VERIFICATION"
+        string logo_url "Nullable (Corporate logo image URL)"
+        string payout_bank "Nullable (Destination bank code e.g. 0102 BDV, 0134 Banesco)"
+        string payout_account_number "Nullable (20-digit bank account number)"
+        string payout_account_type "Nullable (Enum: CHECKING, SAVINGS)"
+        string payout_id_document "Nullable (Fiscal RIF/CI of corporate account)"
+        string payout_account_holder "Nullable (Beneficiary legal name on bank account)"
+        string payout_phone_number "Nullable (Phone number if Pago Movil payout)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% PHYSICAL SITES / BRANCHES / CAMPUSES / AUDITORIUMS
+    VENUE {
+        uuid id PK
+        uuid organization_id FK "References parent ORGANIZATION (Ally Company)"
+        uuid location_id FK "References LOCATION (NEIGHBORHOOD node)"
+        string name "Physical branch / Site name (e.g. Sede San Bernardino, Auditorio CCCT)"
+        string contact_phone "Local branch / reception desk phone (Composite: country + operator + number)"
+        string address "Physical street address"
+        decimal location_lat "Latitude (9, 6)"
+        decimal location_lng "Longitude (9, 6)"
+        string timezone "Default 'America/Caracas' (For shift schedules)"
+        string status "Enum: ACTIVE, INACTIVE, IN_VERIFICATION"
+        string image_url "Nullable (Primary facility photo)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% USERS AND ACCESS TABLES
+    USER {
+        uuid id PK
+        uuid organization_id FK "Nullable (Company the user belongs to if staff/ally)"
+        uuid managed_venue_id FK "Nullable (Assigned physical venue for VALIDATOR staff)"
+        uuid preferred_location_id FK "Nullable (Client discovery preference)"
+        string name "First name"
+        string last_name "Last name"
+        string email "Unique, lowercase"
+        string password_hash "Bcrypt hash (10 rounds)"
+        string document_type "Nullable (Enum: V, E, J, G, P, C - Venezuelan document prefix)"
+        string document_number "Nullable (National identity or tax document number)"
+        string phone "Nullable (WhatsApp contact, composite: country + operator + number)"
+        string image_url "Nullable (Profile picture)"
+        string role "Enum: CLIENT, ALLY, ADMIN, ACCOUNTING, VALIDATOR"
+        string status "Enum: ACTIVE, INACTIVE, IN_VERIFICATION"
+        string preferred_language "Default 'es' (Supported: 'es', 'en')"
+        datetime created_at
+        datetime updated_at
+    }
+
+    USER_INVITATION {
+        uuid id PK
+        uuid organization_id FK "Nullable (Target company for staff/allies)"
+        uuid venue_id FK "Nullable (Assigned physical venue for VALIDATOR staff)"
+        string email "Invited staff email"
+        string document_type "Nullable (Enum: V, E, J, G, P, C - Target staff document prefix)"
+        string document_number "Nullable (Target staff document number)"
+        string phone "Nullable (Staff WhatsApp contact: country + operator + number)"
+        string role "Enum: ALLY, VALIDATOR, ACCOUNTING, ADMIN"
+        string token_hash "Unique, SHA-256 hash of one-time activation token"
+        uuid invited_by_id FK "References USER who initiated invitation"
+        datetime expires_at "Invitation expiration window (e.g. 7 days)"
+        datetime accepted_at "Nullable (Timestamp when password was configured)"
+        datetime created_at
+    }
+
+    SESSION {
+        uuid id PK
+        uuid user_id FK "References USER"
+        string refresh_token_hash "Unique, SHA-256 hash of refresh token"
+        string device_ip "Nullable (Client IP for security audit)"
+        string user_agent "Nullable (Browser and OS signature)"
+        boolean is_revoked "Default false (True if logged out or hijacked)"
+        datetime rotated_at "Nullable (Timestamp for rotation grace window)"
+        datetime last_active_at "Nullable (Session activity monitor for profile)"
+        datetime expires_at "Session TTL timestamp"
+        datetime created_at
+    }
+
+    %% GEOGRAPHY (4-TIER HIERARCHICAL TREE)
+    LOCATION {
+        uuid id PK
+        uuid parent_location_id FK "Nullable (Self-referencing tree parent)"
+        jsonb name "Localized: { 'es': 'Caracas', 'en': 'Caracas' }"
+        string location_type "Enum: COUNTRY, STATE, CITY, NEIGHBORHOOD"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% DYNAMIC ACTIVITIES CATALOG (3-TIER HIERARCHY)
+    ACTIVITY_TYPE {
+        uuid id PK
+        jsonb name "Localized: { 'es': 'Deportes', 'en': 'Sports' }"
+        string code "Unique: SPORTS, ENTERTAINMENT, EDUCATION"
+        string icon_url "Nullable (SVG icon asset URL)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    ACTIVITY {
+        uuid id PK
+        uuid activity_type_id FK "References ACTIVITY_TYPE"
+        jsonb name "Localized: { 'es': 'Fútbol', 'en': 'Soccer' }"
+        string image_url "Activity cover image URL"
+        string status "Enum: ENABLED, DISABLED"
+        datetime created_at
+        datetime updated_at
+    }
+
+    ACTIVITY_CATEGORY {
+        uuid id PK
+        uuid activity_id FK "References ACTIVITY"
+        jsonb name "Localized: { 'es': 'Fútbol 5', 'en': '5-a-side Soccer' }"
+        string image_url "Nullable (Format banner URL)"
+        string status "Enum: ENABLED, DISABLED"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% GENERIC POLYMORPHIC MEDIA STORAGE
+    IMAGE {
+        uuid id PK
+        uuid entity_id "Polymorphic target ID (Matches Organization, Venue, Space, Review)"
+        string entity_type "Enum: ORGANIZATION, VENUE, SPACE, REVIEW"
+        string url "CDN / S3 image URL"
+        int display_order "Ordering sequence index (0, 1, 2...)"
+        datetime created_at
+    }
+
+    %% PHYSICAL SPACES / BOOKABLE RESOURCES (COURTS / HALLS / ROOMS / STAGES)
+    SPACE {
+        uuid id PK
+        uuid venue_id FK "References physical VENUE"
+        uuid activity_category_id FK "References ACTIVITY_CATEGORY format"
+        string space_number "Resource identifier (e.g. Cancha 1, Pista 3, Auditorio A)"
+        string currency_code FK "References CURRENCY (defaults to ORGANIZATION reference_currency_code)"
+        decimal price_per_hour "Base hourly or session rate in reference currency (12, 2)"
+        int capacity "Nullable (Attendee capacity for events, classrooms, or courts)"
+        string surface_type "Nullable (e.g. Sintetica, Arcilla, Cristal, Parquet, Alfombra)"
+        boolean is_covered "Default false (Indoor / Techada vs Outdoor)"
+        string status "Enum: ENABLED, DISABLED"
+        datetime expires_at "Nullable (For temporary pop-up events / concerts)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% RECURRING OPERATIONAL SHIFTS (OPENING HOURS)
+    SCHEDULE {
+        uuid id PK
+        uuid space_id FK "References SPACE"
+        int day_of_week "0 (Sunday) to 6 (Saturday)"
+        time open_time "Shift opening time (e.g. 08:00)"
+        time close_time "Shift closing time (e.g. 13:00 or 23:00)"
+        boolean is_active "Default true (Allows temporarily pausing shifts)"
+    }
+
+    %% TEMPORARY SPACE CLOSURES & MAINTENANCE BLOCKS
+    SPACE_BLOCK {
+        uuid id PK
+        uuid space_id FK "References SPACE"
+        date block_date "Date of closure"
+        time start_time "Closure start time (HH:00)"
+        time end_time "Closure end time (HH:00)"
+        string reason "Enum: MAINTENANCE, WEATHER_RAIN, TOURNAMENT, PRIVATE_EVENT, OTHER"
+        string notes "Nullable (Operational explanation)"
+        uuid created_by FK "References USER (Staff / Ally who created block)"
+        datetime created_at
+    }
+
+    %% OPERATIONAL TRANSACTIONS (RESERVATIONS)
+    RESERVATION {
+        uuid id PK
+        string short_code "Unique 6-character code (e.g. AB4553)"
+        uuid space_id FK "References SPACE"
+        uuid client_id FK "Nullable (Set for registered app users, null for walk-ins)"
+        string customer_name "Nullable (Attendee/player name for counter bookings)"
+        string customer_document_type "Nullable (Enum: V, E, J, G, P, C - Walk-in client document prefix)"
+        string customer_document_number "Nullable (Walk-in client document number)"
+        string customer_phone "Nullable (WhatsApp contact for counter bookings, composite: country + operator + number)"
+        string internal_notes "Nullable (Reception / counter operational notes)"
+        date reservation_date "Booking date (YYYY-MM-DD)"
+        time start_time "Slot start time (HH:00)"
+        time end_time "Slot end time (HH:00)"
+        string currency_code FK "References CURRENCY (e.g. USD or EUR - Ally reference)"
+        uuid exchange_rate_id FK "References historical EXCHANGE_RATE applied at booking"
+        decimal exchange_rate_value "Snapshot BCV rate applied in VES (18, 6)"
+        decimal subtotal "Resource subtotal in reference currency (12, 2)"
+        decimal service_fee "Platform fee in reference currency (0 for counter walk-ins)"
+        decimal total_amount "Total booking amount in reference currency (12, 2)"
+        decimal total_amount_ves "Total booking amount converted to VES at reservation time (18, 2)"
+        string status "Enum: PENDING_PAYMENT, PAYMENT_UNDER_REVIEW, CONFIRMED, COMPLETED, CANCELLED, REFUNDED"
+        string qr_code_hash "Unique verification hash for QR ticket"
+        boolean is_manual "True for counter/WhatsApp walk-in bookings"
+        string check_in_method "Nullable (Enum: QR_SCAN, SHORT_CODE_MANUAL)"
+        datetime validated_at "Nullable (Timestamp of check-in)"
+        uuid validated_by FK "Nullable (References USER with VALIDATOR role)"
+        datetime cancelled_at "Nullable (Timestamp of cancellation)"
+        uuid cancelled_by FK "Nullable (References USER who cancelled)"
+        string cancellation_reason "Nullable (Audited cancellation reason)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% RATINGS AND REVIEWS
+    REVIEW {
+        uuid id PK
+        uuid reservation_id FK "Unique (1 review per reservation)"
+        uuid user_id FK "References USER (Author CLIENT)"
+        uuid venue_id FK "Denormalized references VENUE for fast lookups"
+        uuid space_id FK "Denormalized references SPACE for fast lookups"
+        int rating "Rating value 1 to 5"
+        string comment "Nullable (Feedback text)"
+        datetime created_at
+    }
+
+    %% FINANCIAL TRANSACTIONS (CLIENT PAYMENTS)
+    PAYMENT {
+        uuid id PK
+        uuid reservation_id FK "References RESERVATION (1:N allows retry upon rejection)"
+        string currency_code FK "References CURRENCY (VES for Pago Movil, or USD/EUR for cash)"
+        uuid exchange_rate_id FK "Nullable (References exact EXCHANGE_RATE applied)"
+        decimal exchange_rate "BCV official rate applied (18, 6)"
+        decimal amount "Amount in transaction currency (18, 2)"
+        decimal amount_ves "Amount in VES (18, 2)"
+        decimal amount_reference "Equivalent in Ally reference currency ($ or €) (12, 2)"
+        string payment_method "Enum: CARD, PAGO_MOVIL, CASH"
+        string reference_number "Nullable (4-12 digit bank confirmation number)"
+        string phone_number "Nullable (Payer phone number for Pago Movil: country + operator + number)"
+        string origin_bank "Nullable (Issuing bank code e.g. 0102 BDV)"
+        string payer_document_type "Nullable (Enum: V, E, J, G, P, C - Payer document prefix)"
+        string payer_id_document "Nullable (Payer document number for Pago Movil reconciliation)"
+        date payment_date "Transaction date reported"
+        string status "Enum: PENDING, VERIFIED, REJECTED, FAILED, REFUNDED"
+        string rejection_reason "Nullable (Audited discrepancy explanation)"
+        string receipt_url "Nullable (Link to uploaded bank voucher image)"
+        uuid verified_by FK "Nullable (References USER with ACCOUNTING/ADMIN role)"
+        datetime verified_at "Nullable (Timestamp when payment was audited)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    %% FINANCIAL SETTLEMENTS & ALLY DISBURSEMENTS (TREASURY)
+    SETTLEMENT_BATCH {
+        uuid id PK
+        string batch_code "Unique batch code (e.g. SET-2026-10-1Q-001)"
+        uuid organization_id FK "References recipient ORGANIZATION (Ally Company)"
+        uuid venue_id FK "Nullable (Scoped to specific branch venue, or null if company-wide)"
+        date period_start_date "Cycle start date"
+        date period_end_date "Cycle end date"
+        int total_reservations "Number of reservations included in payout"
+        string currency_code FK "References CURRENCY (Ally reference currency: USD or EUR)"
+        decimal gross_amount "Total GMV in reference currency (12, 2)"
+        decimal platform_fee_amount "YoReservo retained fee in reference currency (12, 2)"
+        decimal net_payout_amount "Net amount to transfer to Ally Company in reference currency (12, 2)"
+        string payout_currency_code "Disbursement currency (USD, EUR, or VES)"
+        decimal payout_exchange_rate "Nullable (Exchange rate if disbursed in VES)"
+        string status "Enum: DRAFT, PENDING_APPROVAL, APPROVED, DISBURSED, CANCELLED"
+        string payout_method "Nullable (Enum: BANK_TRANSFER, PAGO_MOVIL)"
+        string payout_reference_number "Nullable (Bank transfer confirmation reference)"
+        string payout_destination_bank "Nullable (Destination bank name/code)"
+        string payout_receipt_url "Nullable (Bank transfer voucher PDF/image)"
+        datetime disbursed_at "Nullable (Timestamp when payout wire was executed)"
+        uuid disbursed_by FK "Nullable (References USER with ACCOUNTING role)"
+        string notes "Nullable (Internal treasury audit notes)"
+        datetime created_at
+        datetime updated_at
+    }
+
+    SETTLEMENT_ITEM {
+        uuid id PK
+        uuid settlement_batch_id FK "References SETTLEMENT_BATCH"
+        uuid reservation_id FK "Unique (Guarantees booking is settled exactly once)"
+        uuid payment_id FK "References verified PAYMENT"
+        decimal court_subtotal "Resource subtotal amount in reference currency (12, 2)"
+        decimal service_fee "Platform fee amount in reference currency (12, 2)"
+        decimal net_ally_amount "Net amount credited to Ally Company in reference currency (12, 2)"
+        datetime created_at
+    }
+
+    %% CURRENCIES (BCV REFERENCE CURRENCIES & NATIONAL SETTLEMENT)
+    CURRENCY {
+        string code PK "ISO 4217 code: USD, EUR, VES, CNY, TRY, RUB"
+        string symbol "Symbol: $, €, Bs., ¥, ₺, ₽"
+        string name "Currency name (Dolar Estadounidense, Euro, Bolivar, etc.)"
+        boolean is_reference "True for currencies allowed as Ally pricing reference (USD, EUR)"
+        boolean is_national "True for national settlement tender (VES)"
+        int decimal_places "Default 2"
+        datetime created_at
+    }
+
+    %% OFFICIAL BCV EXCHANGE RATES & AUDIT TRAIL
+    EXCHANGE_RATE {
+        uuid id PK
+        string currency_code FK "References CURRENCY (e.g. USD, EUR, CNY, TRY, RUB)"
+        string target_currency_code "Default 'VES' (Bolivares)"
+        decimal rate "Official BCV rate in VES per 1 unit of currency (18, 6)"
+        date value_date "Fecha Valor official published by BCV (e.g. 2026-10-13)"
+        boolean is_active "True if current active official rate in platform for this currency"
+        string generated_by "Enum: SYSTEM_SCRAPER, MANUAL"
+        uuid created_by_id FK "Nullable (References USER if manual override)"
+        string notes "Nullable (Mandatory audit justification for manual changes)"
+        string source_details "Nullable (e.g. BCV Oficial @bcv_org_ve Telegram/API)"
+        datetime created_at
+        datetime updated_at
+    }

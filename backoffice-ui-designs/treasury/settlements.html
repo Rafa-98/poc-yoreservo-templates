@@ -342,7 +342,7 @@
               <span class="badge badge-confirmed" data-i18n="badge_closing_period">Cierre Q1 Octubre 2026</span>
             </div>
             <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
-              Gestor de desembolsos a clubes, auditoría de comisiones 5% y finiquitos quincenales
+              Gestor de desembolsos a organizaciones aliadas, desglose por sedes y finiquitos quincenales
             </div>
           </div>
         </div>
@@ -536,7 +536,7 @@
             <table class="table" style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;" id="settlements-table">
               <thead>
                 <tr style="background: var(--bg-muted); border-bottom: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.05em;">
-                  <th style="padding: 12px 18px;" data-i18n="th_batch">Lote & Aliado</th>
+                  <th style="padding: 12px 18px;" data-i18n="th_batch">Lote & Organización</th>
                   <th style="padding: 12px 14px;" data-i18n="th_period">Período / Reservas</th>
                   <th style="padding: 12px 14px; text-align: right;" data-i18n="th_gmv">Volumen Bruto (GMV)</th>
                   <th style="padding: 12px 14px; text-align: right;" data-i18n="th_fee">Comisión (5%)</th>
@@ -809,11 +809,13 @@
   <!-- JAVASCRIPT LOGIC & STATE ENGINE                                          -->
   <!-- ========================================================================= -->
   <script>
-    // Master Dataset of Settlement Batches
+    // Master Dataset of Settlement Batches (Organization-level disbursement with venue breakdown)
     const settlementsData = [
       {
         id: "LIQ-10A-001",
+        orgName: "Inversiones Ávila, C.A.",
         allyName: "Complejo Deportivo Ávila",
+        venuesLabel: "Sede El Paraíso + Sede Maripérez (2 sedes)",
         rif: "J-50123890-4",
         periodCode: "CURRENT_FORTNIGHT",
         periodLabel: "01 - 15 Oct 2026",
@@ -829,16 +831,18 @@
         payoutDate: "2026-10-15",
         notes: "Liquidación puntual transferida vía Banesco Online Empresas.",
         items: [
-          { code: "AB4553", date: "02 Oct 18:00", space: "Cancha 1 - Fútbol 7", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
-          { code: "CD9021", date: "03 Oct 19:00", space: "Cancha 2 - Fútbol 5", client: "Alejandro Silva", gross: 30.00, fee: 1.50, net: 28.50 },
-          { code: "EF3412", date: "05 Oct 20:00", space: "Cancha 3 - Pádel 1", client: "Valentina Gómez", gross: 40.00, fee: 2.00, net: 38.00 },
-          { code: "GH7823", date: "08 Oct 17:00", space: "Cancha 1 - Fútbol 7", client: "Gabriel Ramos", gross: 35.00, fee: 1.75, net: 33.25 },
-          { code: "IJ9012", date: "12 Oct 21:00", space: "Cancha 4 - Pádel 2", client: "Roberto Márquez", gross: 40.00, fee: 2.00, net: 38.00 }
+          { code: "AB4553", date: "02 Oct 18:00", space: "Cancha 1 - Fútbol 7", venue: "Sede El Paraíso", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "CD9021", date: "03 Oct 19:00", space: "Cancha 2 - Fútbol 5", venue: "Sede El Paraíso", client: "Alejandro Silva", gross: 30.00, fee: 1.50, net: 28.50 },
+          { code: "EF3412", date: "05 Oct 20:00", space: "Cancha 3 - Pádel 1", venue: "Sede Maripérez", client: "Valentina Gómez", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "GH7823", date: "08 Oct 17:00", space: "Cancha 1 - Fútbol 7", venue: "Sede El Paraíso", client: "Gabriel Ramos", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "IJ9012", date: "12 Oct 21:00", space: "Cancha 4 - Pádel 2", venue: "Sede Maripérez", client: "Roberto Márquez", gross: 40.00, fee: 2.00, net: 38.00 }
         ]
       },
       {
         id: "LIQ-10A-002",
+        orgName: "Padel Pro Venezuela, C.A.",
         allyName: "Padel Pro Las Mercedes",
+        venuesLabel: "Sede Las Mercedes (1 sede)",
         rif: "J-51209384-1",
         periodCode: "CURRENT_FORTNIGHT",
         periodLabel: "01 - 15 Oct 2026",
@@ -854,15 +858,17 @@
         payoutDate: null,
         notes: null,
         items: [
-          { code: "PP1001", date: "01 Oct 16:00", space: "Pista Panorámica 1", client: "Diego Morales", gross: 40.00, fee: 2.00, net: 38.00 },
-          { code: "PP1002", date: "03 Oct 18:00", space: "Pista Panorámica 2", client: "Mariana Rojas", gross: 40.00, fee: 2.00, net: 38.00 },
-          { code: "PP1003", date: "07 Oct 20:00", space: "Pista Central Indoor", client: "Lucas Ferrara", gross: 45.00, fee: 2.25, net: 42.75 },
-          { code: "PP1004", date: "10 Oct 19:00", space: "Pista Panorámica 1", client: "Enrique Peña", gross: 40.00, fee: 2.00, net: 38.00 }
+          { code: "PP1001", date: "01 Oct 16:00", space: "Pista Panorámica 1", venue: "Sede Las Mercedes", client: "Diego Morales", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "PP1002", date: "03 Oct 18:00", space: "Pista Panorámica 2", venue: "Sede Las Mercedes", client: "Mariana Rojas", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "PP1003", date: "07 Oct 20:00", space: "Pista Central Indoor", venue: "Sede Las Mercedes", client: "Lucas Ferrara", gross: 45.00, fee: 2.25, net: 42.75 },
+          { code: "PP1004", date: "10 Oct 19:00", space: "Pista Panorámica 1", venue: "Sede Las Mercedes", client: "Enrique Peña", gross: 40.00, fee: 2.00, net: 38.00 }
         ]
       },
       {
         id: "LIQ-10A-003",
+        orgName: "Centro Santa Fe Sports, C.A.",
         allyName: "Centro Deportivo Santa Fe",
+        venuesLabel: "Sede Santa Fe Norte (1 sede)",
         rif: "J-40918234-9",
         periodCode: "CURRENT_FORTNIGHT",
         periodLabel: "01 - 15 Oct 2026",
@@ -878,13 +884,15 @@
         payoutDate: null,
         notes: null,
         items: [
-          { code: "SF4001", date: "02 Oct 17:00", space: "Cancha Grama 50mm", client: "Daniela Fuentes", gross: 35.00, fee: 1.75, net: 33.25 },
-          { code: "SF4002", date: "06 Oct 18:00", space: "Cancha Grama 50mm", client: "Victor Carrero", gross: 35.00, fee: 1.75, net: 33.25 }
+          { code: "SF4001", date: "02 Oct 17:00", space: "Cancha Grama 50mm", venue: "Sede Santa Fe Norte", client: "Daniela Fuentes", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "SF4002", date: "06 Oct 18:00", space: "Cancha Grama 50mm", venue: "Sede Santa Fe Norte", client: "Victor Carrero", gross: 35.00, fee: 1.75, net: 33.25 }
         ]
       },
       {
         id: "LIQ-10A-004",
+        orgName: "Asociación Civil Tenis Altamira",
         allyName: "Tenis Club Altamira",
+        venuesLabel: "Sede Altamira (1 sede)",
         rif: "J-30491820-2",
         periodCode: "CURRENT_FORTNIGHT",
         periodLabel: "01 - 15 Oct 2026",
@@ -900,13 +908,15 @@
         payoutDate: "2026-10-15",
         notes: "Liquidación ejecutada con éxito vía transferencia provincial.",
         items: [
-          { code: "TC2001", date: "04 Oct 09:00", space: "Pista Arcilla 1", client: "Andrés Benítez", gross: 40.00, fee: 2.00, net: 38.00 },
-          { code: "TC2002", date: "09 Oct 10:00", space: "Pista Dura 2", client: "Claudia Mendoza", gross: 40.00, fee: 2.00, net: 38.00 }
+          { code: "TC2001", date: "04 Oct 09:00", space: "Pista Arcilla 1", venue: "Sede Altamira", client: "Andrés Benítez", gross: 40.00, fee: 2.00, net: 38.00 },
+          { code: "TC2002", date: "09 Oct 10:00", space: "Pista Dura 2", venue: "Sede Altamira", client: "Claudia Mendoza", gross: 40.00, fee: 2.00, net: 38.00 }
         ]
       },
       {
         id: "LIQ-10A-005",
+        orgName: "Caracas Sport Club A.C.",
         allyName: "Caracas Sport Club",
+        venuesLabel: "Sede El Peñón (1 sede)",
         rif: "J-40192837-7",
         periodCode: "CURRENT_FORTNIGHT",
         periodLabel: "01 - 15 Oct 2026",
@@ -922,13 +932,15 @@
         payoutDate: null,
         notes: null,
         items: [
-          { code: "CS1001", date: "05 Oct 19:00", space: "Cancha Squash 1", client: "Mauricio Valera", gross: 35.00, fee: 1.75, net: 33.25 },
-          { code: "CS1002", date: "11 Oct 20:00", space: "Pádel Pista 1", client: "Fernando Prieto", gross: 40.00, fee: 2.00, net: 38.00 }
+          { code: "CS1001", date: "05 Oct 19:00", space: "Cancha Squash 1", venue: "Sede El Peñón", client: "Mauricio Valera", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "CS1002", date: "11 Oct 20:00", space: "Pádel Pista 1", venue: "Sede El Peñón", client: "Fernando Prieto", gross: 40.00, fee: 2.00, net: 38.00 }
         ]
       },
       {
         id: "LIQ-09B-018",
+        orgName: "Inversiones Ávila, C.A.",
         allyName: "Complejo Deportivo Ávila",
+        venuesLabel: "Sede El Paraíso + Sede Maripérez (2 sedes)",
         rif: "J-50123890-4",
         periodCode: "PREV_FORTNIGHT",
         periodLabel: "16 - 30 Sep 2026",
@@ -944,8 +956,8 @@
         payoutDate: "2026-09-30",
         notes: "Cierre quincenal de Septiembre liquidado.",
         items: [
-          { code: "AB3911", date: "17 Sep 18:00", space: "Cancha 1 - Fútbol 7", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
-          { code: "AB3912", date: "24 Sep 20:00", space: "Cancha 3 - Pádel 1", client: "Ricardo Quintero", gross: 40.00, fee: 2.00, net: 38.00 }
+          { code: "AB3911", date: "17 Sep 18:00", space: "Cancha 1 - Fútbol 7", venue: "Sede El Paraíso", client: "Carlos Mendoza", gross: 35.00, fee: 1.75, net: 33.25 },
+          { code: "AB3912", date: "24 Sep 20:00", space: "Cancha 3 - Pádel 1", venue: "Sede Maripérez", client: "Ricardo Quintero", gross: 40.00, fee: 2.00, net: 38.00 }
         ]
       }
     ];
@@ -977,7 +989,7 @@
         nav_hub: "Portal de Módulos",
         topbar_title: "Liquidaciones & Pagos a Aliados",
         badge_closing_period: "Cierre Q1 Octubre 2026",
-        topbar_subtitle: "Gestor de desembolsos a clubes, auditoría de comisiones 5% y finiquitos quincenales",
+        topbar_subtitle: "Gestor de desembolsos a organizaciones aliadas, desglose por sedes y finiquitos quincenales",
         btn_export_all: "Exportar Lotes (CSV)",
         btn_record_payout: "Registrar Desembolso",
         kpi_gmv_title: "Volumen Bruto (GMV)",
@@ -1003,7 +1015,7 @@
         chip_disbursed: "Liquidados",
         table_header_title: "Lotes de Liquidación & Cierres Contables",
         table_header_sub: "Cálculo automatizado: Total Bruto Reserva - Comisión 5% = Ingreso Neto Aliado",
-        th_batch: "Lote & Aliado",
+        th_batch: "Lote & Organización",
         th_period: "Período / Reservas",
         th_gmv: "Volumen Bruto (GMV)",
         th_fee: "Comisión (5%)",
@@ -1021,10 +1033,10 @@
         btn_statement: "Desglose",
         btn_pay_now: "Pagar Lote",
         btn_receipt: "Comprobante",
-        modal_payout_title: "Ejecutar Desembolso a Aliado",
+        modal_payout_title: "Ejecutar Desembolso a Organización Aliada",
         lbl_net_to_transfer: "Monto Neto a Transferir:",
         lbl_bcv_rate: "Tasa Oficial BCV: 40.00 Bs/$",
-        lbl_dest_account: "Cuenta Bancaria de Destino del Aliado",
+        lbl_dest_account: "Cuenta Bancaria Corporativa de la Organización",
         lbl_origin_account: "Cuenta de Origen (Tesorería YoReservo) *",
         lbl_transfer_ref: "N° Referencia Bancaria *",
         lbl_payout_date: "Fecha de Ejecución *",
@@ -1067,7 +1079,7 @@
         nav_hub: "Modules Portal",
         topbar_title: "Ally Settlements & Financial Payouts",
         badge_closing_period: "Closing Q1 October 2026",
-        topbar_subtitle: "Venue payout manager, 5% fee revenue audit, and bi-weekly settlement statements",
+        topbar_subtitle: "Ally organization payout manager, multi-venue breakdowns, and bi-weekly settlement statements",
         btn_export_all: "Export Batches (CSV)",
         btn_record_payout: "Record Payout",
         kpi_gmv_title: "Gross Volume (GMV)",
@@ -1093,7 +1105,7 @@
         chip_disbursed: "Disbursed",
         table_header_title: "Settlement Batches & Financial Statements",
         table_header_sub: "Automated calculation: Gross Booking Value - 5% Platform Fee = Net Ally Payout",
-        th_batch: "Batch & Ally",
+        th_batch: "Batch & Organization",
         th_period: "Period / Bookings",
         th_gmv: "Gross Volume (GMV)",
         th_fee: "Fee (5%)",
@@ -1111,10 +1123,10 @@
         btn_statement: "Statement",
         btn_pay_now: "Execute Payout",
         btn_receipt: "Receipt",
-        modal_payout_title: "Disburse Payout to Ally",
+        modal_payout_title: "Disburse Payout to Ally Organization",
         lbl_net_to_transfer: "Net Amount to Transfer:",
         lbl_bcv_rate: "Official BCV Rate: 40.00 Bs/$",
-        lbl_dest_account: "Ally Destination Bank Account",
+        lbl_dest_account: "Organization Corporate Destination Bank Account",
         lbl_origin_account: "Originating Treasury Account (YoReservo) *",
         lbl_transfer_ref: "Bank Transfer Reference # *",
         lbl_payout_date: "Disbursement Date *",
@@ -1278,8 +1290,13 @@
         tr.innerHTML = `
           <td style="padding: 14px 18px;">
             <div style="font-family: monospace; font-size: 11px; font-weight: 700; color: var(--text-link);">#${item.id}</div>
-            <div style="font-weight: 700; font-size: 13.5px; color: var(--text-main); margin-top: 2px;">${item.allyName}</div>
-            <div style="font-size: 11.5px; color: var(--text-muted);">${item.rif}</div>
+            <div style="font-weight: 700; font-size: 13.5px; color: var(--text-main); margin-top: 2px;">${item.orgName || item.allyName}</div>
+            <div style="font-size: 11px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+              <span>🏢 ${item.allyName}</span> • <span>${item.rif}</span>
+            </div>
+            <div style="font-size: 11px; color: var(--brand-dark); font-weight: 600; margin-top: 3px;">
+              📍 ${item.venuesLabel || '1 Sede'}
+            </div>
           </td>
           
           <td style="padding: 14px;">
@@ -1398,8 +1415,8 @@
 
       // Populate modal fields
       document.getElementById('modal-payout-subtitle').innerText = `Lote: #${target.id} • ${target.periodLabel}`;
-      document.getElementById('modal-ally-name').innerText = target.allyName;
-      document.getElementById('modal-ally-rif').innerText = `RIF: ${target.rif} • ${currentLang === 'es' ? 'Período:' : 'Period:'} ${target.periodLabel}`;
+      document.getElementById('modal-ally-name').innerText = target.orgName || target.allyName;
+      document.getElementById('modal-ally-rif').innerText = `Comercial: ${target.allyName} • RIF: ${target.rif} • ${target.venuesLabel}`;
       
       const badge = document.getElementById('modal-status-badge');
       if (badge) {
@@ -1412,7 +1429,7 @@
 
       document.getElementById('modal-dest-details').innerHTML = `
         🏦 <strong>${target.bankName}</strong> — ${target.accountFull}<br>
-        <span style="font-size: 11.5px; color: var(--text-muted);">Titular: ${target.allyName} • RIF: ${target.rif}</span>
+        <span style="font-size: 11.5px; color: var(--text-muted);">Titular Corporativo: ${target.orgName || target.allyName} • RIF: ${target.rif} • Desembolso para: ${target.venuesLabel}</span>
       `;
 
       // Reset form inputs
@@ -1490,8 +1507,8 @@
       if (!target) return;
 
       document.getElementById('drawer-batch-code').innerText = `Lote #${target.id} • ${target.periodLabel}`;
-      document.getElementById('drawer-ally-name').innerText = target.allyName;
-      document.getElementById('drawer-ally-rif').innerText = `RIF: ${target.rif} • ${target.accountFull}`;
+      document.getElementById('drawer-ally-name').innerText = target.orgName || target.allyName;
+      document.getElementById('drawer-ally-rif').innerText = `Comercial: ${target.allyName} • RIF: ${target.rif} • ${target.venuesLabel}`;
       
       const badge = document.getElementById('drawer-badge');
       if (badge) {
@@ -1527,7 +1544,10 @@
             <div style="font-family: monospace; font-weight: 700; color: var(--text-link);">#${it.code}</div>
             <div style="font-size: 11px; color: var(--text-muted);">${it.date}</div>
           </td>
-          <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">${it.space}</td>
+          <td style="padding: 10px 12px; font-weight: 600; color: var(--text-main);">
+            ${it.space}
+            <div style="font-size: 11px; font-weight: normal; color: var(--text-muted);">📍 ${it.venue || 'Sede Principal'}</div>
+          </td>
           <td style="padding: 10px 12px; color: var(--text-main);">${it.client}</td>
           <td style="padding: 10px 12px; text-align: right; font-weight: 600;">$${it.gross.toFixed(2)}</td>
           <td style="padding: 10px 12px; text-align: right; color: #EF4444;">-$${it.fee.toFixed(2)}</td>

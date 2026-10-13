@@ -360,8 +360,8 @@
               <span data-i18n="btn_role_admin">Admin (Global)</span>
             </button>
             <button type="button" class="role-switch-btn" id="btn-role-ally" onclick="switchRoleView('ALLY')">
-              <span>🏟️</span>
-              <span data-i18n="btn_role_ally">Aliado (Club Ávila)</span>
+              <span>🏢</span>
+              <span data-i18n="btn_role_ally">Aliado (Grupo Ávila)</span>
             </button>
           </div>
 
@@ -917,7 +917,7 @@
     const i18n = {
       es: {
         role_admin: "SuperAdmin Global",
-        role_ally: "Aliado • Complejo Ávila",
+        role_ally: "Organización Aliada • Grupo Ávila",
         nav_overview: "Resumen",
         nav_dashboard: "Panel Ejecutivo",
         nav_ops: "Operaciones",
@@ -936,16 +936,16 @@
         nav_catalogs: "Catálogos Maestros",
         nav_hub: "Portal de Módulos",
         dash_title: "Panel Ejecutivo de Inteligencia",
-        dash_title_ally: "Consola de Operaciones del Club",
+        dash_title_ally: "Consola de Organización & Sedes",
         badge_live: "En Vivo",
         dash_subtitle: "Métricas globales de facturación (GMV), comisiones YoReservo 5%, alertas operativas y volumen",
-        dash_subtitle_ally: "Ocupación de canchas hoy, recaudación neta del club, check-in en mostrador y próximos partidos",
+        dash_subtitle_ally: "Ocupación consolidada por sedes, recaudación neta de la organización y gestión multi-recinto",
         btn_role_admin: "Admin (Global)",
-        btn_role_ally: "Aliado (Club Ávila)",
+        btn_role_ally: "Aliado (Grupo Ávila)",
         btn_new_venue: "Nuevo Recinto",
         btn_walkin: "Reserva Walk-in",
         heading_global_overview: "Resumen Ejecutivo de Rendimiento",
-        heading_ally_overview: "Operaciones Diarias: Complejo Deportivo Ávila",
+        heading_ally_overview: "Operaciones de Organización: Grupo Ávila (2 Sedes)",
         time_today: "Hoy (Día)",
         time_week: "Esta Semana",
         time_month: "Este Mes",
@@ -985,7 +985,7 @@
       },
       en: {
         role_admin: "Global SuperAdmin",
-        role_ally: "Ally • Avila Sports Club",
+        role_ally: "Ally Organization • Avila Group",
         nav_overview: "Overview",
         nav_dashboard: "Executive Dashboard",
         nav_ops: "Operations",
@@ -1004,16 +1004,16 @@
         nav_catalogs: "Master Catalogs",
         nav_hub: "Modules Portal",
         dash_title: "Executive Intelligence Dashboard",
-        dash_title_ally: "Club Operations Console",
+        dash_title_ally: "Organization & Venues Console",
         badge_live: "Live",
         dash_subtitle: "Global gross merchandise value (GMV), 5% YoReservo platform commission, operational alerts and volume",
-        dash_subtitle_ally: "Today's court occupancy, net venue earnings, reception check-in desk, and next matches",
+        dash_subtitle_ally: "Consolidated venue occupancy, organization net earnings, and multi-venue operations",
         btn_role_admin: "Admin (Global)",
-        btn_role_ally: "Ally (Avila Club)",
+        btn_role_ally: "Ally (Avila Group)",
         btn_new_venue: "New Venue",
         btn_walkin: "Walk-in Booking",
         heading_global_overview: "Executive Performance Overview",
-        heading_ally_overview: "Daily Club Operations: Avila Sports Complex",
+        heading_ally_overview: "Organization Operations: Avila Group (2 Venues)",
         time_today: "Today (Day)",
         time_week: "This Week",
         time_month: "This Month",
@@ -1141,8 +1141,8 @@
         if (quickBtn) quickBtn.innerText = currentLang === 'es' ? 'Reserva Walk-in' : 'Walk-in Booking';
 
         document.getElementById('sidebar-role-badge').innerText = i18n[currentLang].role_ally;
-        document.getElementById('sidebar-club-name').innerText = "Complejo Deportivo Ávila";
-        document.getElementById('sidebar-club-sub').innerText = "RIF: J-50123890-4 • Aliado Pro";
+        document.getElementById('sidebar-club-name').innerText = "Inversiones Ávila, C.A.";
+        document.getElementById('sidebar-club-sub').innerText = "RIF: J-50123890-4 • 2 Sedes Registradas";
         document.getElementById('topbar-title').innerText = i18n[currentLang].dash_title_ally;
         document.getElementById('topbar-sub').innerText = i18n[currentLang].dash_subtitle_ally;
         document.getElementById('section-heading').innerText = i18n[currentLang].heading_ally_overview;
@@ -1152,8 +1152,8 @@
       renderActivityFeed();
       showToast(
         currentLang === 'es' 
-          ? `Perspectiva cambiada a: ${role === 'ADMIN' ? 'SuperAdmin Global' : 'Aliado (Complejo Ávila)'}`
-          : `View switched to: ${role === 'ADMIN' ? 'Global SuperAdmin' : 'Ally (Avila Sports Club)'}`
+          ? `Perspectiva cambiada a: ${role === 'ADMIN' ? 'SuperAdmin Global' : 'Aliado (Grupo Ávila)'}`
+          : `View switched to: ${role === 'ADMIN' ? 'Global SuperAdmin' : 'Ally (Avila Group)'}`
       );
     }
 

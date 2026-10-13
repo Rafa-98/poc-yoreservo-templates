@@ -369,12 +369,71 @@
                   </div>
 
                   <div>
-                    <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_phone">
-                      Teléfono WhatsApp *
+                    <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_dni">
+                      Cédula / Documento *
                     </label>
-                    <input type="tel" id="input-phone" class="form-control" value="+58 414 1234567" required style="font-size: 13.5px;">
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <select id="input-doc-type" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                        <option value="V" selected>V - Venezolano</option>
+                        <option value="E">E - Extranjero</option>
+                        <option value="J">J - Jurídico</option>
+                        <option value="G">G - Gubernamental</option>
+                        <option value="P">P - Pasaporte</option>
+                        <option value="C">C - Comunal</option>
+                      </select>
+                      <input type="text" id="input-doc-num" class="form-control" value="19876543" placeholder="19876543" maxlength="12" required style="flex: 1; font-size: 13.5px;">
+                    </div>
                   </div>
 
+                </div>
+
+                <div style="margin-bottom: 18px;">
+                  <label style="font-size: 12.5px; font-weight: 600; color: var(--text-main); display: block; margin-bottom: 6px;" data-i18n="lbl_phone">
+                    Teléfono WhatsApp *
+                  </label>
+                  <div style="display: flex; gap: 6px; align-items: center;">
+                    <select id="input-phone-country" class="form-control" style="width: 140px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                      <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+                      <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+                      <option value="+34">🇪🇸 +34 (ESP)</option>
+                      <option value="+57">🇨🇴 +57 (COL)</option>
+                      <option value="+507">🇵🇦 +507 (PAN)</option>
+                      <option value="+52">🇲🇽 +52 (MEX)</option>
+                      <option value="+56">🇨🇱 +56 (CHL)</option>
+                      <option value="+54">🇦🇷 +54 (ARG)</option>
+                      <option value="+51">🇵🇪 +51 (PER)</option>
+                      <option value="+593">🇪🇨 +593 (ECU)</option>
+                      <option value="+55">🇧🇷 +55 (BRA)</option>
+                      <option value="+598">🇺🇾 +598 (URY)</option>
+                      <option value="+591">🇧🇴 +591 (BOL)</option>
+                      <option value="+595">🇵🇾 +595 (PRY)</option>
+                      <option value="+506">🇨🇷 +506 (CRI)</option>
+                      <option value="+502">🇬🇹 +502 (GTM)</option>
+                      <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+                      <option value="+44">🇬🇧 +44 (GBR)</option>
+                      <option value="+39">🇮🇹 +39 (ITA)</option>
+                      <option value="+351">🇵🇹 +351 (PRT)</option>
+                      <option value="+33">🇫🇷 +33 (FRA)</option>
+                      <option value="+49">🇩🇪 +49 (DEU)</option>
+                      <option value="+41">🇨🇭 +41 (CHE)</option>
+                      <option value="+86">🇨🇳 +86 (CHN)</option>
+                      <option value="+81">🇯🇵 +81 (JPN)</option>
+                      <option value="+971">🇦🇪 +971 (ARE)</option>
+                      <option value="+90">🇹🇷 +90 (TUR)</option>
+                      <option value="+7">🇷🇺 +7 (RUS)</option>
+                    </select>
+                    <select id="input-phone-operator" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                      <option value="0414" selected>0414 (Movistar)</option>
+                      <option value="0412">0412 (Digitel)</option>
+                      <option value="0424">0424 (Movistar)</option>
+                      <option value="0416">0416 (Movilnet)</option>
+                      <option value="0426">0426 (Movilnet)</option>
+                      <option value="0422">0422 (Móvil)</option>
+                      <option value="0212">0212 (Fijo / CCS)</option>
+                      <option value="OTRO">Otro / Int.</option>
+                    </select>
+                    <input type="tel" id="input-phone-num" class="form-control" value="1234567" placeholder="1234567" maxlength="8" required style="flex: 1; font-size: 13.5px; letter-spacing: 0.04em;">
+                  </div>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 22px;">
@@ -657,6 +716,7 @@
         tab_security: "Seguridad & Contraseña",
         tab_sessions: "Dispositivos & Sesiones",
         lbl_name: "Nombre Completo *",
+        lbl_dni: "Cédula / Documento *",
         lbl_phone: "Teléfono WhatsApp *",
         lbl_email: "Correo Electrónico",
         email_disclaimer: "Para cambiar tu correo de acceso contacta al Administrador de Sistema.",
@@ -717,6 +777,7 @@
         tab_security: "Security & Password",
         tab_sessions: "Devices & Sessions",
         lbl_name: "Full Name *",
+        lbl_dni: "National ID / Document *",
         lbl_phone: "WhatsApp Phone *",
         lbl_email: "Email Address",
         email_disclaimer: "To update your login email contact the System Administrator.",
@@ -816,12 +877,20 @@
     function handleGeneralSave(e) {
       e.preventDefault();
       const newName = document.getElementById('input-name').value;
+      const docType = document.getElementById('input-doc-type').value;
+      const docNum = document.getElementById('input-doc-num').value;
+      const dni = `${docType}-${docNum}`;
+      const phoneCountry = document.getElementById('input-phone-country').value;
+      const phoneOp = document.getElementById('input-phone-operator').value;
+      const phoneNum = document.getElementById('input-phone-num').value;
+      const phone = `${phoneCountry} ${phoneOp} ${phoneNum}`;
+
       document.getElementById('profile-display-name').innerText = newName;
 
       showToast(
         currentLang === 'es' 
-          ? `¡Datos actualizados con éxito! Perfil guardado para ${newName}.`
-          : `Profile updated successfully for ${newName}!`
+          ? `¡Datos actualizados con éxito! Perfil guardado para ${newName} (Doc: ${dni}, Telf: ${phone}).`
+          : `Profile updated successfully for ${newName} (ID: ${dni}, Phone: ${phone})!`
       );
     }
 

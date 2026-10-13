@@ -265,7 +265,7 @@
               <span class="badge badge-confirmed" data-i18n="badge_strict_rbac">RBAC Enforced</span>
             </div>
             <div style="font-size: 12px; color: var(--text-muted);" data-i18n="topbar_subtitle">
-              Directorio de operadores, asignación por recinto y control de privilegios institucional
+              Directorio de operadores, asignación por Organización/Sede y control de privilegios institucional
             </div>
           </div>
         </div>
@@ -380,10 +380,11 @@
               </select>
 
               <select id="venue-filter" class="form-control" style="width: auto; min-width: 200px;" onchange="filterStaffTable()">
-                <option value="all">Todas las Sedes</option>
-                <option value="Las Mercedes">Complejo Las Mercedes</option>
-                <option value="San Agustín">San Agustín del Paraíso</option>
-                <option value="Global">Acceso Global (Todas)</option>
+                <option value="all">Todos los Ámbitos & Sedes</option>
+                <option value="org-all">🏢 Toda la Organización</option>
+                <option value="Las Mercedes">📍 Complejo Las Mercedes</option>
+                <option value="San Agustín">📍 San Agustín del Paraíso</option>
+                <option value="Global">🌐 Acceso Global</option>
               </select>
 
               <select id="status-filter" class="form-control" style="width: auto; min-width: 150px;" onchange="filterStaffTable()">
@@ -409,7 +410,7 @@
                 <th data-i18n="th_user">Usuario & Cédula</th>
                 <th data-i18n="th_contact">Contacto & WhatsApp</th>
                 <th data-i18n="th_role">Rol RBAC</th>
-                <th data-i18n="th_scope">Sede Asignada</th>
+                <th data-i18n="th_scope">Ámbito & Sede Asignada</th>
                 <th data-i18n="th_status">Estatus</th>
                 <th data-i18n="th_last_session">Última Sesión</th>
                 <th style="text-align: right;" data-i18n="th_actions">Acciones</th>
@@ -623,14 +624,65 @@
             <input type="email" class="form-control" required id="inv-email" placeholder="carlos.mendoza@complejoavila.com">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div>
-              <label class="form-label" data-i18n="label_phone">Teléfono / WhatsApp *</label>
-              <input type="text" class="form-control" required id="inv-phone" placeholder="+58 412 9876543">
+          <div>
+            <label class="form-label" data-i18n="label_phone">Teléfono / WhatsApp *</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="inv-phone-country" class="form-control" style="width: 140px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+                <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+                <option value="+34">🇪🇸 +34 (ESP)</option>
+                <option value="+57">🇨🇴 +57 (COL)</option>
+                <option value="+507">🇵🇦 +507 (PAN)</option>
+                <option value="+52">🇲🇽 +52 (MEX)</option>
+                <option value="+56">🇨🇱 +56 (CHL)</option>
+                <option value="+54">🇦🇷 +54 (ARG)</option>
+                <option value="+51">🇵🇪 +51 (PER)</option>
+                <option value="+593">🇪🇨 +593 (ECU)</option>
+                <option value="+55">🇧🇷 +55 (BRA)</option>
+                <option value="+598">🇺🇾 +598 (URY)</option>
+                <option value="+591">🇧🇴 +591 (BOL)</option>
+                <option value="+595">🇵🇾 +595 (PRY)</option>
+                <option value="+506">🇨🇷 +506 (CRI)</option>
+                <option value="+502">🇬🇹 +502 (GTM)</option>
+                <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+                <option value="+44">🇬🇧 +44 (GBR)</option>
+                <option value="+39">🇮🇹 +39 (ITA)</option>
+                <option value="+351">🇵🇹 +351 (PRT)</option>
+                <option value="+33">🇫🇷 +33 (FRA)</option>
+                <option value="+49">🇩🇪 +49 (DEU)</option>
+                <option value="+41">🇨🇭 +41 (CHE)</option>
+                <option value="+86">🇨🇳 +86 (CHN)</option>
+                <option value="+81">🇯🇵 +81 (JPN)</option>
+                <option value="+971">🇦🇪 +971 (ARE)</option>
+                <option value="+90">🇹🇷 +90 (TUR)</option>
+                <option value="+7">🇷🇺 +7 (RUS)</option>
+              </select>
+              <select id="inv-phone-operator" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="0412" selected>0412 (Digitel)</option>
+                <option value="0414">0414 (Movistar)</option>
+                <option value="0424">0424 (Movistar)</option>
+                <option value="0416">0416 (Movilnet)</option>
+                <option value="0426">0426 (Movilnet)</option>
+                <option value="0422">0422 (Móvil)</option>
+                <option value="0212">0212 (Fijo / CCS)</option>
+                <option value="OTRO">Otro / Int.</option>
+              </select>
+              <input type="tel" id="inv-phone-num" class="form-control" placeholder="9876543" maxlength="8" required value="9876543" style="flex: 1; font-size: 13px; letter-spacing: 0.04em;">
             </div>
-            <div>
-              <label class="form-label" data-i18n="label_dni">Cédula / Documento *</label>
-              <input type="text" class="form-control" required id="inv-dni" placeholder="V-19876543">
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_dni">Cédula / Documento *</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="inv-doc-type" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <option value="V" selected>V - Venezolano</option>
+                <option value="E">E - Extranjero</option>
+                <option value="J">J - Jurídico</option>
+                <option value="G">G - Gubernamental</option>
+                <option value="P">P - Pasaporte</option>
+                <option value="C">C - Comunal</option>
+              </select>
+              <input type="text" id="inv-doc-num" class="form-control" placeholder="19876543" maxlength="12" required value="19876543" style="flex: 1; font-size: 13px;">
             </div>
           </div>
 
@@ -638,19 +690,21 @@
             <div>
               <label class="form-label" data-i18n="label_role">Rol RBAC Asignado *</label>
               <select class="form-control" required id="inv-role" onchange="handleRoleChange()">
-                <option value="VALIDATOR">🎟️ VALIDATOR (Recepción / Mostrador)</option>
-                <option value="ACCOUNTING">💳 ACCOUNTING (Finanzas & Tesorería)</option>
-                <option value="ALLY">🏢 ALLY (Propietario / Gerente Sede)</option>
-                <option value="ADMIN">👑 ADMIN (Administrador Global)</option>
+                <option value="ALLY_OWNER">🏢 ALLY_OWNER (Dueño de Organización Aliada)</option>
+                <option value="ALLY_ADMIN">🏛️ ALLY_ADMIN (Gerente de Sede / Operaciones)</option>
+                <option value="VALIDATOR" selected>🎟️ VALIDATOR (Recepción / Canchero de Sede)</option>
+                <option value="ACCOUNTING">💳 ACCOUNTING (Finanzas / Facturación Org)</option>
+                <option value="ADMIN">👑 ADMIN (Administrador Global Plataforma)</option>
               </select>
             </div>
 
             <div>
-              <label class="form-label" data-i18n="label_venue_scope">Sede Asignada *</label>
+              <label class="form-label" data-i18n="label_venue_scope">Ámbito de Autorización / Sede *</label>
               <select class="form-control" id="inv-venue">
-                <option value="Las Mercedes">Complejo Las Mercedes (Sede Principal)</option>
-                <option value="San Agustín">San Agustín del Paraíso</option>
-                <option value="Global">Acceso Global (Todas las Sedes)</option>
+                <option value="org-all">🏢 Toda la Organización (Acceso a todas las sedes)</option>
+                <option value="Las Mercedes" selected>📍 Complejo Las Mercedes (Sede Específica)</option>
+                <option value="San Agustín">📍 San Agustín del Paraíso (Sede Específica)</option>
+                <option value="Global">🌐 Plataforma Global (Solo Admins)</option>
               </select>
             </div>
           </div>
@@ -718,19 +772,21 @@
           <div>
             <label class="form-label" data-i18n="label_role">Rol RBAC</label>
             <select class="form-control" id="edit-user-role">
-              <option value="ADMIN">ADMIN (Superusuario Global)</option>
-              <option value="ALLY">ALLY (Propietario / Gerente Club)</option>
-              <option value="ACCOUNTING">ACCOUNTING (Finanzas & Tesorería)</option>
+              <option value="ADMIN">ADMIN (Superusuario Global Plataforma)</option>
+              <option value="ALLY_OWNER">ALLY_OWNER (Dueño de Organización Aliada)</option>
+              <option value="ALLY_ADMIN">ALLY_ADMIN (Gerente de Sede)</option>
+              <option value="ACCOUNTING">ACCOUNTING (Finanzas / Facturación Org)</option>
               <option value="VALIDATOR">VALIDATOR (Recepción / Mostrador)</option>
             </select>
           </div>
 
           <div>
-            <label class="form-label" data-i18n="label_venue_scope">Sede Asignada</label>
+            <label class="form-label" data-i18n="label_venue_scope">Ámbito de Autorización / Sede</label>
             <select class="form-control" id="edit-user-venue">
-              <option value="Las Mercedes">Complejo Las Mercedes (Sede Principal)</option>
-              <option value="San Agustín">San Agustín del Paraíso</option>
-              <option value="Global">Acceso Global (Todas las Sedes)</option>
+              <option value="org-all">🏢 Toda la Organización (Todas las sedes)</option>
+              <option value="Las Mercedes">📍 Complejo Las Mercedes (Sede Específica)</option>
+              <option value="San Agustín">📍 San Agustín del Paraíso (Sede Específica)</option>
+              <option value="Global">🌐 Acceso Global</option>
             </select>
           </div>
 
@@ -754,7 +810,7 @@
 
   <!-- SCRIPT LOGIC -->
   <script>
-    // Staff initial seed data
+    // Staff initial seed data (Decoupled Organization vs Venue scope)
     let staffData = [
       {
         id: 'usr-1',
@@ -763,6 +819,7 @@
         email: 'alejandro.morales@complejoavila.com',
         phone: '+58 414 1234567',
         role: 'ADMIN',
+        scopeType: 'PLATFORM',
         venue: 'Global',
         status: 'ACTIVE',
         lastSession: 'Activo ahora (Chrome • Windows 11)',
@@ -774,8 +831,10 @@
         dni: 'V-18920145',
         email: 'valentina.rivas@complejoavila.com',
         phone: '+58 412 8765432',
-        role: 'ALLY',
-        venue: 'Las Mercedes',
+        role: 'ALLY_OWNER',
+        scopeType: 'ORGANIZATION',
+        venue: 'org-all',
+        orgName: 'Grupo Ávila (Corp)',
         status: 'ACTIVE',
         lastSession: 'Hace 14 min (Safari • macOS)',
         activeSessions: 2
@@ -787,7 +846,9 @@
         email: 'carlos.mendoza@complejoavila.com',
         phone: '+58 424 5551234',
         role: 'ACCOUNTING',
-        venue: 'Global',
+        scopeType: 'ORGANIZATION',
+        venue: 'org-all',
+        orgName: 'Grupo Ávila (Corp)',
         status: 'ACTIVE',
         lastSession: 'Hace 45 min (Edge • Windows 10)',
         activeSessions: 1
@@ -799,6 +860,7 @@
         email: 'mariana.duarte@complejoavila.com',
         phone: '+58 412 3339900',
         role: 'VALIDATOR',
+        scopeType: 'VENUE',
         venue: 'Las Mercedes',
         status: 'ACTIVE',
         lastSession: 'Activa ahora (YoReservo QR App • Android)',
@@ -811,6 +873,7 @@
         email: 'gabriel.sanoja@complejoavila.com',
         phone: '+58 416 9998877',
         role: 'VALIDATOR',
+        scopeType: 'VENUE',
         venue: 'San Agustín',
         status: 'ACTIVE',
         lastSession: 'Hace 2 horas (Firefox • Linux)',
@@ -823,6 +886,7 @@
         email: 'daniela.salazar@complejoavila.com',
         phone: '+58 414 4443322',
         role: 'VALIDATOR',
+        scopeType: 'VENUE',
         venue: 'Las Mercedes',
         status: 'INVITATION_PENDING',
         lastSession: 'Sin inicio de sesión aún',
@@ -834,7 +898,8 @@
         dni: 'V-16782019',
         email: 'roberto.gomez@complejoavila.com',
         phone: '+58 412 0001122',
-        role: 'ALLY',
+        role: 'ALLY_ADMIN',
+        scopeType: 'VENUE',
         venue: 'San Agustín',
         status: 'INVITATION_PENDING',
         lastSession: 'Sin inicio de sesión aún',
@@ -862,7 +927,7 @@
         nav_catalogs: "Catálogos Maestros",
         nav_settings: "Configuración Club",
         topbar_title: "Gestión de Personal & Roles (RBAC)",
-        topbar_subtitle: "Directorio de operadores, asignación por recinto y control de privilegios institucional",
+        topbar_subtitle: "Directorio de operadores, asignación por Organización/Sede y control de privilegios institucional",
         badge_strict_rbac: "RBAC Enforced",
         btn_invite_user: "Invitar Usuario",
         sim_label: "🎭 Vista Simulada:",
@@ -882,7 +947,7 @@
         th_user: "Usuario & Cédula",
         th_contact: "Contacto & WhatsApp",
         th_role: "Rol RBAC",
-        th_scope: "Sede Asignada",
+        th_scope: "Ámbito & Sede Asignada",
         th_status: "Estatus",
         th_last_session: "Última Sesión",
         th_actions: "Acciones",
@@ -900,7 +965,7 @@
         label_phone: "Teléfono / WhatsApp *",
         label_dni: "Cédula / Documento *",
         label_role: "Rol RBAC Asignado *",
-        label_venue_scope: "Sede Asignada *",
+        label_venue_scope: "Ámbito de Autorización / Sede *",
         label_cred_method: "Método de Entrega de Credenciales:",
         method_magic_link: "🚀 Enviar Invitación con Magic Link por Email (Recomendado)",
         method_temp_pass: "🔑 Generar Contraseña Temporal Segura",
@@ -930,7 +995,7 @@
         nav_catalogs: "Master Catalogs",
         nav_settings: "Club Settings",
         topbar_title: "Staff & Access Control (RBAC)",
-        topbar_subtitle: "Institutional directory, venue assignment and permission control audit",
+        topbar_subtitle: "Institutional directory, Organization/Venue assignment and permission control audit",
         badge_strict_rbac: "RBAC Enforced",
         btn_invite_user: "Invite User",
         sim_label: "🎭 Simulated View:",
@@ -950,7 +1015,7 @@
         th_user: "User & ID",
         th_contact: "Contact & WhatsApp",
         th_role: "RBAC Role",
-        th_scope: "Assigned Venue",
+        th_scope: "Scope & Assigned Venue",
         th_status: "Status",
         th_last_session: "Last Session",
         th_actions: "Actions",
@@ -968,7 +1033,7 @@
         label_phone: "Phone / WhatsApp *",
         label_dni: "National ID / Cédula *",
         label_role: "Assigned RBAC Role *",
-        label_venue_scope: "Assigned Venue *",
+        label_venue_scope: "Authorization Scope / Venue *",
         label_cred_method: "Credentials Dispatch Method:",
         method_magic_link: "🚀 Send Magic Link Invitation via Email (Recommended)",
         method_temp_pass: "🔑 Generate Secure Temporary Password",
@@ -1005,14 +1070,19 @@
         // Role badge
         let roleBadgeClass = 'badge-role-client';
         if (user.role === 'ADMIN') roleBadgeClass = 'badge-role-admin';
-        else if (user.role === 'ALLY') roleBadgeClass = 'badge-role-ally';
+        else if (user.role === 'ALLY' || user.role === 'ALLY_OWNER' || user.role === 'ALLY_ADMIN') roleBadgeClass = 'badge-role-ally';
         else if (user.role === 'ACCOUNTING') roleBadgeClass = 'badge-role-accounting';
         else if (user.role === 'VALIDATOR') roleBadgeClass = 'badge-role-validator';
 
-        // Venue pill
-        const venueDisplay = user.venue === 'Global' 
-          ? '🌐 Acceso Global' 
-          : `📍 ${user.venue}`;
+        // Venue pill / Authorization Scope
+        let venueDisplay = '';
+        if (user.venue === 'Global' || user.scopeType === 'PLATFORM') {
+          venueDisplay = '🌐 Acceso Global';
+        } else if (user.venue === 'org-all' || user.scopeType === 'ORGANIZATION') {
+          venueDisplay = '🏢 Toda la Organización';
+        } else {
+          venueDisplay = `📍 ${user.venue}`;
+        }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -1210,7 +1280,13 @@
       if (r === 'ADMIN') {
         vSelect.value = 'Global';
         vSelect.disabled = true;
+      } else if (r === 'ALLY_OWNER') {
+        vSelect.value = 'org-all';
+        vSelect.disabled = false;
       } else {
+        if (vSelect.value === 'Global' || vSelect.value === 'org-all') {
+          vSelect.value = 'Las Mercedes';
+        }
         vSelect.disabled = false;
       }
     }
@@ -1220,8 +1296,13 @@
       const fn = document.getElementById('inv-first-name').value;
       const ln = document.getElementById('inv-last-name').value;
       const email = document.getElementById('inv-email').value;
-      const phone = document.getElementById('inv-phone').value;
-      const dni = document.getElementById('inv-dni').value;
+      const phoneCountry = document.getElementById('inv-phone-country').value;
+      const phoneOp = document.getElementById('inv-phone-operator').value;
+      const phoneNum = document.getElementById('inv-phone-num').value;
+      const phone = `${phoneCountry} ${phoneOp} ${phoneNum}`;
+      const docType = document.getElementById('inv-doc-type').value;
+      const docNum = document.getElementById('inv-doc-num').value;
+      const dni = `${docType}-${docNum}`;
       const role = document.getElementById('inv-role').value;
       const venue = document.getElementById('inv-venue').value;
 
@@ -1241,7 +1322,7 @@
       staffData.unshift(newUser);
       renderStaffTable();
       closeInviteModal();
-      alert(`✅ Invitación generada exitosamente para ${newUser.name} con rol [${role}]. Enlace de activación enviado a ${email}.`);
+      alert(`✅ Invitación generada exitosamente para ${newUser.name} (Doc: ${dni}, Telf: ${phone}) con rol [${role}]. Enlace de activación enviado a ${email}.`);
     }
 
     function openEditModal(userId) {

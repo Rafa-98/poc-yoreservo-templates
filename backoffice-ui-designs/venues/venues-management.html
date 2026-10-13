@@ -178,10 +178,14 @@
 
         <div style="display: flex; align-items: center; gap: 12px;">
           
-          <!-- + NUEVO RECINTO CTA -->
+          <!-- + NUEVA SEDE CTA -->
+          <button type="button" class="btn btn-outline" onclick="openOrgModal()" style="font-size: 13px;" id="btn-org-profile">
+            <span>🏢</span>
+            <span data-i18n="btn_org_data">Datos de Organización</span>
+          </button>
           <button type="button" class="btn btn-primary" onclick="openVenueModal()" style="font-size: 13px;" id="btn-new-venue">
             <span>+</span>
-            <span data-i18n="btn_new_venue">Agregar Recinto</span>
+            <span data-i18n="btn_new_venue">Agregar Recinto / Sede</span>
           </button>
 
           <!-- THEME TOGGLE -->
@@ -200,29 +204,64 @@
 
       <!-- SUBNAV TABS (Module 4 Navigation) -->
       <section style="padding: 16px 20px 0; display: flex; gap: 10px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-surface);">
+        <button type="button" class="btn btn-outline" onclick="openOrgModal()" style="border: none; color: var(--text-muted); font-weight: 500;">
+          🏢 <span data-i18n="tab_org">Organización & Datos Fiscales</span>
+        </button>
         <a href="venues-management.html" class="btn btn-outline" style="border-bottom: 3px solid var(--brand-lime); border-radius: 8px 8px 0 0; background: var(--bg-surface); font-weight: 700;">
-          🏟️ <span data-i18n="tab_venues">Recintos (2 Sedes)</span>
+          🏟️ <span data-i18n="tab_venues">Sedes & Recintos (2 Sedes)</span>
         </a>
         <a href="spaces-builder.html" class="btn btn-outline" style="border: none; color: var(--text-muted); font-weight: 500;">
-          ⚽ <span data-i18n="tab_spaces">Canchas & Tarifas (4 Canchas)</span>
+          ⚽ <span data-i18n="tab_spaces">Canchas & Espacios (4 Canchas)</span>
         </a>
         <a href="schedules-editor.html" class="btn btn-outline" style="border: none; color: var(--text-muted); font-weight: 500;">
           🕒 <span data-i18n="tab_schedules">Turnos Semanales (Split-Shifts)</span>
         </a>
       </section>
 
-      <!-- INTRO CARD -->
+      <!-- ORGANIZATION (ALLY COMPANY) PROFILE CARD -->
       <section style="padding: 20px 20px 0;">
-        <div style="background: rgba(198, 242, 59, 0.12); border: 1px solid rgba(198, 242, 59, 0.25); border-radius: 16px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap; gap: 14px;">
-          <div>
-            <div style="font-weight: 700; font-size: 14px; margin-bottom: 2px;" data-i18n="intro_title">
-              Estructura Multisede de Aliado
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: 16px; padding: 18px 20px; box-shadow: var(--shadow-card);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px; margin-bottom: 14px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <span style="font-size: 18px;">🏢</span>
+                <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-link);" data-i18n="org_badge">
+                  Empresa Aliada (Modelo Organization)
+                </span>
+                <span class="badge badge-available">ACTIVA</span>
+              </div>
+              <h3 style="font-size: 20px; font-weight: 700; margin: 0;" id="card-org-name">Grupo Deportivo Ávila C.A.</h3>
+              <div style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
+                <strong style="color: var(--text-main);">Razón Social:</strong> Inversiones Deportivas Ávila C.A. • <strong>RIF:</strong> J-30492811-0
+              </div>
             </div>
-            <div style="font-size: 13px; color: var(--text-muted); line-height: 1.4;" data-i18n="intro_desc">
-              Cada aliado puede operar múltiples sedes físicas. Cada recinto tiene su árbol geográfico (Estado > Ciudad > Urbanización), galería de fotos, amenidades y canchas asignadas.
+            <button type="button" class="btn btn-outline" onclick="openOrgModal()" style="font-size: 12.5px;">
+              ✏️ <span data-i18n="btn_edit_org">Editar Datos Corporativos & Bancarios</span>
+            </button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; background: var(--bg-muted); border-radius: 12px; padding: 14px; border: 1px solid var(--border-subtle);">
+            <div>
+              <div style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;" data-i18n="lbl_bcv_ref">Referencia Cambiaria BCV</div>
+              <div style="font-size: 13px; font-weight: 700; color: #2563EB; margin-top: 3px;" id="card-org-currency">Euro BCV (€ EUR)</div>
+              <div style="font-size: 12px; color: var(--text-muted);" id="card-org-rate">Tasa: 982,00 Bs./EUR</div>
+            </div>
+            <div>
+              <div style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;" data-i18n="lbl_payout_bank">Cuenta Corporativa de Liquidación</div>
+              <div style="font-size: 13px; font-weight: 700; margin-top: 3px;" id="card-org-bank">0102 - Banco de Venezuela</div>
+              <div style="font-size: 12px; color: var(--text-muted);">Cta. Corriente ••••2345 (J-30492811-0)</div>
+            </div>
+            <div>
+              <div style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;" data-i18n="lbl_payout_terms">Condiciones Comerciales</div>
+              <div style="font-size: 13px; font-weight: 700; color: var(--brand-lime-text, var(--text-link)); margin-top: 3px;">5% Comisión Plataforma</div>
+              <div style="font-size: 12px; color: var(--text-muted);">95% Desembolso Neto a Aliado</div>
+            </div>
+            <div>
+              <div style="font-size: 11.5px; color: var(--text-muted); text-transform: uppercase; font-weight: 600;" data-i18n="lbl_managed_venues">Sedes Físicas Operadas (Venues)</div>
+              <div style="font-size: 13px; font-weight: 700; margin-top: 3px;">2 Sedes Físicas Registradas</div>
+              <div style="font-size: 12px; color: var(--text-muted);">El Paraíso (4 canchas) • Sebucán (2 canchas)</div>
             </div>
           </div>
-          <span class="badge badge-confirmed" style="white-space: nowrap;">Aliado: RIF J-30492811-0</span>
         </div>
       </section>
 
@@ -413,6 +452,53 @@
           <textarea id="venue-address-input" class="input-field" rows="2" placeholder="Av. Principal, Edif. Club..." required>Av. Principal Los Samanes, entrada sur.</textarea>
         </div>
 
+        <div class="form-group">
+          <label class="form-label" data-i18n="label_venue_phone">Teléfono de Recepción / Mostrador *</label>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <select id="venue-phone-country" class="input-field" style="width: 140px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+              <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+              <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+              <option value="+34">🇪🇸 +34 (ESP)</option>
+              <option value="+57">🇨🇴 +57 (COL)</option>
+              <option value="+507">🇵🇦 +507 (PAN)</option>
+              <option value="+52">🇲🇽 +52 (MEX)</option>
+              <option value="+56">🇨🇱 +56 (CHL)</option>
+              <option value="+54">🇦🇷 +54 (ARG)</option>
+              <option value="+51">🇵🇪 +51 (PER)</option>
+              <option value="+593">🇪🇨 +593 (ECU)</option>
+              <option value="+55">🇧🇷 +55 (BRA)</option>
+              <option value="+598">🇺🇾 +598 (URY)</option>
+              <option value="+591">🇧🇴 +591 (BOL)</option>
+              <option value="+595">🇵🇾 +595 (PRY)</option>
+              <option value="+506">🇨🇷 +506 (CRI)</option>
+              <option value="+502">🇬🇹 +502 (GTM)</option>
+              <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+              <option value="+44">🇬🇧 +44 (GBR)</option>
+              <option value="+39">🇮🇹 +39 (ITA)</option>
+              <option value="+351">🇵🇹 +351 (PRT)</option>
+              <option value="+33">🇫🇷 +33 (FRA)</option>
+              <option value="+49">🇩🇪 +49 (DEU)</option>
+              <option value="+41">🇨🇭 +41 (CHE)</option>
+              <option value="+86">🇨🇳 +86 (CHN)</option>
+              <option value="+81">🇯🇵 +81 (JPN)</option>
+              <option value="+971">🇦🇪 +971 (ARE)</option>
+              <option value="+90">🇹🇷 +90 (TUR)</option>
+              <option value="+7">🇷🇺 +7 (RUS)</option>
+            </select>
+            <select id="venue-phone-operator" class="input-field" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+              <option value="0212" selected>0212 (Fijo / CCS)</option>
+              <option value="0412">0412 (Digitel)</option>
+              <option value="0414">0414 (Movistar)</option>
+              <option value="0424">0424 (Movistar)</option>
+              <option value="0416">0416 (Movilnet)</option>
+              <option value="0426">0426 (Movilnet)</option>
+              <option value="0422">0422 (Móvil)</option>
+              <option value="OTRO">Otro / Int.</option>
+            </select>
+            <input type="tel" id="venue-phone-num" class="input-field" placeholder="1234567" maxlength="8" required value="9912044" style="flex: 1; font-size: 13px; letter-spacing: 0.04em;">
+          </div>
+        </div>
+
         <!-- AMENITIES SELECTOR -->
         <div class="form-group">
           <label class="form-label" data-i18n="label_amenities">Servicios & Amenidades Disponibles</label>
@@ -445,6 +531,182 @@
     </div>
   </div>
 
+  <!-- ==========================================================================
+       ORGANIZATION (ALLY COMPANY) MODAL: FISCAL & PAYOUT DATA
+       ========================================================================== -->
+  <div class="modal-backdrop" id="org-modal-backdrop" onclick="closeOrgModal()">
+    <div class="modal-card" style="max-width: 620px;" onclick="event.stopPropagation()">
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 20px;">🏢</span>
+          <h3 style="font-size: 18px;" id="org-modal-title" data-i18n="modal_org_title">Datos Corporativos & Bancarios de la Organización</h3>
+        </div>
+        <button type="button" class="btn-icon" style="background: none; border: none; font-size: 18px; cursor: pointer;" onclick="closeOrgModal()">✕</button>
+      </div>
+
+      <form id="org-form" onsubmit="handleOrgSubmit(event)" style="padding: 24px; max-height: 80vh; overflow-y: auto;">
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="org-trade-name" data-i18n="label_trade_name">Nombre Comercial *</label>
+            <input type="text" id="org-trade-name" class="input-field" required value="Grupo Deportivo Ávila C.A.">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="org-legal-name" data-i18n="label_legal_name">Razón Social Fiscal *</label>
+            <input type="text" id="org-legal-name" class="input-field" required value="Inversiones Deportivas Ávila C.A.">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" data-i18n="label_rif">RIF Fiscal *</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="org-rif-type" class="input-field" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                <option value="J" selected>J - Jurídico</option>
+                <option value="G">G - Gubernamental</option>
+                <option value="V">V - Venezolano</option>
+                <option value="E">E - Extranjero</option>
+                <option value="C">C - Comunal</option>
+                <option value="P">P - Pasaporte</option>
+              </select>
+              <input type="text" id="org-rif-num" class="input-field" required value="30492811-0" placeholder="30492811-0" maxlength="12" style="flex: 1; font-size: 13px;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="org-commission" data-i18n="label_commission">Comisión de Plataforma (%)</label>
+            <input type="text" id="org-commission" class="input-field" readonly value="5.00%" style="background: var(--bg-muted);">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px;">
+          <div class="form-group">
+            <label class="form-label" for="org-email" data-i18n="label_master_email">Correo de Notificaciones & Facturas *</label>
+            <input type="email" id="org-email" class="input-field" required value="administracion@grupoavila.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="label_master_phone">Teléfono / WhatsApp Master *</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="org-phone-country" class="input-field" style="width: 140px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+                <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+                <option value="+34">🇪🇸 +34 (ESP)</option>
+                <option value="+57">🇨🇴 +57 (COL)</option>
+                <option value="+507">🇵🇦 +507 (PAN)</option>
+                <option value="+52">🇲🇽 +52 (MEX)</option>
+                <option value="+56">🇨🇱 +56 (CHL)</option>
+                <option value="+54">🇦🇷 +54 (ARG)</option>
+                <option value="+51">🇵🇪 +51 (PER)</option>
+                <option value="+593">🇪🇨 +593 (ECU)</option>
+                <option value="+55">🇧🇷 +55 (BRA)</option>
+                <option value="+598">🇺🇾 +598 (URY)</option>
+                <option value="+591">🇧🇴 +591 (BOL)</option>
+                <option value="+595">🇵🇾 +595 (PRY)</option>
+                <option value="+506">🇨🇷 +506 (CRI)</option>
+                <option value="+502">🇬🇹 +502 (GTM)</option>
+                <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+                <option value="+44">🇬🇧 +44 (GBR)</option>
+                <option value="+39">🇮🇹 +39 (ITA)</option>
+                <option value="+351">🇵🇹 +351 (PRT)</option>
+                <option value="+33">🇫🇷 +33 (FRA)</option>
+                <option value="+49">🇩🇪 +49 (DEU)</option>
+                <option value="+41">🇨🇭 +41 (CHE)</option>
+                <option value="+86">🇨🇳 +86 (CHN)</option>
+                <option value="+81">🇯🇵 +81 (JPN)</option>
+                <option value="+971">🇦🇪 +971 (ARE)</option>
+                <option value="+90">🇹🇷 +90 (TUR)</option>
+                <option value="+7">🇷🇺 +7 (RUS)</option>
+              </select>
+              <select id="org-phone-operator" class="input-field" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="0412" selected>0412 (Digitel)</option>
+                <option value="0414">0414 (Movistar)</option>
+                <option value="0424">0424 (Movistar)</option>
+                <option value="0416">0416 (Movilnet)</option>
+                <option value="0426">0426 (Movilnet)</option>
+                <option value="0422">0422 (Móvil)</option>
+                <option value="0212">0212 (Fijo / CCS)</option>
+                <option value="OTRO">Otro / Int.</option>
+              </select>
+              <input type="tel" id="org-phone-num" class="input-field" required value="1234567" placeholder="1234567" maxlength="8" style="flex: 1; font-size: 13px; letter-spacing: 0.04em;">
+            </div>
+          </div>
+        </div>
+
+        <!-- BCV REFERENCE CURRENCY CONFIGURATION -->
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-medium); border-radius: 14px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-link);" data-i18n="currency_section_title">
+              Moneda de Referencia Oficial BCV para Tarifas & Cobros
+            </div>
+            <span class="badge badge-confirmed" style="font-size: 10px;">RELACIÓN CON EXCHANGE_RATE</span>
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="currency_section_desc">
+            Define la divisa de referencia que tu empresa utiliza para fijar precios y calcular cobros en Bolívares (Pago Móvil / Punto de Venta) según la tasa oficial del Banco Central de Venezuela.
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <label style="border: 2px solid var(--border-subtle); border-radius: 12px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: var(--bg-muted);" id="label-curr-usd">
+              <input type="radio" name="org_currency" value="USD" id="org-curr-usd" onchange="updateCurrencySelection('USD')">
+              <div>
+                <div style="font-weight: 700; font-size: 13px;">Dólar BCV ($ USD)</div>
+                <div style="font-size: 11.5px; color: var(--text-muted);">Tasa Oficial: 876,80 Bs./USD</div>
+                <div style="font-size: 10.5px; color: var(--text-muted); margin-top: 2px;">Común en complejos deportivos</div>
+              </div>
+            </label>
+
+            <label style="border: 2px solid #2563EB; border-radius: 12px; padding: 12px; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; background: var(--bg-surface);" id="label-curr-eur">
+              <input type="radio" name="org_currency" value="EUR" id="org-curr-eur" checked onchange="updateCurrencySelection('EUR')">
+              <div>
+                <div style="font-weight: 700; font-size: 13px; color: #2563EB;">Euro BCV (€ EUR)</div>
+                <div style="font-size: 11.5px; color: var(--text-muted);">Tasa Oficial: 982,00 Bs./EUR</div>
+                <div style="font-size: 10.5px; color: #2563EB; margin-top: 2px;">Selección activa para Grupo Ávila</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- BANK PAYOUT REQUISITES -->
+        <div style="background: var(--bg-muted); border-radius: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--border-subtle);">
+          <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-link); margin-bottom: 10px;" data-i18n="bank_section_title">
+            Cuenta Bancaria Corporativa para Liquidaciones (Desembolsos)
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="bank_section_desc">
+            Esta es la cuenta a la cual YoReservo transferirá los fondos netos (95%) generados por todas las sedes y canchas de esta organización.
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label class="form-label" style="font-size: 11.5px;" data-i18n="label_dest_bank">Banco Receptor *</label>
+              <select id="org-bank" class="input-field" style="padding: 8px 10px; font-size: 12.5px;">
+                <option value="0102" selected>0102 - Banco de Venezuela</option>
+                <option value="0134">0134 - Banesco</option>
+                <option value="0105">0105 - Mercantil</option>
+                <option value="0108">0108 - Provincial</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" style="font-size: 11.5px;" data-i18n="label_acc_type">Tipo de Cuenta *</label>
+              <select id="org-acc-type" class="input-field" style="padding: 8px 10px; font-size: 12.5px;">
+                <option value="CHECKING" selected>Corriente (A nombre de la empresa)</option>
+                <option value="SAVINGS">Ahorros</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 0;">
+            <label class="form-label" style="font-size: 11.5px;" for="org-acc-num" data-i18n="label_acc_number">Número de Cuenta Bancaria (20 dígitos) *</label>
+            <input type="text" id="org-acc-num" class="input-field" required value="0102-0123-45-6789012345" style="letter-spacing: 0.05em; font-family: monospace;">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+          <button type="button" class="btn btn-outline" onclick="closeOrgModal()" data-i18n="btn_cancel">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-org" data-i18n="btn_save_org">Guardar Datos de Organización ✓</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
   <!-- SCRIPT CONTROLLER -->
   <script>
     let currentLang = 'es';
@@ -468,12 +730,18 @@
         user_role: "Aliado Propietario",
         venues_top_sub: "Gestión de Complejos & Sedes",
         venues_top_title: "Directorio de Recintos Deportivos",
-        btn_new_venue: "Agregar Recinto",
-        tab_venues: "Recintos (2 Sedes)",
-        tab_spaces: "Canchas & Tarifas (4 Canchas)",
+        btn_new_venue: "Agregar Recinto / Sede",
+        btn_org_data: "Datos de Organización",
+        tab_org: "Organización & Datos Fiscales",
+        tab_venues: "Sedes & Recintos (2 Sedes)",
+        tab_spaces: "Canchas & Espacios (4 Canchas)",
         tab_schedules: "Turnos Semanales (Split-Shifts)",
-        intro_title: "Estructura Multisede de Aliado",
-        intro_desc: "Cada aliado puede operar múltiples sedes físicas. Cada recinto tiene su árbol geográfico (Estado > Ciudad > Urbanización), galería de fotos, amenidades y canchas asignadas.",
+        org_badge: "Empresa Aliada (Modelo Organization)",
+        btn_edit_org: "Editar Datos Corporativos & Bancarios",
+        lbl_bcv_ref: "Referencia Cambiaria BCV",
+        lbl_payout_bank: "Cuenta Corporativa de Liquidación",
+        lbl_payout_terms: "Condiciones Comerciales",
+        lbl_managed_venues: "Sedes Físicas Operadas (Venues)",
         btn_manage_courts: "Administrar Canchas",
         btn_edit: "Editar",
         btn_pending_audit: "En Revisión YoReservo",
@@ -484,9 +752,25 @@
         label_city: "Ciudad *",
         label_hood: "Urbanización / Zona *",
         label_address: "Dirección Detallada *",
+        label_venue_phone: "Teléfono de Recepción / Mostrador *",
         label_amenities: "Servicios & Amenidades Disponibles",
         btn_cancel: "Cancelar",
         btn_save_venue: "Guardar Sede Deportiva ✓",
+        modal_org_title: "Datos Corporativos & Bancarios de la Organización",
+        label_trade_name: "Nombre Comercial *",
+        label_legal_name: "Razón Social Fiscal *",
+        label_rif: "RIF Fiscal *",
+        label_commission: "Comisión de Plataforma (%)",
+        label_master_email: "Correo de Notificaciones & Facturas *",
+        label_master_phone: "Teléfono / WhatsApp Master *",
+        currency_section_title: "Moneda de Referencia Oficial BCV para Tarifas & Cobros",
+        currency_section_desc: "Define la divisa de referencia que tu empresa utiliza para fijar precios y calcular cobros en Bolívares (Pago Móvil / Punto de Venta) según la tasa oficial del Banco Central de Venezuela.",
+        bank_section_title: "Cuenta Bancaria Corporativa para Liquidaciones",
+        bank_section_desc: "Esta es la cuenta a la cual YoReservo transferirá los fondos netos generados por todas las sedes y canchas.",
+        label_dest_bank: "Banco Receptor *",
+        label_acc_type: "Tipo de Cuenta *",
+        label_acc_number: "Número de Cuenta Bancaria (20 dígitos) *",
+        btn_save_org: "Guardar Datos de Organización ✓",
         nav_overview: "Resumen",
         nav_dashboard: "Panel Ejecutivo",
         nav_settlements: "Liquidaciones a Aliados",
@@ -511,12 +795,18 @@
         user_role: "Venue Owner (Ally)",
         venues_top_sub: "Sports Complex & Facility Directory",
         venues_top_title: "Sports Venues Directory",
-        btn_new_venue: "+ Add Venue",
-        tab_venues: "Venues (2 Branches)",
-        tab_spaces: "Courts & Rates (4 Courts)",
+        btn_new_venue: "+ Add Venue / Branch",
+        btn_org_data: "Organization Profile",
+        tab_org: "Organization & Fiscal Profile",
+        tab_venues: "Venues & Sites (2 Branches)",
+        tab_spaces: "Courts & Spaces (4 Courts)",
         tab_schedules: "Weekly Shifts (Split-Shifts)",
-        intro_title: "Multi-Branch Ally Architecture",
-        intro_desc: "Each ally can operate multiple facilities. Each venue contains its geographic tree (State > City > Neighborhood), photo gallery, amenities, and assigned courts.",
+        org_badge: "Ally Partner (Organization Model)",
+        btn_edit_org: "Edit Corporate & Banking Details",
+        lbl_bcv_ref: "BCV Currency Reference",
+        lbl_payout_bank: "Corporate Payout Bank Account",
+        lbl_payout_terms: "Commercial Terms",
+        lbl_managed_venues: "Physical Venues Operated",
         btn_manage_courts: "Manage Courts",
         btn_edit: "Edit",
         btn_pending_audit: "Under YoReservo Audit",
@@ -527,9 +817,25 @@
         label_city: "City *",
         label_hood: "Neighborhood *",
         label_address: "Detailed Street Address *",
+        label_venue_phone: "Reception Desk Phone *",
         label_amenities: "Available Amenities & Features",
         btn_cancel: "Cancel",
         btn_save_venue: "Save Sports Venue ✓",
+        modal_org_title: "Corporate & Payout Bank Details (Organization)",
+        label_trade_name: "Trade Name *",
+        label_legal_name: "Fiscal Legal Name *",
+        label_rif: "Fiscal Tax RIF *",
+        label_commission: "Platform Commission (%)",
+        label_master_email: "Billing / Notifications Email *",
+        label_master_phone: "Master Phone / WhatsApp *",
+        currency_section_title: "Official BCV Reference Currency for Rates & Billing",
+        currency_section_desc: "Define the reference currency your company uses to price spaces and calculate payments in Bolívares (Pago Móvil / POS) pegged to the official Central Bank of Venezuela rate.",
+        bank_section_title: "Corporate Payout Bank Account",
+        bank_section_desc: "Account where YoReservo disburses net booking proceeds generated across all branches.",
+        label_dest_bank: "Receiving Bank *",
+        label_acc_type: "Account Type *",
+        label_acc_number: "Bank Account Number (20 digits) *",
+        btn_save_org: "Save Organization Profile ✓",
         nav_overview: "Overview",
         nav_dashboard: "Executive Dashboard",
         nav_settlements: "Ally Settlements",
@@ -578,6 +884,23 @@
       document.getElementById('sidebar').classList.toggle('open');
     }
 
+    // CURRENCY SELECTION
+    function updateCurrencySelection(curr) {
+      const lblUsd = document.getElementById('label-curr-usd');
+      const lblEur = document.getElementById('label-curr-eur');
+      if (curr === 'USD') {
+        lblUsd.style.borderColor = 'var(--brand-lime)';
+        lblUsd.style.background = 'var(--bg-surface)';
+        lblEur.style.borderColor = 'var(--border-subtle)';
+        lblEur.style.background = 'var(--bg-muted)';
+      } else {
+        lblEur.style.borderColor = '#2563EB';
+        lblEur.style.background = 'var(--bg-surface)';
+        lblUsd.style.borderColor = 'var(--border-subtle)';
+        lblUsd.style.background = 'var(--bg-muted)';
+      }
+    }
+
     // VENUE MODAL
     function openVenueModal(mode = 'create') {
       if (mode === 'edit') {
@@ -595,11 +918,57 @@
     function handleVenueSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('venue-name-input').value;
+      const phoneCountry = document.getElementById('venue-phone-country').value;
+      const phoneOp = document.getElementById('venue-phone-operator').value;
+      const phoneNum = document.getElementById('venue-phone-num').value;
+      const fullPhone = `${phoneCountry} ${phoneOp} ${phoneNum}`;
       alert(currentLang === 'es' 
-        ? `¡Recinto '${name}' guardado exitosamente con su árbol geográfico!\nEstatus inicial: EN_VERIFICACIÓN.`
-        : `Venue '${name}' saved with geographic tree!\nInitial status: IN_VERIFICATION.`
+        ? `¡Recinto '${name}' (Telf: ${fullPhone}) guardado exitosamente vinculado a la Organización Grupo Ávila!\nEstatus inicial: EN_VERIFICACIÓN.`
+        : `Venue '${name}' (Phone: ${fullPhone}) saved and linked to Organization Grupo Ávila!\nInitial status: IN_VERIFICATION.`
       );
       closeVenueModal();
+    }
+
+    // ORGANIZATION MODAL
+    function openOrgModal() {
+      document.getElementById('org-modal-backdrop').classList.add('active');
+    }
+
+    function closeOrgModal() {
+      document.getElementById('org-modal-backdrop').classList.remove('active');
+    }
+
+    function handleOrgSubmit(e) {
+      e.preventDefault();
+      const trade = document.getElementById('org-trade-name').value;
+      const bank = document.getElementById('org-bank').options[document.getElementById('org-bank').selectedIndex].text;
+      const curr = document.querySelector('input[name="org_currency"]:checked').value;
+      const rifType = document.getElementById('org-rif-type').value;
+      const rifNum = document.getElementById('org-rif-num').value;
+      const fullRif = `${rifType}-${rifNum}`;
+      const phoneCountry = document.getElementById('org-phone-country').value;
+      const phoneOp = document.getElementById('org-phone-operator').value;
+      const phoneNum = document.getElementById('org-phone-num').value;
+      const fullPhone = `${phoneCountry} ${phoneOp} ${phoneNum}`;
+
+      document.getElementById('card-org-name').innerText = trade;
+      document.getElementById('card-org-bank').innerText = bank;
+
+      if (curr === 'EUR') {
+        document.getElementById('card-org-currency').innerText = 'Euro BCV (€ EUR)';
+        document.getElementById('card-org-currency').style.color = '#2563EB';
+        document.getElementById('card-org-rate').innerText = 'Tasa: 982,00 Bs./EUR';
+      } else {
+        document.getElementById('card-org-currency').innerText = 'Dólar BCV ($ USD)';
+        document.getElementById('card-org-currency').style.color = 'var(--text-link)';
+        document.getElementById('card-org-rate').innerText = 'Tasa: 876,80 Bs./USD';
+      }
+
+      alert(currentLang === 'es'
+        ? `¡Datos de la Organización '${trade}' (RIF: ${fullRif}, Contacto: ${fullPhone}), referencia cambiaria (${curr} BCV) y cuenta de liquidación actualizados exitosamente!`
+        : `Organization '${trade}' profile (RIF: ${fullRif}, Contact: ${fullPhone}), BCV currency reference (${curr}), and payout account successfully updated!`
+      );
+      closeOrgModal();
     }
 
     // Initialize

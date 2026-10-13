@@ -58,19 +58,23 @@ nav_overview: "Resumen",
 
 ### 2.2 🔴 The "Mapped Database Entities" lists reference models that don't exist
 
-Compared with the actual `schema.prisma` (models: `User, Session, Location, ActivityType, Activity, ActivityCategory, Venue, Image, Space, Schedule, Reservation, Review, Payment, ExchangeRateLog`):
+> [!NOTE]
+> **Status: RESOLVED in Database Schema v2.0** ([`database/proposed_db.mermaid`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/database/proposed_db.mermaid) and [`database/README.md`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/database/README.md)).
+> The architecture introduces the 3-tier model: `ORGANIZATION` (legal business entity, corporate tax RIF, payout bank account) $\to$ `VENUE` (physical facility / branch) $\to$ `SPACE` (generic multi-vertical resource: courts, halls, auditoriums). It also formalizes `SPACE_BLOCK`, `SCHEDULE_OVERRIDE`, `SETTLEMENT_BATCH`, `SETTLEMENT_ITEM`, and decoupled RBAC scopes.
 
-| Claimed in `backoffice_modules.md` | Reality |
-|---|---|
-| `Court`, `CourtSchedule` | The model is `Space` + `Schedule` |
-| `ScheduleOverride` | Doesn't exist (holiday overrides in the schedule editor have no home) |
-| `Amenity`, `SurfaceType` | Don't exist (amenities and court surfaces in Modules 4 & 5 have no home) |
-| `Account`, `VerificationToken` | Don't exist (needed for the staff-invitation flow in Module 1) |
-| `Settlement`, `SettlementBatch`, `SettlementItem` | Don't exist (Phase 1 proposes them but the module catalog presents them as "mapped") |
+Compared with the original legacy `schema.prisma` (models: `User, Session, Location, ActivityType, Activity, ActivityCategory, Venue, Image, Space, Schedule, Reservation, Review, Payment, ExchangeRateLog`):
 
-Also, `README.md` still says `index.html`, `auth/`, `dashboard/`… are *"Coming Soon"* and lists folders (`reservations/`, `venues-spaces/`) that don't exist, while the modules doc says everything is delivered. Terminology also drifts (`Court` vs `Space` vs `Cancha`).
+| Claimed in `backoffice_modules.md` | Legacy Prisma Status | Resolution in `proposed_db.mermaid` |
+|---|---|---|
+| `Organization` | Missing (conflated with Venue) | Added as top-level legal entity with payout bank account |
+| `Court`, `CourtSchedule` | Was `Space` + `Schedule` | Unified as `SPACE` (generic) + `SPACE_SCHEDULE` |
+| `ScheduleOverride` | Missing | Added as `SCHEDULE_OVERRIDE` |
+| `Amenity`, `SurfaceType` | Missing | Added as `AMENITY` / `SPACE_AMENITY` & normalized columns |
+| `Account`, `VerificationToken` | Missing | Added for NextAuth credential & invitation flows |
+| `Settlement`, `SettlementBatch` | Missing | Added as `SETTLEMENT_BATCH` + `SETTLEMENT_ITEM` |
+| `SpaceBlock` | Missing | Added as `SPACE_BLOCK` (resolving §3.4) |
 
-**Recommendation**: use the DB vocabulary everywhere in tech docs (`Space`, `Schedule`), and split "Mapped Database Entities" into **Exists today** vs **Needs migration**.
+Terminology has been synchronized across all technical documents and prototypes to follow the 3-tier hierarchy (`ORGANIZATION` $\to$ `VENUE` $\to$ `SPACE`).
 
 ---
 
@@ -91,13 +95,19 @@ The grid colours one state "Hold" with a 15-minute countdown, but Pago Móvil in
 ### 3.4 🟠 Blocks (`BLOCKED`) don't belong in `ReservationStatus`
 The spec proposes adding `BLOCKED` to `ReservationStatus`. But a block has no price, no payment, no client, no QR hash, and `Reservation` makes `shortCode`, `qrCodeHash`, `subtotal`, `totalAmount` required. You'd have to fabricate values and every revenue/occupancy query would need `WHERE status != 'BLOCKED'`. **Better**: a dedicated `SpaceBlock { spaceId, date, startTime, endTime, reason, createdBy }` (also solves recurring maintenance and `ScheduleOverride`/holidays in one model). The "Block for rain" action should also resolve *existing* bookings in that window (reschedule / cancel+refund) — currently it only shows a `confirm()`.
 
+> [!NOTE]
+> **Resolution in v2.0 DB Schema**: [`proposed_db.mermaid`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/database/proposed_db.mermaid) implements the dedicated `SPACE_BLOCK` table (`space_id`, `block_type`, `start_datetime`, `end_datetime`, `reason`, `created_by_user_id`). `RESERVATION` remains strictly reserved for commercial customer bookings.
+
 ### 3.5 🟠 `Payment` is 1:1 with `Reservation` — breaks the "rejected → re-upload" flow
 Phase 2 promises an email *"Pago Móvil discrepancy — re-upload proof"*, but `Payment.reservationId` is `@unique`. A rejected attempt has nowhere to live while a new attempt is created. Either make it 1:N (attempts) or keep the single row and add an `attempts`/audit table. This also needs a **time limit after rejection** so the slot isn't held forever.
 
+> [!NOTE]
+> **Resolution in v2.0 DB Schema**: In [`proposed_db.mermaid`](file:///c:/Users/Mende/OneDrive/Documentos/personal/proyectos/YoReservo/Repos/poc-yoreservo-templates/database/proposed_db.mermaid), `RESERVATION ||--o{ PAYMENT : "collects via (1:N)"` establishes a 1-to-many relationship, allowing multiple payment attempts (e.g. `REJECTED` attempt followed by `SUBMITTED` new voucher) without database constraint errors.
+
 ### 3.6 🟠 Missing data the UI already assumes
-- **`User.phone`**: the profile/walk-in/WhatsApp flows depend on it; the `User` model has no phone field (only `Venue.contactPhone`).
-- **Ally payout bank account**: needed for settlements (spec §G mentions it; no model).
-- **Customer name for manual bookings**: spec lists `customer_name/customer_phone`; note Phase 1 renames `notes` → `internal_notes` — keep one name.
+- **`User.phone`**: the profile/walk-in/WhatsApp flows depend on it; the `User` model has no phone field (only `Venue.contactPhone`). *(Resolved: `USER.phone_number` added).*
+- **Ally payout bank account**: needed for settlements (spec §G mentions it; no model). *(Resolved: `ORGANIZATION.payout_bank_code`, `payout_account_number`, `payout_id_number`, `payout_account_name` added).*
+- **Customer name for manual bookings**: spec lists `customer_name/customer_phone`; note Phase 1 renames `notes` → `internal_notes` — keep one name. *(Resolved: `internal_notes`, `customer_name`, `customer_phone` unified).*
 - **Time zone**: `Time(0)`/`Date` columns have no zone. Pin `America/Caracas` (UTC-4) explicitly in docs and API contracts; the "today" KPIs depend on it.
 - **Slot duration**: the grid is hard-coded to 1-hour rows. Padel is typically 90 min, and some venues use 30-min steps. Make the slot granularity a venue/space setting, even if v1 only ships 60 min.
 
@@ -169,12 +179,12 @@ Across all pages: **0 `aria-*` attributes, 0 `role` attributes**, no `:focus-vis
 
 ## 6. Suggested next steps (prioritised)
 
-| # | Action | Effort |
+| # | Action | Status / Effort |
 |---|---|---|
-| 1 | ✅ ~~Fix the 11 missing-comma syntax errors; add a `node --check` + i18n-key + link checker script~~ — **done** (`scripts/check-prototypes.js`, documented in README) | ✔ |
-| 2 | Decide and document the commission model (fee-on-top vs. 5% deduction) and settlement scope (exclude cash/manual) | decision |
-| 3 | Correct "Mapped Database Entities" to real model names; split *exists* vs *needs migration*; update the README status | ~1 h |
-| 4 | Replace `BLOCKED`-in-`ReservationStatus` with a `SpaceBlock` model; add `PAYMENT_UNDER_REVIEW` vs `HOLD` distinction; make `Payment` support retries | design + migration |
+| 1 | ✅ ~~Fix the 11 missing-comma syntax errors; add a `node --check` + i18n-key + link checker script~~ | ✔ **Done** (`scripts/check-prototypes.js`) |
+| 2 | Decide and document the commission model (fee-on-top vs. 5% deduction) and settlement scope (exclude cash/manual) | In Progress / Documented in DB Schema |
+| 3 | ✅ ~~Correct "Mapped Database Entities" to real model names; split *exists* vs *needs migration*; update the README status~~ | ✔ **Done** (Decoupled 3-tier architecture in `proposed_db.mermaid`) |
+| 4 | ✅ ~~Replace `BLOCKED`-in-`ReservationStatus` with a `SpaceBlock` model; add `PAYMENT_UNDER_REVIEW` vs `HOLD` distinction; make `Payment` support retries~~ | ✔ **Done** (`SPACE_BLOCK` and `RESERVATION 1:N PAYMENT` in schema v2.0) |
 | 5 | Extract shared shell (sidebar-by-role, theme, i18n, mock data) and make Agenda actually mutate state | ~1–2 days |
 | 6 | Accessibility pass on Agenda + drawers (labels, focus ring, `role=dialog`, Esc, non-colour status cues) | ~0.5–1 day |
 | 7 | Consolidate to one token naming scheme; delete orphan `design-tokens.css`; fix README | ~1 h |

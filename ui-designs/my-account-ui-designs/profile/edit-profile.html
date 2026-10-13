@@ -143,13 +143,79 @@
           </span>
         </div>
 
+        <!-- DOCUMENT NUMBER (CEDULA / RIF) -->
+        <div class="form-group">
+          <label class="form-label">Cédula / Documento de Identidad</label>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select id="docType" class="form-input" style="width: 110px; flex-shrink: 0; padding: 10px 12px; font-weight: 700; cursor: pointer;">
+              <option value="V" selected>V - Venezolano</option>
+              <option value="E">E - Extranjero</option>
+              <option value="J">J - Jurídico</option>
+              <option value="G">G - Gubernamental</option>
+              <option value="P">P - Pasaporte</option>
+              <option value="C">C - Comunal</option>
+            </select>
+            <div class="input-wrapper" style="flex: 1;">
+              <span class="input-icon">🪪</span>
+              <input type="text" id="docNumber" class="form-input" value="24892114" placeholder="24892114" maxlength="12" required>
+            </div>
+          </div>
+          <span style="font-size: 12px; color: var(--muted-foreground); display: block; margin-top: 4px;">
+            Requerido para validación en puerta y comprobantes fiscales.
+          </span>
+        </div>
+
         <!-- PHONE NUMBER (CRITICAL IN VENEZUELA FOR PAGO MOVIL & SMS) -->
         <div class="form-group">
           <label class="form-label" for="phone">Teléfono Móvil (Pago Móvil / WhatsApp)</label>
-          <div class="input-wrapper">
-            <span class="input-icon">📱</span>
-            <input type="tel" id="phone" class="form-input" value="+58 412 5503235" placeholder="+58 4XX XXXXXXX">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select id="phoneCountry" class="form-input" style="width: 140px; flex-shrink: 0; padding: 10px 8px; cursor: pointer;">
+              <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+              <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+              <option value="+34">🇪🇸 +34 (ESP)</option>
+              <option value="+57">🇨🇴 +57 (COL)</option>
+              <option value="+507">🇵🇦 +507 (PAN)</option>
+              <option value="+52">🇲🇽 +52 (MEX)</option>
+              <option value="+56">🇨🇱 +56 (CHL)</option>
+              <option value="+54">🇦🇷 +54 (ARG)</option>
+              <option value="+51">🇵🇪 +51 (PER)</option>
+              <option value="+593">🇪🇨 +593 (ECU)</option>
+              <option value="+55">🇧🇷 +55 (BRA)</option>
+              <option value="+598">🇺🇾 +598 (URY)</option>
+              <option value="+591">🇧🇴 +591 (BOL)</option>
+              <option value="+595">🇵🇾 +595 (PRY)</option>
+              <option value="+506">🇨🇷 +506 (CRI)</option>
+              <option value="+502">🇬🇹 +502 (GTM)</option>
+              <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+              <option value="+44">🇬🇧 +44 (GBR)</option>
+              <option value="+39">🇮🇹 +39 (ITA)</option>
+              <option value="+351">🇵🇹 +351 (PRT)</option>
+              <option value="+33">🇫🇷 +33 (FRA)</option>
+              <option value="+49">🇩🇪 +49 (DEU)</option>
+              <option value="+41">🇨🇭 +41 (CHE)</option>
+              <option value="+86">🇨🇳 +86 (CHN)</option>
+              <option value="+81">🇯🇵 +81 (JPN)</option>
+              <option value="+971">🇦🇪 +971 (ARE)</option>
+              <option value="+90">🇹🇷 +90 (TUR)</option>
+              <option value="+7">🇷🇺 +7 (RUS)</option>
+            </select>
+            <select id="phoneOperator" class="form-input" style="width: 110px; flex-shrink: 0; padding: 10px 8px; cursor: pointer;">
+              <option value="0412" selected>0412 (Digitel)</option>
+              <option value="0414">0414 (Movistar)</option>
+              <option value="0424">0424 (Movistar)</option>
+              <option value="0416">0416 (Movilnet)</option>
+              <option value="0426">0426 (Movilnet)</option>
+              <option value="0422">0422 (Móvil)</option>
+              <option value="0212">0212 (Fijo / CCS)</option>
+              <option value="OTRO">Otro / Int.</option>
+            </select>
+            <div class="input-wrapper" style="flex: 1;">
+              <input type="tel" id="phoneNumber" class="form-input" value="5503235" placeholder="5503235" maxlength="8" required style="letter-spacing: 0.04em;">
+            </div>
           </div>
+          <span style="font-size: 12px; color: var(--muted-foreground); display: block; margin-top: 4px;">
+            Utilizado para comprobantes de Pago Móvil y notificaciones de cancha.
+          </span>
         </div>
 
         <!-- LOCATION (preferredLocationId in Prisma) -->

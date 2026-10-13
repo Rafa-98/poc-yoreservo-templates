@@ -272,8 +272,8 @@
 
           <div class="card" style="padding: 16px 20px;">
             <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;" data-i18n="kpi_volume">Facturación en Canchas</div>
-            <div style="font-size: 26px; font-weight: 800; color: var(--brand-lime-text-dark, #C6F23B); margin-top: 4px;">$6,840.00</div>
-            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">≈ 280,440 Bs. (Tasa BCV 41.00)</div>
+            <div style="font-size: 26px; font-weight: 800; color: var(--brand-lime-text-dark, #C6F23B); margin-top: 4px;">€6,840.00</div>
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">≈ 6,716,911 Bs. (Ref BCV 982,00)</div>
           </div>
         </div>
 
@@ -292,7 +292,7 @@
             </div>
 
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span class="badge badge-hold" style="font-weight: 700;">Tasa Oficial BCV: 41.00 Bs.</span>
+              <span class="badge badge-hold" style="font-weight: 700;">Ref BCV: $ 876,80 • € 982,00 Bs.</span>
             </div>
           </div>
 
@@ -454,7 +454,7 @@
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 13px;">
               <span style="color: var(--text-muted);">Tasa Oficial BCV Aplicada:</span>
-              <span id="drawer-rate">41.00 Bs. / USD</span>
+              <span id="drawer-rate">982,00 Bs. / EUR</span>
             </div>
             <div style="display: flex; justify-content: space-between; font-size: 13.5px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
               <span style="font-weight: 700; color: var(--text-main);">Total en Bolívares (Bs.):</span>
@@ -502,8 +502,65 @@
               <input type="text" class="form-control" required id="walkin-name" placeholder="Ej: Marcos Pérez">
             </div>
             <div>
-              <label class="form-label" data-i18n="label_client_phone">WhatsApp del Cliente *</label>
-              <input type="text" class="form-control" required id="walkin-phone" placeholder="+58 414 7776655">
+              <label class="form-label" data-i18n="label_client_dni">Cédula / Documento *</label>
+              <div style="display: flex; gap: 6px; align-items: center;">
+                <select id="walkin-doc-type" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                  <option value="V" selected>V - Venezolano</option>
+                  <option value="E">E - Extranjero</option>
+                  <option value="J">J - Jurídico</option>
+                  <option value="G">G - Gubernamental</option>
+                  <option value="P">P - Pasaporte</option>
+                  <option value="C">C - Comunal</option>
+                </select>
+                <input type="text" class="form-control" required id="walkin-doc-num" placeholder="24889123" maxlength="12" value="24889123" style="flex: 1; font-size: 13px;">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" data-i18n="label_client_phone">WhatsApp del Cliente *</label>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <select id="walkin-phone-country" class="form-control" style="width: 140px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="+58" selected>🇻🇪 +58 (VEN)</option>
+                <option value="+1">🇺🇸 +1 (USA/CAN)</option>
+                <option value="+34">🇪🇸 +34 (ESP)</option>
+                <option value="+57">🇨🇴 +57 (COL)</option>
+                <option value="+507">🇵🇦 +507 (PAN)</option>
+                <option value="+52">🇲🇽 +52 (MEX)</option>
+                <option value="+56">🇨🇱 +56 (CHL)</option>
+                <option value="+54">🇦🇷 +54 (ARG)</option>
+                <option value="+51">🇵🇪 +51 (PER)</option>
+                <option value="+593">🇪🇨 +593 (ECU)</option>
+                <option value="+55">🇧🇷 +55 (BRA)</option>
+                <option value="+598">🇺🇾 +598 (URY)</option>
+                <option value="+591">🇧🇴 +591 (BOL)</option>
+                <option value="+595">🇵🇾 +595 (PRY)</option>
+                <option value="+506">🇨🇷 +506 (CRI)</option>
+                <option value="+502">🇬🇹 +502 (GTM)</option>
+                <option value="+1809">🇩🇴 +1-809 (DOM)</option>
+                <option value="+44">🇬🇧 +44 (GBR)</option>
+                <option value="+39">🇮🇹 +39 (ITA)</option>
+                <option value="+351">🇵🇹 +351 (PRT)</option>
+                <option value="+33">🇫🇷 +33 (FRA)</option>
+                <option value="+49">🇩🇪 +49 (DEU)</option>
+                <option value="+41">🇨🇭 +41 (CHE)</option>
+                <option value="+86">🇨🇳 +86 (CHN)</option>
+                <option value="+81">🇯🇵 +81 (JPN)</option>
+                <option value="+971">🇦🇪 +971 (ARE)</option>
+                <option value="+90">🇹🇷 +90 (TUR)</option>
+                <option value="+7">🇷🇺 +7 (RUS)</option>
+              </select>
+              <select id="walkin-phone-operator" class="form-control" style="width: 105px; flex-shrink: 0; padding: 8px 10px; font-size: 13px; cursor: pointer;">
+                <option value="0412" selected>0412 (Digitel)</option>
+                <option value="0414">0414 (Movistar)</option>
+                <option value="0424">0424 (Movistar)</option>
+                <option value="0416">0416 (Movilnet)</option>
+                <option value="0426">0426 (Movilnet)</option>
+                <option value="0422">0422 (Móvil)</option>
+                <option value="0212">0212 (Fijo / CCS)</option>
+                <option value="OTRO">Otro / Int.</option>
+              </select>
+              <input type="tel" id="walkin-phone-num" class="form-control" required placeholder="7776655" maxlength="8" value="7776655" style="flex: 1; font-size: 13px; letter-spacing: 0.04em;">
             </div>
           </div>
 
@@ -767,6 +824,7 @@
         modal_walkin_title: "Nueva Reserva Walk-in (Mostrador)",
         modal_walkin_desc: "Bloqueo manual presencial sin comisión de app (Tarifa 100% para el club).",
         label_client_name: "Nombre del Cliente *",
+        label_client_dni: "Cédula / Documento *",
         label_client_phone: "WhatsApp del Cliente *",
         label_venue: "Sede Deportiva *",
         label_court: "Cancha *",
@@ -831,6 +889,7 @@
         modal_walkin_title: "New Front-Desk Walk-In Booking",
         modal_walkin_desc: "On-site manual reservation with 0% platform commission (100% ally revenue).",
         label_client_name: "Customer Full Name *",
+        label_client_dni: "National ID / Document *",
         label_client_phone: "Customer WhatsApp *",
         label_venue: "Sports Venue *",
         label_court: "Court *",
@@ -1042,7 +1101,13 @@
     function handleWalkinSubmit(e) {
       e.preventDefault();
       const name = document.getElementById('walkin-name').value;
-      const phone = document.getElementById('walkin-phone').value;
+      const docType = document.getElementById('walkin-doc-type').value;
+      const docNum = document.getElementById('walkin-doc-num').value;
+      const dni = `${docType}-${docNum}`;
+      const phoneCountry = document.getElementById('walkin-phone-country').value;
+      const phoneOp = document.getElementById('walkin-phone-operator').value;
+      const phoneNum = document.getElementById('walkin-phone-num').value;
+      const phone = `${phoneCountry} ${phoneOp} ${phoneNum}`;
       const venue = document.getElementById('walkin-venue').value;
       const court = document.getElementById('walkin-court').value;
       const time = document.getElementById('walkin-time').value;
@@ -1055,7 +1120,7 @@
         code: `WK${Math.floor(1000 + Math.random() * 9000)}`,
         origin: 'walk-in',
         clientName: name,
-        dni: 'V-Mostrador',
+        dni: dni,
         phone: phone,
         venue: venue,
         sport: court.includes('Pádel') ? 'Pádel' : (court.includes('Fútbol') ? 'Fútbol' : 'Tenis'),
@@ -1077,7 +1142,7 @@
       reservationsData.unshift(newBooking);
       renderBookingsTable();
       closeWalkinModal();
-      alert(`✅ ¡Reserva Walk-in #${newBooking.code} creada con éxito!\nCancha reservada para ${name} con ingreso confirmado.`);
+      alert(`✅ ¡Reserva Walk-in #${newBooking.code} creada con éxito!\nCancha reservada para ${name} (Doc: ${dni}, Telf: ${phone}) con ingreso confirmado.`);
     }
 
     function exportReservationsCSV() {
