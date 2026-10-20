@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pago Guiado con Autocompletado & Validación — YoReservo</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    .demo-mode-bar {
+      background-color: #1F290F;
+      color: #FFFFFF;
+      padding: 8px 14px;
+      font-size: 11.5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .demo-mode-pill {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #DCE5CE;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .demo-mode-pill.active {
+      background: var(--accent);
+      color: #1F290F;
+      border-color: var(--accent);
+    }
+    .countdown-banner {
+      background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 100%);
+      color: #92400E;
+      padding: 10px 16px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #F59E0B;
+    }
+    [data-theme="dark"] .countdown-banner {
+      background: #3B280B;
+      color: #FCD34D;
+    }
+    .pay-method-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .pay-tab {
+      background-color: var(--surface);
+      border: 2px solid var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pay-tab.active {
+      border-color: #1F290F;
+      background-color: var(--accent-subtle);
+    }
+    [data-theme="dark"] .pay-tab.active {
+      border-color: var(--accent);
+    }
+    .bank-coord-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .copy-chip {
+      background-color: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 12px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+    }
+    .copy-chip:hover {
+      border-color: var(--accent);
+      background-color: var(--accent-subtle);
+    }
+    .autofill-banner {
+      width: 100%;
+      background: linear-gradient(135deg, #1F290F 0%, #2E3E15 100%);
+      color: #FFFFFF;
+      border: 1px solid var(--accent);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      cursor: pointer;
+      margin-bottom: 16px;
+      text-align: left;
+      box-shadow: 0 6px 16px rgba(31, 41, 15, 0.18);
+    }
+    .upload-zone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+      background-color: var(--muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .upload-zone.uploaded {
+      border-style: solid;
+      border-color: var(--success);
+      background-color: var(--success-subtle);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper" style="padding-bottom: 130px;">
+
+    <!-- DEMO MODE SWITCHER BAR -->
+    <div class="demo-mode-bar">
+      <span style="font-weight: 700; color: var(--accent);">🧪 Simulador Modalidad Sede:</span>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" id="mode-custody" class="demo-mode-pill active" onclick="setPaymentCollectionMode('PLATFORM_CUSTODY')">
+          Opción 1: Custodia YoReservo (PM + Tarjeta)
+        </button>
+        <button type="button" id="mode-direct" class="demo-mode-pill" onclick="setPaymentCollectionMode('DIRECT_ALLY')">
+          Opción 2: Cobro Directo Club (Solo PM)
+        </button>
+      </div>
+    </div>
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="05-checkout-review-express.html" class="back-btn">‹ Revisión</a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 800;">
+        Completar Pago
+      </span>
+      <span class="badge badge-accent">Bs. 2.299,50</span>
+    </header>
+
+    <!-- 4-STEP BOOKING PROGRESS BAR -->
+    <div class="booking-stepper">
+      <a href="03-venue-hub-spaces.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>1. Cancha</span>
+      </a>
+      <div class="step-divider"></div>
+      <a href="04-smart-schedule-picker.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>2. Horario</span>
+      </a>
+      <div class="step-divider"></div>
+      <a href="05-checkout-review-express.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>3. Revisión</span>
+      </a>
+      <div class="step-divider"></div>
+      <div class="step-pill active">
+        <span class="step-num">4</span>
+        <span>4. Pago</span>
+      </div>
+    </div>
+
+    <!-- LIVE 15:00 COUNTDOWN BANNER -->
+    <div class="countdown-banner">
+      <span>⏱️ Horario bloqueado exclusivamente para ti</span>
+      <span style="font-family: 'Outfit', monospace; font-size: 14px; font-weight: 800;" id="timer-display">14:48 restantes</span>
+    </div>
+
+    <div style="padding: 16px;">
+
+      <!-- PAYMENT METHOD SELECTOR (SHOWN IN PLATFORM_CUSTODY MODE) -->
+      <div id="method-tabs-wrapper" class="pay-method-tabs">
+        <button type="button" id="tab-pm" class="pay-tab active" onclick="selectPayTab('pm')">
+          <div style="font-size: 18px; margin-bottom: 2px;">📲</div>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;">Pago Móvil</div>
+          <div style="font-size: 11px; color: var(--muted-foreground);">Bs. 2.299,50 (Tasa BCV)</div>
+        </button>
+        <button type="button" id="tab-card" class="pay-tab" onclick="selectPayTab('card')">
+          <div style="font-size: 18px; margin-bottom: 2px;">💳</div>
+          <div style="font-family: 'Outfit', sans-serif; font-size: 14px; font-weight: 800;">Tarjeta Guardada</div>
+          <div style="font-size: 11px; color: var(--muted-foreground);">1-Clic · $63.00 USD</div>
+        </button>
+      </div>
+
+      <!-- PAGO MÓVIL GUIDED FLOW -->
+      <div id="section-pm">
+
+        <!-- STEP A: BENEFICIARY BANK COORDINATES WITH 1-TAP COPY -->
+        <div class="card" style="background: var(--muted); border-color: var(--border-strong);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--muted-foreground);" id="beneficiary-title">
+              1. Transfiere a Custodia YoReservo C.A.
+            </span>
+            <button type="button" class="badge badge-accent" style="border: none; cursor: pointer;" onclick="copyAllCoords(this)">
+              📋 Copiar Todo
+            </button>
+          </div>
+          <p style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px;">
+            Toca cualquier dato para copiarlo directo a la app de tu banco:
+          </p>
+
+          <div class="bank-coord-grid">
+            <button type="button" class="copy-chip" onclick="copyValue('0102', this)">
+              <div>
+                <span style="font-size: 10.5px; color: var(--muted-foreground); display: block;">Banco Destino</span>
+                <strong style="font-size: 13px;" id="dest-bank">0102 · BDV</strong>
+              </div>
+              <span class="copy-status" style="font-size: 11px; font-weight: 700; color: #4A7808;">Copiar</span>
+            </button>
+
+            <button type="button" class="copy-chip" onclick="copyValue('04121234567', this)">
+              <div>
+                <span style="font-size: 10.5px; color: var(--muted-foreground); display: block;">Teléfono</span>
+                <strong style="font-size: 13px;" id="dest-phone">0412-1234567</strong>
+              </div>
+              <span class="copy-status" style="font-size: 11px; font-weight: 700; color: #4A7808;">Copiar</span>
+            </button>
+
+            <button type="button" class="copy-chip" onclick="copyValue('J401234567', this)">
+              <div>
+                <span style="font-size: 10.5px; color: var(--muted-foreground); display: block;">RIF Beneficiario</span>
+                <strong style="font-size: 13px;" id="dest-rif">J-40123456-7</strong>
+              </div>
+              <span class="copy-status" style="font-size: 11px; font-weight: 700; color: #4A7808;">Copiar</span>
+            </button>
+
+            <button type="button" class="copy-chip" style="border-color: var(--accent); background: var(--accent-subtle);" onclick="copyValue('2299.50', this)">
+              <div>
+                <span style="font-size: 10.5px; color: #2D4A06; font-weight: 700; display: block;">Monto Exacto</span>
+                <strong style="font-size: 14px; color: #1F290F;">Bs. 2.299,50</strong>
+              </div>
+              <span class="copy-status" style="font-size: 11px; font-weight: 800; color: #1F290F;">Copiar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP B: 1-TAP AUTOFILL FROM SAVED PROFILE -->
+        <button type="button" class="autofill-banner" onclick="autofillPagoMovil()">
+          <div>
+            <span style="font-size: 11px; color: var(--accent); font-weight: 800; text-transform: uppercase; display: block;">
+              ⚡ Autocompletar con tus datos guardados en Mi Cuenta
+            </span>
+            <span style="font-size: 13px; font-weight: 600; color: #F4F2EC;">
+              Banesco (0134) · 0414-5550101 · V-18.234.567
+            </span>
+          </div>
+          <span class="badge" style="background: var(--accent); color: #1F290F; flex-shrink: 0;">Usar 1-Tap</span>
+        </button>
+
+        <!-- STEP C: REPORT FORM + VOUCHER UPLOAD -->
+        <div class="card">
+          <h3 style="font-size: 15.5px; font-weight: 800; margin-bottom: 12px;">2. Reporta los datos de tu comprobante</h3>
+
+          <div class="responsive-grid" style="gap: 12px; margin-bottom: 12px;">
+            <div>
+              <label class="form-label">Banco Emisor</label>
+              <div class="input-wrapper">
+                <input type="text" id="pm-bank" class="form-input" value="0134 - Banesco Banco Universal">
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Teléfono Emisor</label>
+              <div class="input-wrapper">
+                <input type="text" id="pm-phone" class="form-input" value="0414-5550101">
+              </div>
+            </div>
+          </div>
+
+          <div class="responsive-grid" style="gap: 12px; margin-bottom: 14px;">
+            <div>
+              <label class="form-label">Cédula / RIF Titular</label>
+              <div class="input-wrapper">
+                <input type="text" id="pm-id" class="form-input" value="V-18234567">
+              </div>
+            </div>
+            <div>
+              <label class="form-label">N° de Referencia (6 a 12 dígitos)</label>
+              <div class="input-wrapper" style="border-color: var(--accent);">
+                <input type="text" id="pm-ref" class="form-input" value="84920144" placeholder="Ej: 84920144" style="font-weight: 800; letter-spacing: 0.06em;">
+                <span style="font-size: 11px; color: var(--success); font-weight: 800;">✓ 8 díg.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- VOUCHER UPLOAD ZONE -->
+          <label class="form-label">Captura o Comprobante Bancario (JPG, PNG, PDF · Máx 5MB)</label>
+          <div id="voucher-box" class="upload-zone uploaded" onclick="toggleVoucherState()">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 42px; height: 42px; border-radius: 10px; background: #16A34A; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 18px;">
+                  🧾
+                </div>
+                <div>
+                  <div style="font-size: 13px; font-weight: 800; color: var(--foreground);">comprobante_banesco_84920144.jpg</div>
+                  <div style="font-size: 11px; color: var(--success); font-weight: 700;">420 KB · Huella SHA-256 verificada (Sin duplicados)</div>
+                </div>
+              </div>
+              <span class="back-btn" style="font-size: 11px;">Cambiar</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SAVED CARD 1-CLICK CHECKOUT FLOW (PLATFORM_CUSTODY) -->
+      <div id="section-card" style="display: none;">
+        <div class="card">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <h3 style="font-size: 16px; font-weight: 800;">Pagar con Tarjeta Guardada</h3>
+            <span class="badge badge-success">🔒 Stripe / Mercantil 3DS</span>
+          </div>
+
+          <div style="background: linear-gradient(135deg, #1C260D 0%, #304015 100%); color: #FFFFFF; border-radius: 18px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--accent);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+              <span class="badge" style="background: rgba(198,242,59,0.25); color: var(--accent);">Predeterminada en Mi Cuenta</span>
+              <strong style="font-size: 18px; font-style: italic;">VISA</strong>
+            </div>
+            <div style="font-family: monospace; font-size: 18px; letter-spacing: 0.16em; margin-bottom: 12px;">
+              •••• •••• •••• 4242
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #DCE5CE;">
+              <span>RAMÓN MENDOZA</span>
+              <span>VENCE 09/28</span>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label class="form-label">Código de Seguridad (CVC) para confirmar</label>
+            <div class="input-wrapper" style="max-width: 160px;">
+              <input type="password" class="form-input" value="842" maxlength="4">
+              <span style="font-size: 12px; color: var(--success); font-weight: 700;">✓</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STICKY BOTTOM SUBMIT DOCK -->
+    <div class="sticky-dock">
+      <a href="07-digital-pass-ticket.html" id="submit-pay-btn" class="btn btn-primary btn-block" style="font-size: 15px; padding: 14px 20px;">
+        Reportar Pago y Generar Pase QR →
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    function copyValue(val, btn) {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(val).catch(() => {});
+      }
+      const status = btn.querySelector('.copy-status');
+      if (status) {
+        const orig = status.textContent;
+        status.textContent = '¡Copiado! ✓';
+        setTimeout(() => { status.textContent = orig; }, 1600);
+      }
+    }
+
+    function copyAllCoords(btn) {
+      const orig = btn.textContent;
+      btn.textContent = '✓ ¡Datos Copiados!';
+      setTimeout(() => { btn.textContent = orig; }, 1800);
+    }
+
+    function autofillPagoMovil() {
+      document.getElementById('pm-bank').value = '0134 - Banesco Banco Universal';
+      document.getElementById('pm-phone').value = '0414-5550101';
+      document.getElementById('pm-id').value = 'V-18234567';
+      document.getElementById('pm-ref').focus();
+    }
+
+    function selectPayTab(tab) {
+      document.getElementById('tab-pm').classList.toggle('active', tab === 'pm');
+      document.getElementById('tab-card').classList.toggle('active', tab === 'card');
+      document.getElementById('section-pm').style.display = tab === 'pm' ? 'block' : 'none';
+      document.getElementById('section-card').style.display = tab === 'card' ? 'block' : 'none';
+      document.getElementById('submit-pay-btn').textContent =
+        tab === 'card' ? 'Pagar $63.00 USD y Activar Pase QR →' : 'Reportar Pago y Generar Pase QR →';
+    }
+
+    function setPaymentCollectionMode(mode) {
+      const isCustody = mode === 'PLATFORM_CUSTODY';
+      document.getElementById('mode-custody').classList.toggle('active', isCustody);
+      document.getElementById('mode-direct').classList.toggle('active', !isCustody);
+
+      document.getElementById('method-tabs-wrapper').style.display = isCustody ? 'grid' : 'none';
+      if (!isCustody) {
+        selectPayTab('pm');
+        document.getElementById('beneficiary-title').textContent = '1. Transfiere Directo al Club: San Agustín Sport C.A.';
+        document.getElementById('dest-bank').textContent = '0105 · Mercantil';
+        document.getElementById('dest-phone').textContent = '0414-9876543';
+        document.getElementById('dest-rif').textContent = 'J-31298871-0';
+      } else {
+        document.getElementById('beneficiary-title').textContent = '1. Transfiere a Custodia YoReservo C.A.';
+        document.getElementById('dest-bank').textContent = '0102 · BDV';
+        document.getElementById('dest-phone').textContent = '0412-1234567';
+        document.getElementById('dest-rif').textContent = 'J-40123456-7';
+      }
+    }
+
+    function toggleVoucherState() {
+      const box = document.getElementById('voucher-box');
+      box.style.transform = 'scale(0.99)';
+      setTimeout(() => { box.style.transform = 'scale(1)'; }, 150);
+    }
+
+    // Live countdown ticker
+    let totalSeconds = 14 * 60 + 48;
+    setInterval(() => {
+      if (totalSeconds > 0) totalSeconds--;
+      const m = Math.floor(totalSeconds / 60);
+      const s = totalSeconds % 60;
+      const el = document.getElementById('timer-display');
+      if (el) el.textContent = `${m}:${s < 10 ? '0' + s : s} restantes`;
+    }, 1000);
+  </script>
+
+</body>
+</html>

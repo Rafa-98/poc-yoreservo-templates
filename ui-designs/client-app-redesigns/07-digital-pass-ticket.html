@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pase Digital QR & Check-In — YoReservo</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    .state-switcher {
+      background-color: #1F290F;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      overflow-x: auto;
+    }
+    .state-btn {
+      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: #DCE5CE;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .state-btn.active {
+      background: var(--accent);
+      color: #1F290F;
+      border-color: var(--accent);
+    }
+    .wallet-pass {
+      background: linear-gradient(160deg, #1F290F 0%, #2B3B13 100%);
+      color: #FFFFFF;
+      border-radius: 26px;
+      overflow: hidden;
+      border: 2px solid rgba(198, 242, 59, 0.45);
+      box-shadow: 0 18px 40px rgba(31, 41, 15, 0.28);
+      margin-bottom: 18px;
+    }
+    .pass-header {
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .qr-container {
+      background-color: #FFFFFF;
+      color: #1F290F;
+      margin: 18px 24px;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .qr-svg-box {
+      width: 168px;
+      height: 168px;
+      margin: 0 auto 12px auto;
+      padding: 10px;
+      border: 3px solid #1F290F;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #FFFFFF;
+    }
+    .pass-cutout {
+      position: relative;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .pass-cutout::before,
+    .pass-cutout::after {
+      content: '';
+      position: absolute;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background-color: var(--background);
+    }
+    .pass-cutout::before { left: -14px; }
+    .pass-cutout::after { right: -14px; }
+    .pass-cutout-line {
+      width: 88%;
+      border-top: 2px dashed rgba(198, 242, 59, 0.45);
+    }
+    .pass-details {
+      padding: 14px 20px 20px 20px;
+    }
+    .whatsapp-card {
+      background: linear-gradient(135deg, #DCFCE7 0%, #BBF7D0 100%);
+      border: 1.5px solid #22C55E;
+      color: #14532D;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    [data-theme="dark"] .whatsapp-card {
+      background: #132F1C;
+      color: #DCFCE7;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+
+    <!-- INTERACTIVE DEMO STATE SWITCHER -->
+    <div class="state-switcher">
+      <button type="button" id="st-confirmed" class="state-btn active" onclick="setPassState('confirmed')">
+        ✅ Confirmada (Pase QR Activo)
+      </button>
+      <button type="button" id="st-review" class="state-btn" onclick="setPassState('review')">
+        🔍 Pago en Revisión
+      </button>
+      <button type="button" id="st-rejected" class="state-btn" onclick="setPassState('rejected')">
+        ⚠️ Pago Rechazado (Reintentar)
+      </button>
+    </div>
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="01-home-discovery.html" class="back-btn">‹ Inicio</a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 800;">
+        Pase Digital de Cancha
+      </span>
+      <div class="format-switch">
+        <button type="button" id="p-fmt-12" class="active" onclick="setPassFmt('12h')">AM/PM</button>
+        <button type="button" id="p-fmt-24" onclick="setPassFmt('24h')">24h</button>
+      </div>
+    </header>
+
+    <div style="padding: 16px;">
+
+      <!-- REJECTED ALERT BANNER (HIDDEN BY DEFAULT) -->
+      <div id="rejected-banner" style="display: none; background: var(--destructive-subtle); color: var(--destructive); border: 1.5px solid var(--destructive); border-radius: var(--radius-lg); padding: 14px; margin-bottom: 16px;">
+        <div style="font-weight: 800; font-size: 14px; margin-bottom: 4px;">⚠️ No pudimos conciliar la referencia #84920144</div>
+        <p style="font-size: 12.5px; margin-bottom: 10px;">
+          El banco o monto no coincide con el comprobante adjunto. Tu horario sigue bloqueado por <strong>11:20 min</strong> para que corrijas la referencia sin perder tu cancha.
+        </p>
+        <a href="06-payment-experience.html" class="btn btn-destructive btn-block" style="padding: 10px;">
+          🔄 Corregir Referencia o Subir Nuevo Comprobante →
+        </a>
+      </div>
+
+      <!-- WALLET-STYLE DIGITAL MATCH PASS -->
+      <div class="wallet-pass">
+        <div class="pass-header">
+          <div>
+            <span style="font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: 0.5px;">
+              YO<span style="color: var(--accent);">RESERVO</span> PASS
+            </span>
+            <div style="font-size: 11px; color: #DCE5CE;">Orden #YR-8492 · Caracas (GMT-4)</div>
+          </div>
+          <span id="pass-status-badge" class="badge" style="background: var(--accent); color: #1F290F; font-size: 11.5px; padding: 5px 11px;">
+            ✓ CONFIRMADA
+          </span>
+        </div>
+
+        <!-- SCANNABLE QR BOX -->
+        <div class="qr-container" id="qr-box">
+          <div class="qr-svg-box">
+            <!-- Crisp Geometric QR Code SVG -->
+            <svg viewBox="0 0 120 120" width="142" height="142" fill="#1F290F">
+              <rect x="6" y="6" width="32" height="32" rx="4" fill="none" stroke="#1F290F" stroke-width="6"/>
+              <rect x="14" y="14" width="16" height="16" rx="2"/>
+              <rect x="82" y="6" width="32" height="32" rx="4" fill="none" stroke="#1F290F" stroke-width="6"/>
+              <rect x="90" y="14" width="16" height="16" rx="2"/>
+              <rect x="6" y="82" width="32" height="32" rx="4" fill="none" stroke="#1F290F" stroke-width="6"/>
+              <rect x="14" y="90" width="16" height="16" rx="2"/>
+              <rect x="46" y="10" width="8" height="8"/>
+              <rect x="62" y="10" width="8" height="16"/>
+              <rect x="46" y="26" width="16" height="8"/>
+              <rect x="10" y="46" width="16" height="8"/>
+              <rect x="34" y="46" width="16" height="16"/>
+              <rect x="58" y="46" width="8" height="24"/>
+              <rect x="74" y="46" width="16" height="8"/>
+              <rect x="98" y="46" width="14" height="16"/>
+              <rect x="10" y="62" width="8" height="12"/>
+              <rect x="46" y="70" width="24" height="8"/>
+              <rect x="78" y="62" width="12" height="20"/>
+              <rect x="46" y="86" width="12" height="12"/>
+              <rect x="66" y="90" width="16" height="22"/>
+              <rect x="90" y="86" width="22" height="12"/>
+              <rect x="98" y="102" width="14" height="12"/>
+            </svg>
+          </div>
+          <div style="font-family: 'Outfit', monospace; font-size: 20px; font-weight: 800; letter-spacing: 0.14em; color: #1F290F;">
+            YR-8492
+          </div>
+          <div style="font-size: 11.5px; color: #565F45; font-weight: 600;" id="qr-helper-text">
+            Muestra este código QR en la recepción de la sede al llegar
+          </div>
+        </div>
+
+        <div class="pass-cutout">
+          <div class="pass-cutout-line"></div>
+        </div>
+
+        <!-- MATCH DETAILS ON PASS -->
+        <div class="pass-details">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+            <div>
+              <span style="font-size: 10.5px; color: #A9B895; text-transform: uppercase; font-weight: 700; display: block;">Sede Deportiva</span>
+              <strong style="font-size: 14.5px;">Ávila Fitness Center</strong>
+            </div>
+            <div>
+              <span style="font-size: 10.5px; color: #A9B895; text-transform: uppercase; font-weight: 700; display: block;">Espacio / Cancha</span>
+              <strong style="font-size: 14.5px; color: var(--accent);">Cancha 1 · Fútbol 5</strong>
+            </div>
+            <div>
+              <span style="font-size: 10.5px; color: #A9B895; text-transform: uppercase; font-weight: 700; display: block;">Fecha</span>
+              <strong style="font-size: 14px;">Mar 20 Oct, 2026</strong>
+            </div>
+            <div>
+              <span style="font-size: 10.5px; color: #A9B895; text-transform: uppercase; font-weight: 700; display: block;">Horario (2 Horas)</span>
+              <strong style="font-size: 14px;" id="pass-time-label">7:00 PM – 9:00 PM</strong>
+            </div>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; font-size: 12px;">
+            <span>💳 Pagado: <strong>$63.00 USD</strong> (Bs. 2.299,50)</span>
+            <span style="color: var(--accent); font-weight: 700;">Ref #84920144 ✓</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEAMMATE SPLIT CALCULATOR & WHATSAPP SHARE (HIGH UX VALUE) -->
+      <div class="whatsapp-card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <h3 style="font-size: 15.5px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
+            📲 Convocar Equipo y Dividir Cuenta
+          </h3>
+          <span class="badge" style="background: #16A34A; color: #FFFFFF;">WhatsApp</span>
+        </div>
+        <p style="font-size: 12px; margin-bottom: 10px; opacity: 0.9;">
+          Calcula cuánto paga cada jugador a tasa BCV y envía la convocatoria con ubicación GPS:
+        </p>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.75); color: #14532D; padding: 10px 12px; border-radius: 12px; margin-bottom: 12px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 12.5px; font-weight: 700;">Jugadores:</span>
+            <select id="split-players" onchange="updateSplitCalc()" style="padding: 4px 8px; border-radius: 8px; border: 1px solid #16A34A; font-weight: 800; font-size: 13px;">
+              <option value="10" selected>10 jugadores (5 vs 5)</option>
+              <option value="12">12 jugadores</option>
+              <option value="4">4 jugadores (Pádel)</option>
+              <option value="2">2 jugadores</option>
+            </select>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800;" id="split-amount-label">
+              $6.30 / Bs. 230,00 c/u
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-block" style="background: #16A34A; color: #FFFFFF; font-size: 14px;" onclick="openModal('wa-modal')">
+          📲 Compartir Partido y Cuota por WhatsApp →
+        </button>
+      </div>
+
+      <!-- POST-BOOKING QUICK ATHLETE ACTIONS -->
+      <div class="responsive-grid" style="gap: 10px;">
+        <button type="button" class="btn btn-secondary" style="justify-content: flex-start; font-size: 13px;" onclick="this.textContent = '✅ Agregado a tu Calendario (Recordatorio 1h antes)'">
+          📅 Agregar a Google / Apple Calendar
+        </button>
+        <a href="02-explore-venues-map.html" class="btn btn-secondary" style="justify-content: flex-start; font-size: 13px;">
+          🗺️ Abrir Ruta en Google Maps / Waze
+        </a>
+      </div>
+
+    </div>
+
+    <!-- WHATSAPP PREVIEW MODAL -->
+    <div id="wa-modal" class="modal-backdrop" onclick="if(event.target===this) closeModal('wa-modal')">
+      <div class="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 style="font-size: 17px;">📲 Vista Previa Mensaje para tu Grupo</h3>
+          <button type="button" class="back-btn" onclick="closeModal('wa-modal')">✕</button>
+        </div>
+
+        <div style="background: #E7FFDB; color: #111B21; border-radius: 16px; padding: 14px; font-size: 13px; line-height: 1.55; margin-bottom: 16px; border: 1px solid #B7E4A1; font-family: sans-serif;">
+          ⚽ <strong>¡Cancha Reservada en YoReservo!</strong><br>
+          🏟️ <strong>Sede:</strong> Ávila Fitness Center (Cancha 1 Techada)<br>
+          📅 <strong>Fecha:</strong> Hoy, Martes 20 Oct<br>
+          🕒 <strong>Hora:</strong> 7:00 PM – 9:00 PM (2 horas)<br>
+          🎟️ <strong>Código de acceso QR:</strong> <code>YR-8492</code><br>
+          💰 <strong>Cuota por jugador (10 jug.):</strong> <span id="wa-msg-quota">$6.30 USD (Bs. 230,00 BCV)</span><br>
+          📍 <strong>Mapa GPS:</strong> San Bernardino, Caracas
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block" onclick="closeModal('wa-modal')">
+          ✓ Copiar y Abrir WhatsApp
+        </button>
+      </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="01-home-discovery.html" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="02-explore-venues-map.html" class="nav-tab">
+        <span class="nav-tab-pill">🔍</span>
+        <span>Explorar</span>
+      </a>
+      <a href="07-digital-pass-ticket.html" class="nav-tab active">
+        <span class="nav-tab-pill">📅</span>
+        <span>Mis Reservas</span>
+      </a>
+      <a href="../my-account-ui-designs/profile/profile-hub.html" class="nav-tab">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi Cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    function setPassFmt(fmt) {
+      document.getElementById('p-fmt-12').classList.toggle('active', fmt === '12h');
+      document.getElementById('p-fmt-24').classList.toggle('active', fmt === '24h');
+      document.getElementById('pass-time-label').textContent =
+        fmt === '24h' ? '19:00 – 21:00' : '7:00 PM – 9:00 PM';
+    }
+
+    function setPassState(state) {
+      document.getElementById('st-confirmed').classList.toggle('active', state === 'confirmed');
+      document.getElementById('st-review').classList.toggle('active', state === 'review');
+      document.getElementById('st-rejected').classList.toggle('active', state === 'rejected');
+
+      const badge = document.getElementById('pass-status-badge');
+      const qrBox = document.getElementById('qr-box');
+      const helper = document.getElementById('qr-helper-text');
+      const rejectedBanner = document.getElementById('rejected-banner');
+
+      if (state === 'confirmed') {
+        badge.textContent = '✓ CONFIRMADA';
+        badge.style.background = '#C6F23B';
+        badge.style.color = '#1F290F';
+        qrBox.style.opacity = '1';
+        helper.textContent = 'Muestra este código QR en la recepción de la sede al llegar';
+        rejectedBanner.style.display = 'none';
+      } else if (state === 'review') {
+        badge.textContent = '🔍 EN REVISIÓN (< 5 min)';
+        badge.style.background = '#FDE68A';
+        badge.style.color = '#92400E';
+        qrBox.style.opacity = '0.88';
+        helper.textContent = 'Verificando referencia #84920144 · Tu cupo está 100% garantizado';
+        rejectedBanner.style.display = 'none';
+      } else {
+        badge.textContent = '⚠️ PAGO OBSERVADO';
+        badge.style.background = '#FEE2E2';
+        badge.style.color = '#DC2626';
+        qrBox.style.opacity = '0.45';
+        helper.textContent = 'Corrige la referencia en los próximos 11:20 min para activar el QR';
+        rejectedBanner.style.display = 'block';
+      }
+    }
+
+    function updateSplitCalc() {
+      const n = parseInt(document.getElementById('split-players').value, 10) || 10;
+      const usdPer = (63 / n).toFixed(2);
+      const vesPer = ((63 * 36.5) / n).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const text = `$${usdPer} / Bs. ${vesPer} c/u`;
+      document.getElementById('split-amount-label').textContent = text;
+      document.getElementById('wa-msg-quota').textContent = `$${usdPer} USD (Bs. ${vesPer} BCV)`;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+  </script>
+
+</body>
+</html>

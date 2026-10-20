@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explorar Sedes (Lista y Mapa) — YoReservo</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    .view-mode-switch {
+      display: inline-flex;
+      background-color: var(--muted);
+      border: 1px solid var(--border-strong);
+      border-radius: 999px;
+      padding: 3px;
+    }
+    .view-mode-switch button {
+      border: none;
+      background: transparent;
+      color: var(--muted-foreground);
+      font-family: 'Outfit', sans-serif;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .view-mode-switch button.active {
+      background-color: var(--brand-deep);
+      color: var(--accent);
+    }
+    .map-canvas {
+      position: relative;
+      height: 520px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      border: 1px solid var(--border-strong);
+      background:
+        radial-gradient(circle at 25% 30%, rgba(198, 242, 59, 0.18), transparent 45%),
+        linear-gradient(160deg, #DDE5D0 0%, #CBD6BA 50%, #BAC7A7 100%);
+      box-shadow: var(--card-shadow);
+    }
+    [data-theme="dark"] .map-canvas {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(198, 242, 59, 0.14), transparent 50%),
+        linear-gradient(160deg, #1E2716 0%, #161D10 100%);
+    }
+    .map-grid-roads {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.4) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255,255,255,0.4) 2px, transparent 2px);
+      background-size: 70px 70px;
+      opacity: 0.65;
+      pointer-events: none;
+    }
+    [data-theme="dark"] .map-grid-roads {
+      background-image:
+        linear-gradient(rgba(255,255,255,0.06) 2px, transparent 2px),
+        linear-gradient(90deg, rgba(255,255,255,0.06) 2px, transparent 2px);
+    }
+    .highway-line {
+      position: absolute;
+      height: 8px;
+      background: rgba(255, 214, 102, 0.75);
+      border-top: 1px solid rgba(217, 119, 6, 0.4);
+      border-bottom: 1px solid rgba(217, 119, 6, 0.4);
+      width: 130%;
+      top: 48%;
+      left: -15%;
+      transform: rotate(-12deg);
+      pointer-events: none;
+    }
+    .zone-label {
+      position: absolute;
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #465433;
+      background: rgba(255,255,255,0.65);
+      padding: 2px 7px;
+      border-radius: 6px;
+      pointer-events: none;
+    }
+    [data-theme="dark"] .zone-label {
+      background: rgba(0,0,0,0.5);
+      color: #A9B895;
+    }
+    .price-pin {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      background-color: var(--brand-deep);
+      color: #FFFFFF;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.28);
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 10;
+    }
+    .price-pin::after {
+      content: '';
+      position: absolute;
+      bottom: -7px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 7px 6px 0;
+      border-style: solid;
+      border-color: var(--brand-deep) transparent transparent;
+    }
+    .price-pin.active {
+      background-color: var(--accent);
+      color: #1F290F;
+      border-color: #1F290F;
+      transform: translate(-50%, -110%) scale(1.14);
+      z-index: 20;
+    }
+    .price-pin.active::after {
+      border-color: #1F290F transparent transparent;
+    }
+    .map-preview-drawer {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      background-color: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+      z-index: 25;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .compact-venue-row {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      box-shadow: var(--card-shadow);
+      transition: all 0.15s ease;
+    }
+    .compact-venue-row:hover {
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper">
+
+    <!-- STICKY HEADER -->
+    <header class="app-header">
+      <a href="01-home-discovery.html" class="back-btn">‹ Inicio</a>
+      <div style="text-align: center;">
+        <div style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 800;">Explorar Canchas</div>
+        <div style="font-size: 11px; color: var(--muted-foreground);">📍 Caracas · Hoy, Mar 20 Oct</div>
+      </div>
+      <div class="view-mode-switch">
+        <button type="button" id="btn-view-map" class="active" onclick="switchView('map')">🗺️ Mapa</button>
+        <button type="button" id="btn-view-list" onclick="switchView('list')">📋 Lista (4)</button>
+      </div>
+    </header>
+
+    <div style="padding: 14px 16px;">
+
+      <!-- FILTER & SORT BAR -->
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px;">
+        <div class="h-scroll" style="flex: 1;">
+          <button type="button" class="filter-chip active" onclick="filterChipClick(this, 'all')">Todas (4)</button>
+          <button type="button" class="filter-chip" onclick="filterChipClick(this, 'f5')">⚽ Fútbol 5</button>
+          <button type="button" class="filter-chip" onclick="filterChipClick(this, 'f7')">⚽ Fútbol 7</button>
+          <button type="button" class="filter-chip" onclick="filterChipClick(this, 'fifa')">🌱 Grama FIFA</button>
+          <button type="button" class="filter-chip" onclick="filterChipClick(this, 'roof')">🏠 Techada</button>
+          <button type="button" class="filter-chip" onclick="filterChipClick(this, 'parking')">🚗 Estacionamiento</button>
+        </div>
+      </div>
+
+      <!-- SORT + BCV STRIP -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; font-size: 12px;">
+        <span style="color: var(--muted-foreground); font-weight: 600;">
+          Mostrando <strong>4 sedes</strong> con cupo hoy
+        </span>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <span style="color: var(--muted-foreground);">Ordenar:</span>
+          <select id="sort-select" onchange="sortList(this.value)" style="background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; padding: 4px 8px; font-size: 12px; font-weight: 700; color: var(--foreground);">
+            <option value="distance">📍 Más Cercanas</option>
+            <option value="price">💰 Menor Precio</option>
+            <option value="rating">⭐ Mejor Valoradas</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE MAP VIEW -->
+      <div id="map-view-section">
+        <div class="map-canvas">
+          <div class="map-grid-roads"></div>
+          <div class="highway-line"></div>
+
+          <!-- Zone Labels -->
+          <span class="zone-label" style="top: 16%; left: 22%;">Cota Mil / Ávila</span>
+          <span class="zone-label" style="top: 32%; left: 42%;">San Bernardino</span>
+          <span class="zone-label" style="top: 64%; left: 20%;">El Paraíso</span>
+          <span class="zone-label" style="top: 58%; left: 68%;">Las Mercedes</span>
+
+          <!-- User GPS Blue Dot -->
+          <div style="position: absolute; top: 42%; left: 48%; width: 16px; height: 16px; border-radius: 50%; background: #2563EB; border: 3px solid #FFFFFF; box-shadow: 0 0 0 8px rgba(37, 99, 235, 0.22);" title="Tu ubicación actual"></div>
+
+          <!-- Interactive Price Pins -->
+          <button type="button" class="price-pin active" style="top: 30%; left: 46%;" onclick="selectMapPin(0, this)">
+            ⚽ $25/h
+          </button>
+          <button type="button" class="price-pin" style="top: 62%; left: 28%;" onclick="selectMapPin(1, this)">
+            ⚽ $20/h
+          </button>
+          <button type="button" class="price-pin" style="top: 52%; left: 74%;" onclick="selectMapPin(2, this)">
+            🎾 $30/h
+          </button>
+          <button type="button" class="price-pin" style="top: 37%; left: 60%;" onclick="selectMapPin(3, this)">
+            🏐 $15/h
+          </button>
+
+          <!-- Floating Venue Preview Card inside Map -->
+          <div class="map-preview-drawer" id="map-preview-card">
+            <img id="preview-img" src="assets/avila-fitness-center.jpg" alt="Venue" style="width: 84px; height: 84px; border-radius: 14px; object-fit: cover; flex-shrink: 0;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px; margin-bottom: 2px;">
+                <span id="preview-badge" class="badge badge-accent" style="font-size: 10px;">⚽ Fútbol 5 · Techada</span>
+                <span id="preview-rating" style="font-size: 11.5px; font-weight: 800; color: var(--foreground);">★ 4.9 (42)</span>
+              </div>
+              <h3 id="preview-title" style="font-size: 15.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                Ávila Fitness Center
+              </h3>
+              <p id="preview-meta" style="font-size: 11.5px; color: var(--muted-foreground); margin-bottom: 8px;">
+                📍 1.2 km · Desde <strong>$25/h</strong> (Bs. 912,50)
+              </p>
+              <div style="display: flex; align-items: center; justify-content: space-between; gap: 6px;">
+                <div style="display: flex; gap: 4px;">
+                  <a href="04-smart-schedule-picker.html?slot=19" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">⚡ 7:00 PM</a>
+                  <a href="04-smart-schedule-picker.html?slot=20" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">⚡ 8:00 PM</a>
+                </div>
+                <a href="03-venue-hub-spaces.html" class="btn btn-primary" style="padding: 6px 12px; font-size: 12px; border-radius: 10px;">
+                  Ver Canchas →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE LIST VIEW -->
+      <div id="list-view-section" style="display: none;">
+        <div id="list-container" style="display: grid; gap: 12px;">
+
+          <div class="compact-venue-row" data-price="25" data-rating="4.9" data-distance="1.2" data-tags="all f5 fifa roof parking">
+            <img src="assets/avila-fitness-center.jpg" alt="Ávila Fitness" style="width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-accent">⚽ Fútbol 5 · Techada</span>
+                <span style="font-size: 12px; font-weight: 800;">★ 4.9</span>
+              </div>
+              <h3 style="font-size: 16px; font-weight: 800; margin: 3px 0;">Ávila Fitness Center</h3>
+              <p style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px;">📍 1.2 km · San Bernardino · <strong>$25/h</strong> (Bs. 912,50)</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 5px;">
+                  <a href="04-smart-schedule-picker.html?slot=19" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">7:00 PM</a>
+                  <a href="04-smart-schedule-picker.html?slot=20" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">8:00 PM</a>
+                </div>
+                <a href="03-venue-hub-spaces.html" style="font-size: 12.5px; font-weight: 800; color: var(--foreground); text-decoration: none;">Ver 3 canchas →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="compact-venue-row" data-price="15" data-rating="4.7" data-distance="1.5" data-tags="all roof parking">
+            <img src="assets/volleyball-court.jpg" alt="Arena Volley" style="width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-accent">🏐 Voleibol · Ping-Pong</span>
+                <span style="font-size: 12px; font-weight: 800;">★ 4.7</span>
+              </div>
+              <h3 style="font-size: 16px; font-weight: 800; margin: 3px 0;">Arena Volley San Bernardino</h3>
+              <p style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px;">📍 1.5 km · San Bernardino · <strong>$15/h</strong> (Bs. 547,50)</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 5px;">
+                  <a href="04-smart-schedule-picker.html?slot=18" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">6:00 PM</a>
+                  <a href="04-smart-schedule-picker.html?slot=19" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">7:00 PM</a>
+                </div>
+                <a href="03-venue-hub-spaces.html" style="font-size: 12.5px; font-weight: 800; color: var(--foreground); text-decoration: none;">Ver canchas →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="compact-venue-row" data-price="20" data-rating="4.8" data-distance="2.8" data-tags="all f5 f7 fifa parking">
+            <img src="assets/san-agustin-del-paraiso.jpg" alt="San Agustín" style="width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-accent">⚽ Fútbol 7 & 5</span>
+                <span style="font-size: 12px; font-weight: 800;">★ 4.8</span>
+              </div>
+              <h3 style="font-size: 16px; font-weight: 800; margin: 3px 0;">San Agustín del Paraíso</h3>
+              <p style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px;">📍 2.8 km · El Paraíso · <strong>$20/h</strong> (Bs. 730,00)</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 5px;">
+                  <a href="04-smart-schedule-picker.html?slot=16" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">4:00 PM</a>
+                  <a href="04-smart-schedule-picker.html?slot=21" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">9:00 PM</a>
+                </div>
+                <a href="03-venue-hub-spaces.html" style="font-size: 12.5px; font-weight: 800; color: var(--foreground); text-decoration: none;">Ver canchas →</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="compact-venue-row" data-price="30" data-rating="5.0" data-distance="3.4" data-tags="all roof parking">
+            <img src="assets/padel-court.jpg" alt="Caracas Pádel" style="width: 92px; height: 92px; border-radius: 14px; object-fit: cover; flex-shrink: 0;">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span class="badge badge-accent">🎾 Pádel · Techada</span>
+                <span style="font-size: 12px; font-weight: 800;">★ 5.0</span>
+              </div>
+              <h3 style="font-size: 16px; font-weight: 800; margin: 3px 0;">Caracas Pádel & Pickleball</h3>
+              <p style="font-size: 12px; color: var(--muted-foreground); margin-bottom: 8px;">📍 3.4 km · Las Mercedes · <strong>$30/h</strong> (Bs. 1.095,00)</p>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 5px;">
+                  <a href="04-smart-schedule-picker.html?slot=17" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">5:00 PM</a>
+                  <a href="04-smart-schedule-picker.html?slot=20" class="slot-pill" style="padding: 4px 8px; font-size: 11px;">8:00 PM</a>
+                </div>
+                <a href="03-venue-hub-spaces.html" style="font-size: 12.5px; font-weight: 800; color: var(--foreground); text-decoration: none;">Ver canchas →</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM NAVIGATION BAR -->
+    <nav class="mobile-bottom-bar">
+      <a href="01-home-discovery.html" class="nav-tab">
+        <span class="nav-tab-pill">🏠</span>
+        <span>Inicio</span>
+      </a>
+      <a href="02-explore-venues-map.html" class="nav-tab active">
+        <span class="nav-tab-pill">🔍</span>
+        <span>Explorar</span>
+      </a>
+      <a href="07-digital-pass-ticket.html" class="nav-tab">
+        <span class="nav-tab-pill">📅</span>
+        <span>Mis Reservas</span>
+      </a>
+      <a href="../my-account-ui-designs/profile/profile-hub.html" class="nav-tab">
+        <span class="nav-tab-pill">👤</span>
+        <span>Mi Cuenta</span>
+      </a>
+    </nav>
+
+  </div>
+
+  <script>
+    const mapVenues = [
+      {
+        title: 'Ávila Fitness Center',
+        badge: '⚽ Fútbol 5 · Techada',
+        rating: '★ 4.9 (42)',
+        meta: '📍 1.2 km · San Bernardino · Desde $25/h (Bs. 912,50)',
+        img: 'assets/avila-fitness-center.jpg'
+      },
+      {
+        title: 'San Agustín del Paraíso',
+        badge: '⚽ Fútbol 7 & 5 · Aire Libre',
+        rating: '★ 4.8 (67)',
+        meta: '📍 2.8 km · El Paraíso · Desde $20/h (Bs. 730,00)',
+        img: 'assets/san-agustin-del-paraiso.jpg'
+      },
+      {
+        title: 'Caracas Pádel & Pickleball',
+        badge: '🎾 Pádel Cristal · Techada',
+        rating: '★ 5.0 (89)',
+        meta: '📍 3.4 km · Las Mercedes · Desde $30/h (Bs. 1.095,00)',
+        img: 'assets/padel-court.jpg'
+      },
+      {
+        title: 'Arena Volley San Bernardino',
+        badge: '🏐 Voleibol · 🏓 Ping-Pong',
+        rating: '★ 4.7 (29)',
+        meta: '📍 1.5 km · San Bernardino · Desde $15/h (Bs. 547,50)',
+        img: 'assets/volleyball-court.jpg'
+      }
+    ];
+
+    function selectMapPin(idx, pinBtn) {
+      document.querySelectorAll('.price-pin').forEach(p => p.classList.remove('active'));
+      pinBtn.classList.add('active');
+      const v = mapVenues[idx];
+      document.getElementById('preview-title').textContent = v.title;
+      document.getElementById('preview-badge').textContent = v.badge;
+      document.getElementById('preview-rating').textContent = v.rating;
+      document.getElementById('preview-meta').innerHTML = v.meta;
+      document.getElementById('preview-img').src = v.img;
+    }
+
+    function switchView(mode) {
+      document.getElementById('btn-view-map').classList.toggle('active', mode === 'map');
+      document.getElementById('btn-view-list').classList.toggle('active', mode === 'list');
+      document.getElementById('map-view-section').style.display = mode === 'map' ? 'block' : 'none';
+      document.getElementById('list-view-section').style.display = mode === 'list' ? 'block' : 'none';
+    }
+
+    function filterChipClick(btn, tag) {
+      document.querySelectorAll('.h-scroll .filter-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('#list-container .compact-venue-row').forEach(row => {
+        const tags = row.getAttribute('data-tags') || '';
+        row.style.display = tags.includes(tag) ? 'flex' : 'none';
+      });
+    }
+
+    function sortList(criteria) {
+      const container = document.getElementById('list-container');
+      const rows = Array.from(container.children);
+      rows.sort((a, b) => {
+        const va = parseFloat(a.getAttribute('data-' + criteria));
+        const vb = parseFloat(b.getAttribute('data-' + criteria));
+        return criteria === 'rating' ? vb - va : va - vb;
+      });
+      rows.forEach(r => container.appendChild(r));
+    }
+  </script>
+
+</body>
+</html>

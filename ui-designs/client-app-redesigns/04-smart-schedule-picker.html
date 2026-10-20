@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Selector Inteligente de Fecha y Horario — YoReservo</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    .date-pill {
+      min-width: 66px;
+      padding: 10px 8px;
+      border-radius: 16px;
+      background-color: var(--surface);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .date-pill.active {
+      background-color: var(--brand-deep);
+      color: #FFFFFF;
+      border-color: var(--brand-deep);
+      box-shadow: 0 6px 14px rgba(31, 41, 15, 0.22);
+    }
+    [data-theme="dark"] .date-pill.active {
+      background-color: var(--accent);
+      color: #1F290F;
+      border-color: var(--accent);
+    }
+    .avail-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    @media (min-width: 640px) {
+      .slot-grid {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+    .slot-tile {
+      background-color: var(--surface);
+      border: 1.5px solid var(--border-strong);
+      border-radius: 14px;
+      padding: 11px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+      position: relative;
+    }
+    .slot-tile:hover:not(.occupied) {
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+    .slot-tile.selected {
+      background-color: var(--accent);
+      border-color: #1F290F;
+      color: #1F290F;
+      box-shadow: 0 4px 12px rgba(198, 242, 59, 0.4);
+    }
+    .slot-tile.occupied {
+      background-color: var(--muted);
+      border-color: var(--border);
+      opacity: 0.55;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+    .slot-time {
+      font-family: 'Outfit', sans-serif;
+      font-size: 14.5px;
+      font-weight: 800;
+      display: block;
+    }
+    .slot-price {
+      font-size: 11px;
+      font-weight: 600;
+      opacity: 0.85;
+      display: block;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper" style="padding-bottom: 138px;">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="03-venue-hub-spaces.html" class="back-btn">‹ Canchas</a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 800;">
+        Seleccionar Horario
+      </span>
+      <div class="format-switch">
+        <button type="button" id="s-fmt-12" class="active" onclick="setScheduleFormat('12h')">AM/PM</button>
+        <button type="button" id="s-fmt-24" onclick="setScheduleFormat('24h')">24h</button>
+      </div>
+    </header>
+
+    <!-- 4-STEP BOOKING PROGRESS BAR -->
+    <div class="booking-stepper">
+      <a href="03-venue-hub-spaces.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>1. Cancha</span>
+      </a>
+      <div class="step-divider"></div>
+      <div class="step-pill active">
+        <span class="step-num">2</span>
+        <span>2. Horario</span>
+      </div>
+      <div class="step-divider"></div>
+      <div class="step-pill">
+        <span class="step-num">3</span>
+        <span>3. Revisión</span>
+      </div>
+      <div class="step-divider"></div>
+      <div class="step-pill">
+        <span class="step-num">4</span>
+        <span>4. Pago</span>
+      </div>
+    </div>
+
+    <div style="padding: 14px 16px;">
+
+      <!-- COMPACT COURT SUMMARY BAR -->
+      <div style="background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-md); padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <img src="assets/avila-fitness-center.jpg" alt="Cancha 1" style="width: 44px; height: 44px; border-radius: 10px; object-fit: cover;">
+          <div>
+            <div style="font-size: 11px; color: var(--muted-foreground); font-weight: 600;">Ávila Fitness Center</div>
+            <div style="font-size: 14px; font-weight: 800;">Cancha 1 · Fútbol 5 Techada</div>
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800;">$30/h</div>
+          <a href="03-venue-hub-spaces.html" style="font-size: 11px; font-weight: 700; color: #4A7808; text-decoration: none;">Cambiar ▾</a>
+        </div>
+      </div>
+
+      <!-- 14-DAY HORIZONTAL DATE CAROUSEL -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <label class="form-label" style="margin: 0;">📅 Fecha del Partido (Octubre 2026)</label>
+        <span style="font-size: 11px; color: var(--muted-foreground);">🟢 Alta disp. · 🟡 Pocos cupos</span>
+      </div>
+
+      <div class="h-scroll" style="gap: 8px; margin-bottom: 14px;">
+        <div class="date-pill active" onclick="selectDate('Mar 20 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">HOY</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">20</span>
+          <span style="font-size: 10.5px;">Mar</span>
+          <span class="avail-dot" style="background: #22C55E;"></span>
+        </div>
+        <div class="date-pill" onclick="selectDate('Mié 21 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">MAÑ</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">21</span>
+          <span style="font-size: 10.5px;">Mié</span>
+          <span class="avail-dot" style="background: #22C55E;"></span>
+        </div>
+        <div class="date-pill" onclick="selectDate('Jue 22 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">JUE</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">22</span>
+          <span style="font-size: 10.5px;">Oct</span>
+          <span class="avail-dot" style="background: #F59E0B;"></span>
+        </div>
+        <div class="date-pill" onclick="selectDate('Vie 23 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">VIE</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">23</span>
+          <span style="font-size: 10.5px;">Oct</span>
+          <span class="avail-dot" style="background: #F59E0B;"></span>
+        </div>
+        <div class="date-pill" onclick="selectDate('Sáb 24 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">SÁB</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">24</span>
+          <span style="font-size: 10.5px;">Oct</span>
+          <span class="avail-dot" style="background: #22C55E;"></span>
+        </div>
+        <div class="date-pill" onclick="selectDate('Dom 25 Oct', this)">
+          <span style="font-size: 10.5px; font-weight: 700; text-transform: uppercase; opacity: 0.8;">DOM</span>
+          <span style="font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800;">25</span>
+          <span style="font-size: 10.5px;">Oct</span>
+          <span class="avail-dot" style="background: #22C55E;"></span>
+        </div>
+      </div>
+
+      <!-- TIMEZONE & SELECTION RULE BANNER -->
+      <div style="background: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; font-size: 11.5px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+        <span>🌎 <strong>Hora local sede:</strong> Caracas (GMT-4)</span>
+        <span style="color: var(--muted-foreground);">Toca 1 o más bloques seguidos</span>
+      </div>
+
+      <!-- INLINE WARNING FOR NON-CONTIGUOUS SLOTS -->
+      <div id="contiguous-alert" style="display: none; background: var(--warning-subtle); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.35); border-radius: 12px; padding: 10px 12px; font-size: 12px; font-weight: 600; margin-bottom: 14px;">
+        💡 Seleccionamos el nuevo bloque. Para reservar varias horas en una misma orden, elige horarios consecutivos (ej. 7:00 PM y 8:00 PM).
+      </div>
+
+      <!-- GROUP 1: MAÑANA -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <h3 style="font-size: 13.5px; font-weight: 800;">🌅 Mañana <span style="font-weight: 500; color: var(--muted-foreground); font-size: 12px;">(Tarifa Valle)</span></h3>
+      </div>
+      <div class="slot-grid">
+        <div class="slot-tile" data-hour="8" onclick="toggleSlot(8, this)">
+          <span class="slot-time" data-12h="8:00 AM" data-24h="08:00">8:00 AM</span>
+          <span class="slot-price">$25 · Libre</span>
+        </div>
+        <div class="slot-tile" data-hour="9" onclick="toggleSlot(9, this)">
+          <span class="slot-time" data-12h="9:00 AM" data-24h="09:00">9:00 AM</span>
+          <span class="slot-price">$25 · Libre</span>
+        </div>
+        <div class="slot-tile occupied" data-hour="10">
+          <span class="slot-time" data-12h="10:00 AM" data-24h="10:00">10:00 AM</span>
+          <span class="slot-price">Ocupado</span>
+        </div>
+      </div>
+
+      <!-- GROUP 2: TARDE -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <h3 style="font-size: 13.5px; font-weight: 800;">☀️ Tarde</h3>
+      </div>
+      <div class="slot-grid">
+        <div class="slot-tile occupied" data-hour="15">
+          <span class="slot-time" data-12h="3:00 PM" data-24h="15:00">3:00 PM</span>
+          <span class="slot-price">Ocupado</span>
+        </div>
+        <div class="slot-tile" data-hour="16" onclick="toggleSlot(16, this)">
+          <span class="slot-time" data-12h="4:00 PM" data-24h="16:00">4:00 PM</span>
+          <span class="slot-price">$30 · Libre</span>
+        </div>
+        <div class="slot-tile" data-hour="17" onclick="toggleSlot(17, this)">
+          <span class="slot-time" data-12h="5:00 PM" data-24h="17:00">5:00 PM</span>
+          <span class="slot-price">$30 · Libre</span>
+        </div>
+      </div>
+
+      <!-- GROUP 3: NOCHE / PRIME TIME -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+        <h3 style="font-size: 13.5px; font-weight: 800;">🌙 Noche / Prime Time <span class="badge badge-accent" style="font-size: 10px;">💡 LED Incluida</span></h3>
+      </div>
+      <div class="slot-grid">
+        <div class="slot-tile occupied" data-hour="18">
+          <span class="slot-time" data-12h="6:00 PM" data-24h="18:00">6:00 PM</span>
+          <span class="slot-price">Ocupado</span>
+        </div>
+        <div class="slot-tile selected" data-hour="19" onclick="toggleSlot(19, this)">
+          <span class="slot-time" data-12h="7:00 PM" data-24h="19:00">7:00 PM</span>
+          <span class="slot-price">$30 · Seleccionado</span>
+        </div>
+        <div class="slot-tile selected" data-hour="20" onclick="toggleSlot(20, this)">
+          <span class="slot-time" data-12h="8:00 PM" data-24h="20:00">8:00 PM</span>
+          <span class="slot-price">$30 · Seleccionado</span>
+        </div>
+        <div class="slot-tile" data-hour="21" onclick="toggleSlot(21, this)">
+          <span class="slot-time" data-12h="9:00 PM" data-24h="21:00">9:00 PM</span>
+          <span class="slot-price">$30 · Libre</span>
+        </div>
+        <div class="slot-tile" data-hour="22" onclick="toggleSlot(22, this)">
+          <span class="slot-time" data-12h="10:00 PM" data-24h="22:00">10:00 PM</span>
+          <span class="slot-price">$30 · Libre</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- STICKY BOTTOM CHECKOUT DOCK -->
+    <div class="sticky-dock">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+        <div>
+          <div style="font-size: 11.5px; color: var(--muted-foreground); font-weight: 700;" id="dock-date-label">
+            Mar 20 Oct · <span id="dock-range">7:00 PM – 9:00 PM</span> (<span id="dock-hours">2 horas</span>)
+          </div>
+          <div style="font-size: 12px; color: var(--success); font-weight: 700;">
+            ⏱️ Bloqueo garantizado por 15 min al confirmar
+          </div>
+        </div>
+        <div style="text-align: right;">
+          <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 800;" id="dock-usd">$60.00</div>
+          <div style="font-size: 11px; color: var(--muted-foreground); font-weight: 700;" id="dock-ves">≈ Bs. 2.190,00</div>
+        </div>
+      </div>
+      <a href="05-checkout-review-express.html" id="continue-btn" class="btn btn-primary btn-block">
+        Continuar a Revisión (Paso 3 de 4) →
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    let selectedHours = [19, 20];
+    let activeDateStr = 'Mar 20 Oct';
+    let currentFmt = '12h';
+    const BCV_RATE = 36.50;
+    const HOURLY_USD = 30;
+
+    function formatHour(h) {
+      if (currentFmt === '24h') {
+        return (h < 10 ? '0' + h : h) + ':00';
+      }
+      const period = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 === 0 ? 12 : h % 12;
+      return `${h12}:00 ${period}`;
+    }
+
+    function setScheduleFormat(fmt) {
+      currentFmt = fmt;
+      document.getElementById('s-fmt-12').classList.toggle('active', fmt === '12h');
+      document.getElementById('s-fmt-24').classList.toggle('active', fmt === '24h');
+      document.querySelectorAll('.slot-time').forEach(el => {
+        el.textContent = fmt === '24h' ? el.getAttribute('data-24h') : el.getAttribute('data-12h');
+      });
+      updateDock();
+    }
+
+    function selectDate(dateStr, pill) {
+      activeDateStr = dateStr;
+      document.querySelectorAll('.date-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      updateDock();
+    }
+
+    function toggleSlot(hour, tile) {
+      const alertBox = document.getElementById('contiguous-alert');
+      alertBox.style.display = 'none';
+
+      if (selectedHours.includes(hour)) {
+        // If deselecting middle of 3 slots, keep only clicked or edge
+        selectedHours = selectedHours.filter(h => h !== hour);
+      } else {
+        if (selectedHours.length === 0) {
+          selectedHours = [hour];
+        } else {
+          const minH = Math.min(...selectedHours);
+          const maxH = Math.max(...selectedHours);
+          if (hour === minH - 1 || hour === maxH + 1) {
+            selectedHours.push(hour);
+            selectedHours.sort((a, b) => a - b);
+          } else {
+            // Non-contiguous slot tapped: switch selection cleanly and show helpful hint
+            selectedHours = [hour];
+            alertBox.style.display = 'block';
+          }
+        }
+      }
+      renderSlotTiles();
+      updateDock();
+    }
+
+    function renderSlotTiles() {
+      document.querySelectorAll('.slot-tile:not(.occupied)').forEach(tile => {
+        const h = parseInt(tile.getAttribute('data-hour'), 10);
+        const isSel = selectedHours.includes(h);
+        tile.classList.toggle('selected', isSel);
+        const priceSpan = tile.querySelector('.slot-price');
+        if (priceSpan) {
+          const rate = h < 12 ? 25 : 30;
+          priceSpan.textContent = isSel ? `$${rate} · Seleccionado` : `$${rate} · Libre`;
+        }
+      });
+    }
+
+    function updateDock() {
+      const btn = document.getElementById('continue-btn');
+      if (selectedHours.length === 0) {
+        document.getElementById('dock-date-label').innerHTML = `${activeDateStr} · <span>Selecciona al menos 1 horario</span>`;
+        document.getElementById('dock-usd').textContent = '$0.00';
+        document.getElementById('dock-ves').textContent = '≈ Bs. 0,00';
+        btn.style.opacity = '0.5';
+        btn.style.pointerEvents = 'none';
+        return;
+      }
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+
+      selectedHours.sort((a, b) => a - b);
+      const startH = selectedHours[0];
+      const endH = selectedHours[selectedHours.length - 1] + 1;
+      const count = selectedHours.length;
+      const totalUsd = count * HOURLY_USD;
+      const totalVes = (totalUsd * BCV_RATE).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      document.getElementById('dock-date-label').innerHTML =
+        `${activeDateStr} · <strong>${formatHour(startH)} – ${formatHour(endH)}</strong> (${count} ${count === 1 ? 'hora' : 'horas'})`;
+      document.getElementById('dock-usd').textContent = `$${totalUsd.toFixed(2)}`;
+      document.getElementById('dock-ves').textContent = `≈ Bs. ${totalVes}`;
+    }
+
+    // Check URL query param if user clicked a quick slot from Home or Venue Hub
+    (function initFromQuery() {
+      const params = new URLSearchParams(window.location.search);
+      const slotParam = parseInt(params.get('slot'), 10);
+      if (!isNaN(slotParam) && [8,9,16,17,19,20,21,22].includes(slotParam)) {
+        selectedHours = [slotParam];
+        renderSlotTiles();
+        updateDock();
+      }
+    })();
+  </script>
+
+</body>
+</html>

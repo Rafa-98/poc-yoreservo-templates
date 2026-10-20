@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisión de Pre-Reserva & Desglose — YoReservo</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <style>
+    .boarding-ticket {
+      background-color: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .ticket-top {
+      background: linear-gradient(135deg, #1F290F 0%, #2D3D14 100%);
+      color: #FFFFFF;
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 2px dashed rgba(198, 242, 59, 0.4);
+    }
+    .ticket-body {
+      padding: 16px;
+    }
+    .ticket-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px dashed var(--border);
+      font-size: 13.5px;
+    }
+    .ticket-row:last-child {
+      border-bottom: none;
+    }
+    .hold-callout {
+      background: linear-gradient(135deg, rgba(198, 242, 59, 0.22) 0%, rgba(22, 163, 74, 0.12) 100%);
+      border: 1.5px solid rgba(130, 185, 18, 0.55);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-wrapper" style="padding-bottom: 130px;">
+
+    <!-- TOP HEADER -->
+    <header class="app-header">
+      <a href="04-smart-schedule-picker.html" class="back-btn">‹ Horario</a>
+      <span style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 800;">
+        Revisión de Reserva
+      </span>
+      <div class="format-switch">
+        <button type="button" id="r-fmt-12" class="active" onclick="setReviewFmt('12h')">AM/PM</button>
+        <button type="button" id="r-fmt-24" onclick="setReviewFmt('24h')">24h</button>
+      </div>
+    </header>
+
+    <!-- 4-STEP BOOKING PROGRESS BAR -->
+    <div class="booking-stepper">
+      <a href="03-venue-hub-spaces.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>1. Cancha</span>
+      </a>
+      <div class="step-divider"></div>
+      <a href="04-smart-schedule-picker.html" class="step-pill done">
+        <span class="step-num">✓</span>
+        <span>2. Horario</span>
+      </a>
+      <div class="step-divider"></div>
+      <div class="step-pill active">
+        <span class="step-num">3</span>
+        <span>3. Revisión</span>
+      </div>
+      <div class="step-divider"></div>
+      <div class="step-pill">
+        <span class="step-num">4</span>
+        <span>4. Pago</span>
+      </div>
+    </div>
+
+    <div style="padding: 16px;">
+
+      <!-- BOARDING-PASS / MATCH TICKET CARD -->
+      <div class="boarding-ticket">
+        <div class="ticket-top">
+          <img src="assets/avila-fitness-center.jpg" alt="Ávila Fitness" style="width: 64px; height: 64px; border-radius: 14px; object-fit: cover; border: 2px solid var(--accent);">
+          <div style="flex: 1;">
+            <span class="badge" style="background: rgba(198, 242, 59, 0.2); color: #C6F23B; margin-bottom: 4px;">
+              ⚽ Fútbol 5 · Techada · Grama FIFA
+            </span>
+            <h2 style="font-size: 18px; font-weight: 800; color: #FFFFFF;">Ávila Fitness Center</h2>
+            <p style="font-size: 12.5px; color: #DCE5CE;">Cancha 1 (Principal) · San Bernardino, Caracas</p>
+          </div>
+        </div>
+
+        <div class="ticket-body">
+          <div class="ticket-row">
+            <span style="color: var(--muted-foreground); font-weight: 600;">📅 Fecha del partido</span>
+            <strong style="font-size: 14px;">Martes, 20 de Octubre 2026</strong>
+          </div>
+          <div class="ticket-row">
+            <span style="color: var(--muted-foreground); font-weight: 600;">🕒 Horario seleccionado</span>
+            <div style="text-align: right;">
+              <strong id="review-time-range" style="font-family: 'Outfit', sans-serif; font-size: 15px; background: var(--accent-subtle); color: #2B4704; padding: 3px 9px; border-radius: 8px;">
+                7:00 PM – 9:00 PM (2 horas)
+              </strong>
+              <div style="font-size: 11px; color: var(--muted-foreground); margin-top: 3px;">
+                Hora local sede: America/Caracas (GMT-4)
+              </div>
+            </div>
+          </div>
+          <div class="ticket-row">
+            <span style="color: var(--muted-foreground); font-weight: 600;">👥 Capacidad e iluminación</span>
+            <strong>Hasta 10 jug. · 💡 LED Nocturna Incluida</strong>
+          </div>
+          <div style="padding-top: 10px; display: flex; justify-content: flex-end;">
+            <a href="04-smart-schedule-picker.html" class="back-btn" style="font-size: 12px;">
+              ✏️ Modificar fecha u horario
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRANSPARENT DUAL-CURRENCY FINANCIAL BREAKDOWN -->
+      <div class="card">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 800;">🧾 Desglose Transparente de Pago</h3>
+          <span class="badge badge-accent">🇻🇪 BCV: Bs. 36,50 / USD</span>
+        </div>
+
+        <div class="ticket-row">
+          <div>
+            <div style="font-weight: 600;">Alquiler de cancha (2 horas)</div>
+            <div style="font-size: 11.5px; color: var(--muted-foreground);">2 bloques × $30.00/h (Tarifa Nocturna)</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 700;">$60.00</div>
+            <div style="font-size: 11.5px; color: var(--muted-foreground);">Bs. 2.190,00</div>
+          </div>
+        </div>
+
+        <div class="ticket-row">
+          <div>
+            <div style="font-weight: 600;">Tarifa de servicio plataforma (5%)</div>
+            <div style="font-size: 11.5px; color: var(--muted-foreground);">Pase QR instantáneo y garantía de reserva</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 700;">$3.00</div>
+            <div style="font-size: 11.5px; color: var(--muted-foreground);">Bs. 109,50</div>
+          </div>
+        </div>
+
+        <div style="margin-top: 12px; padding: 14px; background: var(--muted); border-radius: var(--radius-md); border: 1px solid var(--border-strong); display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <span style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: var(--muted-foreground); display: block;">Total a Pagar</span>
+            <span style="font-size: 11.5px; color: var(--muted-foreground);">Calculado a tasa oficial BCV del día</span>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 800; color: var(--foreground);">
+              $63.00 <span style="font-size: 12px; font-weight: 700;">USD</span>
+            </div>
+            <div style="font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800; color: #3B6606;">
+              Bs. 2.299,50 VES
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 15-MINUTE SLOT HOLD GUARANTEE CALLOUT -->
+      <div class="hold-callout">
+        <div style="font-size: 24px; line-height: 1;">⏱️</div>
+        <div style="font-size: 12.5px; line-height: 1.48;">
+          <strong style="display: block; font-size: 13.5px; margin-bottom: 2px;">Bloqueo Exclusivo por 15:00 Minutos</strong>
+          Al pulsar confirmar, crearemos tu pre-reserva y <strong>bloquearemos este horario exclusivamente para ti durante 15 minutos</strong> para que realices tu Pago Móvil o pago con tarjeta sin riesgo de que otro jugador tome el turno.
+        </div>
+      </div>
+
+      <!-- CANCELLATION & CHECK-IN POLICY -->
+      <div style="font-size: 12px; color: var(--muted-foreground); display: flex; align-items: center; gap: 8px; padding: 4px 6px;">
+        <span>🛡️</span>
+        <span>Reprogramación gratuita hasta 6h antes del partido. Al confirmar aceptas las normas del club.</span>
+      </div>
+
+    </div>
+
+    <!-- STICKY BOTTOM CONFIRMATION DOCK -->
+    <div class="sticky-dock">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 12.5px;">
+        <span style="font-weight: 700; color: var(--muted-foreground);">Total: <strong style="color: var(--foreground);">$63.00 USD</strong> · Bs. 2.299,50</span>
+        <span class="badge badge-success">🔒 Cupo Verificado</span>
+      </div>
+      <a href="06-payment-experience.html" class="btn btn-primary btn-block" style="font-size: 15px; padding: 14px 20px;">
+        Confirmar y Bloquear Horario (15 min) →
+      </a>
+    </div>
+
+  </div>
+
+  <script>
+    function setReviewFmt(fmt) {
+      document.getElementById('r-fmt-12').classList.toggle('active', fmt === '12h');
+      document.getElementById('r-fmt-24').classList.toggle('active', fmt === '24h');
+      document.getElementById('review-time-range').textContent =
+        fmt === '24h' ? '19:00 – 21:00 (2 horas)' : '7:00 PM – 9:00 PM (2 horas)';
+    }
+  </script>
+
+</body>
+</html>
