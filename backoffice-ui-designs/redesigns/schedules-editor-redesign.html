@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="es" data-lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YoReservo — Rediseño UX/UI: Horarios por Cancha | Backoffice</title>
+  <link rel="stylesheet" href="../assets/backoffice.css">
+  <style>
+    /* =========================================================================
+       REDISEÑO UX/UI: CONFIGURADOR DE HORARIOS POR CANCHA (SPACE-FIRST)
+       ========================================================================= */
+
+    .schedules-workspace {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      padding: 20px 24px 40px;
+      align-items: start;
+      max-width: 1600px;
+    }
+
+    @media (max-width: 1100px) {
+      .schedules-workspace {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* -------------------------------------------------------------------------
+       1. LEFT PANEL: SPACE DIRECTORY (GROUPED BY VENUE & SPORT)
+       ------------------------------------------------------------------------- */
+    .spaces-rail {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      position: sticky;
+      top: 82px;
+    }
+
+    .spaces-rail-header {
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    .spaces-rail-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spaces-search-input {
+      width: 100%;
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-muted);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .spaces-search-input:focus {
+      border-color: var(--brand-lime);
+      background: var(--bg-surface);
+    }
+
+    .sport-filter-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .sport-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-muted);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .sport-pill:hover {
+      color: var(--text-main);
+      border-color: var(--border-strong);
+    }
+
+    .sport-pill.active {
+      background: var(--brand-lime);
+      color: var(--brand-lime-text);
+      border-color: var(--brand-lime);
+    }
+
+    .spaces-list-scroll {
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .venue-group-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      padding: 0 6px 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .venue-spaces-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .space-item-btn {
+      width: 100%;
+      text-align: left;
+      padding: 11px 12px;
+      border-radius: 14px;
+      border: 1.5px solid transparent;
+      background: var(--bg-muted);
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      position: relative;
+    }
+
+    .space-item-btn:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-medium);
+      transform: translateY(-1px);
+    }
+
+    .space-item-btn.active {
+      background: var(--bg-surface);
+      border-color: var(--brand-lime);
+      box-shadow: 0 4px 16px -4px rgba(34, 43, 19, 0.12);
+    }
+
+    .space-item-btn.active::before {
+      content: "";
+      position: absolute;
+      left: -1px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      border-radius: 0 4px 4px 0;
+      background: var(--brand-lime);
+    }
+
+    .space-sport-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+
+    .space-item-btn.active .space-sport-icon {
+      background: rgba(198, 242, 59, 0.22);
+      border-color: rgba(198, 242, 59, 0.6);
+    }
+
+    .space-item-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .space-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .space-item-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .space-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .space-status-dot.enabled {
+      background: #16A34A;
+      box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.18);
+    }
+
+    .space-status-dot.disabled {
+      background: #D97706;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+    }
+
+    .space-item-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .space-hours-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 5px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .space-hours-pill.unconfigured {
+      background: rgba(217, 119, 6, 0.12);
+      color: #B45309;
+      border-color: rgba(217, 119, 6, 0.3);
+    }
+
+    [data-theme="dark"] .space-hours-pill.unconfigured {
+      color: #FBBF24;
+    }
+
+    /* -------------------------------------------------------------------------
+       2. RIGHT PANEL: ACTIVE SPACE HERO + COMPACT 7-DAY SCHEDULE BUILDER
+       ------------------------------------------------------------------------- */
+    .schedule-builder-main {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Onboarding Banner when redirected after creating a new court */
+    .new-space-onboarding-banner {
+      background: linear-gradient(135deg, rgba(198, 242, 59, 0.22) 0%, rgba(198, 242, 59, 0.06) 100%);
+      border: 1.5px solid rgba(154, 198, 25, 0.55);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Active Space Hero Card */
+    .active-space-hero {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .hero-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .hero-thumb {
+      width: 68px;
+      height: 68px;
+      border-radius: 14px;
+      object-fit: cover;
+      border: 1px solid var(--border-medium);
+      flex-shrink: 0;
+    }
+
+    .hero-venue-crumb {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-link);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hero-space-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .hero-specs-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .spec-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .hero-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .kpi-mini-box {
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 8px 14px;
+      text-align: right;
+    }
+
+    .kpi-mini-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .kpi-mini-val {
+      font-family: 'Outfit', sans-serif;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    /* Quick Templates & Clone Toolbar */
+    .smart-presets-bar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 16px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .presets-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .preset-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+
+    .preset-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-medium);
+      background: var(--bg-muted);
+      color: var(--text-main);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--brand-lime);
+      background: rgba(198, 242, 59, 0.16);
+    }
+
+    /* -------------------------------------------------------------------------
+       3. COMPACT 7-DAY INTERACTIVE SCHEDULE TABLE
+       ------------------------------------------------------------------------- */
+    .week-schedule-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .week-card-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-muted);
+      display: grid;
+      grid-template-columns: 175px 1fr 240px 110px;
+      gap: 16px;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    @media (max-width: 920px) {
+      .week-card-header {
+        display: none;
+      }
+    }
+
+    .day-compact-row {
+      display: grid;
+      grid-template-columns: 175px 1fr 240px 110px;
+      gap: 16px;
+      align-items: center;
+      padding: 13px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: background 0.15s ease;
+    }
+
+    .day-compact-row:last-child {
+      border-bottom: none;
+    }
+
+    .day-compact-row:hover {
+      background: var(--bg-surface-hover);
+    }
+
+    .day-compact-row.is-closed {
+      background: var(--bg-muted);
+      opacity: 0.72;
+    }
+
+    @media (max-width: 920px) {
+      .day-compact-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+    }
+
+    /* Col 1: Day Toggle & Name */
+    .day-toggle-col {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .switch-pill {
+      position: relative;
+      display: inline-block;
+      width: 40px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .switch-pill input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-track {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: var(--border-strong);
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .switch-track::before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 3px;
+      bottom: 3px;
+      background: #FFFFFF;
+      border-radius: 50%;
+      transition: 0.2s;
+    }
+
+    .switch-pill input:checked + .switch-track {
+      background: var(--brand-lime);
+    }
+
+    .switch-pill input:checked + .switch-track::before {
+      transform: translateX(18px);
+      background: var(--brand-lime-text);
+    }
+
+    .day-label-name {
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .day-hours-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: block;
+    }
+
+    /* Col 2: Shift Time Selectors */
+    .day-shifts-col {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .shift-pill-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-medium);
+      border-radius: 11px;
+      padding: 4px 8px;
+    }
+
+    .shift-pill-box.shift-2-box {
+      background: rgba(86, 95, 69, 0.1);
+      border-color: var(--primary);
+    }
+
+    .shift-tag {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--brand-lime);
+      color: var(--brand-lime-text);
+    }
+
+    .shift-tag.tag-2 {
+      background: var(--brand-forest);
+      color: #FFFFFF;
+    }
+
+    .time-select-clean {
+      border: none;
+      background: transparent;
+      font-family: 'Inter', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      padding: 3px 4px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .add-split-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      border-radius: 9px;
+      border: 1px dashed var(--border-strong);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .add-split-btn:hover {
+      border-color: var(--brand-lime);
+      color: var(--text-main);
+      background: rgba(198, 242, 59, 0.12);
+    }
+
+    .remove-split-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 6px;
+    }
+
+    .remove-split-btn:hover {
+      background: var(--destructive-subtle);
+      color: var(--destructive);
+    }
+
+    .recess-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: 2px 6px;
+      border-radius: 6px;
+      background: var(--bg-muted);
+    }
+
+    /* Col 3: Visual 24-Hour Mini Timeline Bar */
+    .day-timeline-col {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .mini-24h-bar {
+      height: 14px;
+      border-radius: 6px;
+      background: var(--bg-muted);
+      border: 1px solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mini-bar-segment {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background: var(--brand-lime);
+      border-radius: 3px;
+    }
+
+    .mini-bar-segment.seg-2 {
+      background: var(--brand-forest);
+    }
+
+    [data-theme="dark"] .mini-bar-segment.seg-2 {
+      background: #84CC16;
+    }
+
+    .mini-24h-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      font-family: monospace;
+      color: var(--text-faint);
+    }
+
+    /* Col 4: Quick Copy Action */
+    .day-actions-col {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .copy-row-btn {
+      padding: 5px 9px;
+      border-radius: 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .copy-row-btn:hover {
+      border-color: var(--brand-lime);
+      color: var(--text-main);
+      background: rgba(198, 242, 59, 0.15);
+    }
+
+    /* -------------------------------------------------------------------------
+       4. LIVE CLIENT BOOKING SLOTS PREVIEW FOOTER
+       ------------------------------------------------------------------------- */
+    .slots-preview-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .slots-chips-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .slot-preview-chip {
+      padding: 6px 11px;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: monospace;
+      background: rgba(198, 242, 59, 0.18);
+      border: 1px solid rgba(154, 198, 25, 0.45);
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* Sticky Bottom Action Bar */
+    .sticky-save-bar {
+      position: sticky;
+      bottom: 16px;
+      z-index: 30;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-medium);
+      border-radius: 18px;
+      padding: 12px 20px;
+      box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <!-- LEFT SIDEBAR -->
+    <aside class="app-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+          <img src="../assets/yoreservo-logo-transparent.png" alt="YoReservo" style="filter: brightness(0) invert(1);">
+          <span class="sidebar-brand-badge">PRO</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Resumen</div>
+        <a href="../dashboard/executive-dashboard.html" class="nav-item">
+          <span>📊</span>
+          <span>Panel Ejecutivo</span>
+        </a>
+
+        <div class="nav-section-title">Operaciones</div>
+        <a href="../agenda/agenda-grid.html" class="nav-item">
+          <span>📅</span>
+          <span>Agenda Multi-Cancha</span>
+        </a>
+        <a href="../bookings/reservations-list.html" class="nav-item">
+          <span>📋</span>
+          <span>Lista de Reservas</span>
+        </a>
+
+        <div class="nav-section-title">Instalaciones</div>
+        <a href="../venues/venues-management.html" class="nav-item">
+          <span>🏟️</span>
+          <span>Recintos &amp; Sedes</span>
+        </a>
+        <a href="../venues/spaces-builder.html" class="nav-item">
+          <span>⚙️</span>
+          <span>Configurador Canchas</span>
+        </a>
+        <a href="schedules-editor-redesign.html" class="nav-item active">
+          <span>🕒</span>
+          <span>Turnos &amp; Horarios</span>
+        </a>
+        <a href="../users/users-rbac.html" class="nav-item">
+          <span>👥</span>
+          <span>Personal &amp; Staff</span>
+        </a>
+
+        <div class="nav-section-title">Sistema</div>
+        <a href="../catalogs/master-catalogs.html" class="nav-item">
+          <span>🎾</span>
+          <span>Catálogos Maestros</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="font-size: 13px; font-weight: 600; color: #FFFFFF;">San Agustín Sport Complex</div>
+        <div style="font-size: 11px; color: var(--text-sidebar);">RIF: J-40123456-7 • Aliado Pro</div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="app-main">
+      <!-- TOPBAR -->
+      <header class="app-topbar">
+        <div style="display: flex; align-items: center; gap: 14px;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <h2 style="font-size: 18px; font-weight: 800; margin: 0;">Configurador de Horarios por Cancha</h2>
+              <span class="badge badge-available">Diseño Space-First (Por Cancha)</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">
+              Selecciona una cancha específica para definir sus horarios de apertura, turnos partidos y activación operativa
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <button type="button" class="btn btn-outline" onclick="toggleNewSpaceDemo()" style="font-size: 12px; padding: 7px 12px;">
+            ✨ Simular "Recién Creada (Pausada)"
+          </button>
+          <button type="button" class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()" title="Cambiar Tema">🌙</button>
+        </div>
+      </header>
+
+      <!-- WORKSPACE: LEFT SPACE SELECTOR + RIGHT SCHEDULE EDITOR -->
+      <div class="schedules-workspace">
+
+        <!-- =================================================================
+             LEFT COLUMN: SPECIFIC SPACE SELECTOR (NO GLOBAL VENUE OPTION)
+             ================================================================= -->
+        <aside class="spaces-rail">
+          <div class="spaces-rail-header">
+            <div class="spaces-rail-title">
+              <span>🎯 Seleccionar Cancha</span>
+              <span class="badge" style="font-size: 11px;" id="spaces-count-badge">6 canchas</span>
+            </div>
+
+            <input
+              type="text"
+              id="space-search"
+              class="spaces-search-input"
+              placeholder="🔍 Buscar cancha, sede o deporte..."
+              oninput="renderSpaceList()"
+            >
+
+            <div class="sport-filter-pills" id="sport-filters">
+              <button type="button" class="sport-pill active" onclick="setSportFilter('ALL')">Todas</button>
+              <button type="button" class="sport-pill" onclick="setSportFilter('Fútbol')">⚽ Fútbol</button>
+              <button type="button" class="sport-pill" onclick="setSportFilter('Pádel')">🎾 Pádel</button>
+              <button type="button" class="sport-pill" onclick="setSportFilter('Tenis')">🎾 Tenis</button>
+            </div>
+          </div>
+
+          <div class="spaces-list-scroll" id="spaces-list-container">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </aside>
+
+        <!-- =================================================================
+             RIGHT COLUMN: SCHEDULE BUILDER FOR THE SELECTED SPACE
+             ================================================================= -->
+        <div class="schedule-builder-main">
+
+          <!-- 1. NEWLY CREATED SPACE ONBOARDING BANNER (Shown when space is DISABLED / newly created) -->
+          <div class="new-space-onboarding-banner" id="onboarding-banner" style="display: none;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 24px;">🚀</span>
+              <div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 14.5px; font-weight: 800; color: var(--text-main);">
+                  ¡Cancha creada en estado Deshabilitada! Paso final: Configura su horario semanal
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                  Revisa los turnos de apertura de <strong id="banner-space-name">Cancha 3</strong> y haz clic en <strong>"Guardar y Habilitar Cancha"</strong> para publicarla en la app.
+                </div>
+              </div>
+            </div>
+            <span class="badge badge-hold" style="font-weight: 800;">⏸️ Pendiente de Horario</span>
+          </div>
+
+          <!-- 2. ACTIVE SPACE HERO HEADER -->
+          <section class="active-space-hero">
+            <div class="hero-left">
+              <img id="hero-img" src="../assets/pitch-aerial.jpg" alt="Cancha" class="hero-thumb">
+              <div>
+                <div class="hero-venue-crumb" id="hero-venue">📍 Ávila Fitness Center · San Bernardino</div>
+                <div class="hero-space-title">
+                  <span id="hero-name">Cancha 1 — Techada</span>
+                  <span id="hero-status-badge" class="badge badge-available">🟢 Habilitada</span>
+                </div>
+                <div class="hero-specs-row">
+                  <span class="spec-chip" id="hero-sport">⚽ Fútbol 5 (10 jug.)</span>
+                  <span class="spec-chip" id="hero-surface">🌱 Grama Sintética FIFA Quality Pro</span>
+                  <span class="spec-chip" id="hero-price">💵 $30.00 / hora</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="hero-right">
+              <div class="kpi-mini-box">
+                <div class="kpi-mini-label">Días Abiertos</div>
+                <div class="kpi-mini-val" id="kpi-open-days">7 / 7 días</div>
+              </div>
+              <div class="kpi-mini-box">
+                <div class="kpi-mini-label">Oferta Semanal</div>
+                <div class="kpi-mini-val" id="kpi-weekly-hours">112 hrs</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. ONE-CLICK PRESETS & CLONE FROM ANOTHER SPACE -->
+          <section class="smart-presets-bar">
+            <div class="presets-group">
+              <span class="preset-label">⚡ Plantillas Rápidas:</span>
+              <button type="button" class="preset-btn" onclick="applyPreset('full')">
+                ☀️ Continuo (07:00 – 22:00)
+              </button>
+              <button type="button" class="preset-btn" onclick="applyPreset('night')">
+                🌙 Nocturno Fútbol/Pádel (06:00 – 23:00)
+              </button>
+              <button type="button" class="preset-btn" onclick="applyPreset('split')">
+                ☕ Turno Partido (07:00–12:00 y 15:00–22:00)
+              </button>
+              <button type="button" class="preset-btn" onclick="applyPreset('weekdays')">
+                💼 Lun–Vie + Sáb Mediodía
+              </button>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <label for="clone-from-select" style="font-size: 11px; font-weight: 700; color: var(--text-muted);">
+                📥 Copiar de otra cancha:
+              </label>
+              <select
+                id="clone-from-select"
+                class="form-control"
+                style="font-size: 12px; font-weight: 600; padding: 6px 10px; width: auto;"
+                onchange="cloneFromSpace(this.value)"
+              >
+                <option value="">Seleccionar cancha origen...</option>
+              </select>
+            </div>
+          </section>
+
+          <!-- 4. COMPACT 7-DAY SCHEDULE TABLE (ALL 7 DAYS VISIBLE AT ONCE) -->
+          <section class="week-schedule-card">
+            <div class="week-card-header">
+              <div>Día y Estado</div>
+              <div>Franjas de Apertura (Turno Continuo o Turno Partido)</div>
+              <div>Línea de Tiempo 24h (00:00 – 24:00)</div>
+              <div style="text-align: right;">Replicar Fila</div>
+            </div>
+
+            <div id="week-rows-container">
+              <!-- 7 compact rows rendered by JS -->
+            </div>
+          </section>
+
+          <!-- 5. LIVE CLIENT SLOTS PREVIEW -->
+          <section class="slots-preview-card">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">
+              <div>
+                <h3 style="font-size: 14.5px; font-weight: 800; margin: 0;">
+                  👀 Vista Previa de Bloques Horarios Reservables (App Clientes)
+                </h3>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">
+                  Así verán los jugadores la disponibilidad de <strong id="preview-space-label">Cancha 1</strong> el día seleccionado:
+                </p>
+              </div>
+
+              <div style="display: flex; gap: 6px;" id="preview-day-tabs">
+                <!-- Day pills for preview -->
+              </div>
+            </div>
+
+            <div class="slots-chips-wrap" id="preview-slots-container">
+              <!-- Hourly slot chips -->
+            </div>
+          </section>
+
+          <!-- 6. STICKY FOOTER BAR WITH OPTIONAL MULTI-SPACE SYNC & SAVE+ENABLE -->
+          <div class="sticky-save-bar">
+            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+              <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px; font-weight: 700; color: var(--text-main);">
+                <input type="checkbox" id="also-apply-same-sport" style="width: 16px; height: 16px; accent-color: var(--brand-lime);">
+                <span id="also-apply-label">Replicar también a las demás canchas de Fútbol de esta sede (Opcional)</span>
+              </label>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <button type="button" class="btn btn-outline" onclick="saveSchedule(false)" style="font-size: 13px; padding: 9px 16px;">
+                💾 Guardar solo horario
+              </button>
+              <button type="button" class="btn btn-primary" id="btn-save-primary" onclick="saveSchedule(true)" style="font-size: 13.5px; padding: 9px 20px;">
+                🚀 Guardar Horario y Habilitar Cancha
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" style="position: fixed; bottom: 24px; right: 24px; z-index: 999; display: none; background: #1F290F; color: #C6F23B; border: 1px solid #C6F23B; padding: 12px 18px; border-radius: 14px; font-size: 13px; font-weight: 700; box-shadow: 0 12px 28px rgba(0,0,0,0.28);"></div>
+
+  <script>
+    const DAY_NAMES = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+    const HOURS = Array.from({ length: 25 }, (_, i) => `${String(i).padStart(2, '0')}:00`);
+
+    const SPACES_DATA = [
+      {
+        id: 'sp-avila-c1',
+        venueName: 'Ávila Fitness Center',
+        name: 'Cancha 1 — Techada',
+        sport: 'Fútbol',
+        format: 'Fútbol 5 (10 jug.)',
+        icon: '⚽',
+        surface: 'Grama Sintética FIFA Quality Pro',
+        price: 30,
+        status: 'ENABLED',
+        isNew: false,
+        image: '../assets/pitch-aerial.jpg',
+        days: DAY_NAMES.map((d, idx) => ({
+          name: d,
+          isOpen: true,
+          shifts: idx === 0
+            ? [
+                { openTime: '07:00', closeTime: '10:00' },
+                { openTime: '12:00', closeTime: '15:00' },
+                { openTime: '17:00', closeTime: '22:00' }
+              ]
+            : [{ openTime: '07:00', closeTime: '23:00' }]
+        }))
+      },
+      {
+        id: 'sp-avila-c2',
+        venueName: 'Ávila Fitness Center',
+        name: 'Cancha 2 — Exterior',
+        sport: 'Fútbol',
+        format: 'Fútbol 5 (10 jug.)',
+        icon: '⚽',
+        surface: 'Grama Sintética Pro (50mm)',
+        price: 25,
+        status: 'ENABLED',
+        isNew: false,
+        image: '../assets/pitch-aerial.jpg',
+        days: DAY_NAMES.map((d) => ({
+          name: d,
+          isOpen: true,
+          shifts: [
+            { openTime: '07:00', closeTime: '12:00' },
+            { openTime: '15:00', closeTime: '22:00' }
+          ]
+        }))
+      },
+      {
+        id: 'sp-avila-tenis-1',
+        venueName: 'Ávila Fitness Center',
+        name: 'Cancha Tenis Central',
+        sport: 'Tenis',
+        format: 'Tenis Individual / Dobles',
+        icon: '🎾',
+        surface: 'Arcilla Batida / Polvo de Ladrillo',
+        price: 18,
+        status: 'DISABLED',
+        isNew: true,
+        image: '../assets/tennis-court.jpg',
+        days: DAY_NAMES.map((d, idx) => ({
+          name: d,
+          isOpen: idx < 6,
+          shifts: idx === 0
+            ? [
+                { openTime: '07:00', closeTime: '10:00' },
+                { openTime: '12:00', closeTime: '15:00' },
+                { openTime: '17:00', closeTime: '21:00' }
+              ]
+            : [
+                { openTime: '07:00', closeTime: '12:00' },
+                { openTime: '14:00', closeTime: '20:00' }
+              ]
+        }))
+      },
+      {
+        id: 'sp-paraiso-p1',
+        venueName: 'Paraíso Padel Club',
+        name: 'Pista 1 — WPT Panorámica',
+        sport: 'Pádel',
+        format: 'Pádel Dobles (4 jug.)',
+        icon: '🎾',
+        surface: 'Cristal Panorámico · Césped WPT',
+        price: 22,
+        status: 'ENABLED',
+        isNew: false,
+        image: '../assets/padel-court.jpg',
+        days: DAY_NAMES.map((d) => ({
+          name: d,
+          isOpen: true,
+          shifts: [{ openTime: '06:00', closeTime: '24:00' }]
+        }))
+      },
+      {
+        id: 'sp-paraiso-p2',
+        venueName: 'Paraíso Padel Club',
+        name: 'Pista 2 — Cristal Azul',
+        sport: 'Pádel',
+        format: 'Pádel Dobles (4 jug.)',
+        icon: '🎾',
+        surface: 'Césped Monofilamento Pádel (12mm)',
+        price: 20,
+        status: 'ENABLED',
+        isNew: false,
+        image: '../assets/padel-court.jpg',
+        days: DAY_NAMES.map((d) => ({
+          name: d,
+          isOpen: true,
+          shifts: [{ openTime: '07:00', closeTime: '23:00' }]
+        }))
+      },
+      {
+        id: 'sp-san-agustin-f7',
+        venueName: 'San Agustín del Paraíso',
+        name: 'Campo Principal Fútbol 7',
+        sport: 'Fútbol',
+        format: 'Fútbol 7 (14 jug.)',
+        icon: '⚽',
+        surface: 'Grama Sintética Alto Rendimiento (60mm)',
+        price: 40,
+        status: 'ENABLED',
+        isNew: false,
+        image: '../assets/san-agustin-del-paraiso.jpg',
+        days: DAY_NAMES.map((d) => ({
+          name: d,
+          isOpen: true,
+          shifts: [{ openTime: '08:00', closeTime: '22:00' }]
+        }))
+      }
+    ];
+
+    let selectedSpaceId = 'sp-avila-tenis-1'; // Start showing the newly created court workflow!
+    let activeSportFilter = 'ALL';
+    let previewDayIdx = 0;
+
+    function parseHour(t) {
+      return parseInt(t.split(':')[0], 10);
+    }
+
+    function calcDayHours(day) {
+      if (!day.isOpen || !day.shifts) return 0;
+      return day.shifts.reduce((acc, s) => acc + Math.max(0, parseHour(s.closeTime) - parseHour(s.openTime)), 0);
+    }
+
+    function calcSpaceWeeklyHours(space) {
+      return space.days.reduce((sum, d) => sum + calcDayHours(d), 0);
+    }
+
+    function setSportFilter(sport) {
+      activeSportFilter = sport;
+      document.querySelectorAll('#sport-filters .sport-pill').forEach((btn) => {
+        btn.classList.toggle('active', btn.textContent.includes(sport === 'ALL' ? 'Todas' : sport));
+      });
+      renderSpaceList();
+    }
+
+    function selectSpace(id) {
+      selectedSpaceId = id;
+      renderAll();
+    }
+
+    function renderSpaceList() {
+      const container = document.getElementById('spaces-list-container');
+      const query = (document.getElementById('space-search').value || '').toLowerCase();
+
+      const filtered = SPACES_DATA.filter((s) => {
+        const matchSport = activeSportFilter === 'ALL' || s.sport === activeSportFilter;
+        const matchQuery =
+          !query ||
+          s.name.toLowerCase().includes(query) ||
+          s.venueName.toLowerCase().includes(query) ||
+          s.sport.toLowerCase().includes(query);
+        return matchSport && matchQuery;
+      });
+
+      document.getElementById('spaces-count-badge').textContent = `${filtered.length} canchas`;
+
+      // Group by venueName
+      const byVenue = {};
+      filtered.forEach((s) => {
+        if (!byVenue[s.venueName]) byVenue[s.venueName] = [];
+        byVenue[s.venueName].push(s);
+      });
+
+      container.innerHTML = Object.entries(byVenue)
+        .map(
+          ([venueName, spaces]) => `
+          <div>
+            <div class="venue-group-label">📍 ${venueName}</div>
+            <div class="venue-spaces-stack">
+              ${spaces
+                .map((sp) => {
+                  const isSelected = sp.id === selectedSpaceId;
+                  const weeklyHrs = calcSpaceWeeklyHours(sp);
+                  const openDays = sp.days.filter((d) => d.isOpen).length;
+                  return `
+                    <button type="button" class="space-item-btn ${isSelected ? 'active' : ''}" onclick="selectSpace('${sp.id}')">
+                      <div class="space-sport-icon">${sp.icon}</div>
+                      <div class="space-item-info">
+                        <div class="space-item-top">
+                          <span class="space-item-name">${sp.name}</span>
+                          <span class="space-status-dot ${sp.status === 'ENABLED' ? 'enabled' : 'disabled'}" title="${sp.status === 'ENABLED' ? 'Habilitada' : 'Deshabilitada (Pausada)'}"></span>
+                        </div>
+                        <div class="space-item-meta">
+                          <span>${sp.sport}</span>
+                          <span>•</span>
+                          <span>$${sp.price}/h</span>
+                        </div>
+                        <div class="space-hours-pill ${sp.status === 'DISABLED' ? 'unconfigured' : ''}">
+                          ${sp.status === 'DISABLED' ? '⏸️ Deshabilitada · ' : '🕒 '}
+                          ${openDays}d · ${weeklyHrs}h/sem
+                        </div>
+                      </div>
+                    </button>
+                  `;
+                })
+                .join('')}
+            </div>
+          </div>
+        `
+        )
+        .join('');
+    }
+
+    function renderHeroAndClone() {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      if (!space) return;
+
+      document.getElementById('hero-img').src = space.image;
+      document.getElementById('hero-venue').textContent = `📍 ${space.venueName}`;
+      document.getElementById('hero-name').textContent = space.name;
+      document.getElementById('hero-sport').textContent = `${space.icon} ${space.format}`;
+      document.getElementById('hero-surface').textContent = `🌱 ${space.surface}`;
+      document.getElementById('hero-price').textContent = `💵 $${space.price.toFixed(2)} / hora`;
+
+      const statusBadge = document.getElementById('hero-status-badge');
+      if (space.status === 'ENABLED') {
+        statusBadge.className = 'badge badge-available';
+        statusBadge.textContent = '🟢 Habilitada en App';
+      } else {
+        statusBadge.className = 'badge badge-hold';
+        statusBadge.textContent = '⏸️ Deshabilitada (Pausada)';
+      }
+
+      const openDays = space.days.filter((d) => d.isOpen).length;
+      const weeklyHours = calcSpaceWeeklyHours(space);
+      document.getElementById('kpi-open-days').textContent = `${openDays} / 7 días`;
+      document.getElementById('kpi-weekly-hours').textContent = `${weeklyHours} hrs`;
+
+      const banner = document.getElementById('onboarding-banner');
+      banner.style.display = space.status === 'DISABLED' ? 'flex' : 'none';
+      document.getElementById('banner-space-name').textContent = space.name;
+
+      const primaryBtn = document.getElementById('btn-save-primary');
+      if (space.status === 'DISABLED') {
+        primaryBtn.innerHTML = '🚀 Guardar Horario y Habilitar Cancha';
+      } else {
+        primaryBtn.innerHTML = '💾 Guardar Cambios de Horario';
+      }
+
+      document.getElementById('also-apply-label').textContent =
+        `Replicar también a las demás canchas de ${space.sport} en ${space.venueName} (Opcional)`;
+
+      // Populate clone selector
+      const cloneSelect = document.getElementById('clone-from-select');
+      cloneSelect.innerHTML =
+        `<option value="">Seleccionar cancha origen...</option>` +
+        SPACES_DATA.filter((s) => s.id !== space.id)
+          .map((s) => `<option value="${s.id}">${s.icon} ${s.name} (${s.venueName})</option>`)
+          .join('');
+    }
+
+    function buildHourOptions(selected) {
+      return HOURS.map((h) => `<option value="${h}" ${h === selected ? 'selected' : ''}>${h}</option>`).join('');
+    }
+
+    function renderWeekRows() {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      const container = document.getElementById('week-rows-container');
+      if (!space) return;
+
+      container.innerHTML = space.days
+        .map((day, idx) => {
+          const totalHrs = calcDayHours(day);
+          const shiftsHtml = day.shifts
+            .map((shift, sIdx) => {
+              const prev = sIdx > 0 ? day.shifts[sIdx - 1] : null;
+              const recessHtml = prev
+                ? `<span class="recess-badge" title="Receso / Bloqueo entre turnos">☕ Receso ${prev.closeTime}–${shift.openTime}</span>`
+                : '';
+              return `
+                ${recessHtml}
+                <div class="shift-pill-box ${sIdx > 0 ? 'shift-2-box' : ''}">
+                  <span class="shift-tag ${sIdx > 0 ? 'tag-2' : ''}">T${sIdx + 1}</span>
+                  <select class="time-select-clean" onchange="updateShiftTime(${idx}, ${sIdx}, 'openTime', this.value)">
+                    ${buildHourOptions(shift.openTime)}
+                  </select>
+                  <span style="color: var(--text-muted); font-size: 12px;">→</span>
+                  <select class="time-select-clean" onchange="updateShiftTime(${idx}, ${sIdx}, 'closeTime', this.value)">
+                    ${buildHourOptions(shift.closeTime)}
+                  </select>
+                  ${
+                    day.shifts.length > 1
+                      ? `<button type="button" class="remove-split-btn" onclick="removeShift(${idx}, ${sIdx})" title="Quitar turno T${sIdx + 1}">✕</button>`
+                      : ''
+                  }
+                </div>
+              `;
+            })
+            .join('');
+
+          const segmentsHtml = day.shifts
+            .map((shift, sIdx) => {
+              const left = (parseHour(shift.openTime) / 24) * 100;
+              const width = Math.max(0, ((parseHour(shift.closeTime) - parseHour(shift.openTime)) / 24) * 100);
+              return `<div class="mini-bar-segment ${sIdx % 2 === 1 ? 'seg-2' : ''}" style="left: ${left}%; width: ${width}%;"></div>`;
+            })
+            .join('');
+
+          return `
+            <div class="day-compact-row ${day.isOpen ? '' : 'is-closed'}">
+              <!-- Col 1: Toggle + Day -->
+              <div class="day-toggle-col">
+                <label class="switch-pill">
+                  <input type="checkbox" ${day.isOpen ? 'checked' : ''} onchange="toggleDayOpen(${idx})">
+                  <span class="switch-track"></span>
+                </label>
+                <div>
+                  <span class="day-label-name">${day.name}</span>
+                  <span class="day-hours-sub">${day.isOpen ? `${totalHrs}h · ${day.shifts.length} turno${day.shifts.length === 1 ? '' : 's'}` : 'Cerrado'}</span>
+                </div>
+              </div>
+
+              <!-- Col 2: Unlimited Shifts Controls -->
+              <div class="day-shifts-col">
+                ${
+                  day.isOpen
+                    ? `
+                      ${shiftsHtml}
+                      <button type="button" class="add-split-btn" onclick="addShift(${idx})">
+                        + Agregar Turno (T${day.shifts.length + 1})
+                      </button>
+                    `
+                    : `<span style="font-size: 12.5px; font-weight: 600; color: var(--text-muted);">🔒 Cancha cerrada este día — sin bloques disponibles</span>`
+                }
+              </div>
+
+              <!-- Col 3: 24h Mini Visual Bar -->
+              <div class="day-timeline-col">
+                <div class="mini-24h-bar">
+                  ${day.isOpen ? segmentsHtml : ''}
+                </div>
+                <div class="mini-24h-labels">
+                  <span>00h</span>
+                  <span>06h</span>
+                  <span>12h</span>
+                  <span>18h</span>
+                  <span>24h</span>
+                </div>
+              </div>
+
+              <!-- Col 4: Quick Copy -->
+              <div class="day-actions-col">
+                <button type="button" class="copy-row-btn" onclick="copyDayToWeekdays(${idx})" title="Copiar este horario a Lunes–Viernes">
+                  📋 A Lun–Vie
+                </button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+    }
+
+    function renderSlotsPreview() {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      if (!space) return;
+
+      document.getElementById('preview-space-label').textContent = space.name;
+
+      const tabsContainer = document.getElementById('preview-day-tabs');
+      tabsContainer.innerHTML = space.days
+        .map(
+          (d, idx) => `
+          <button
+            type="button"
+            class="sport-pill ${idx === previewDayIdx ? 'active' : ''}"
+            onclick="setPreviewDay(${idx})"
+          >
+            ${d.name.slice(0, 3)}
+          </button>
+        `
+        )
+        .join('');
+
+      const day = space.days[previewDayIdx];
+      const slotsContainer = document.getElementById('preview-slots-container');
+      if (!day.isOpen || !day.shifts.length) {
+        slotsContainer.innerHTML = `<span style="font-size: 12.5px; color: var(--text-muted);">Cancha cerrada los ${day.name}.</span>`;
+        return;
+      }
+
+      const slots = [];
+      day.shifts.forEach((shift) => {
+        for (let h = parseHour(shift.openTime); h < parseHour(shift.closeTime); h++) {
+          slots.push(`${String(h).padStart(2, '0')}:00`);
+        }
+      });
+
+      slotsContainer.innerHTML = slots
+        .map((s) => `<span class="slot-preview-chip">🟢 ${s} · $${space.price}</span>`)
+        .join('');
+    }
+
+    function setPreviewDay(idx) {
+      previewDayIdx = idx;
+      renderSlotsPreview();
+    }
+
+    function toggleDayOpen(idx) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      space.days[idx].isOpen = !space.days[idx].isOpen;
+      if (space.days[idx].isOpen && (!space.days[idx].shifts || space.days[idx].shifts.length === 0)) {
+        space.days[idx].shifts = [{ openTime: '07:00', closeTime: '22:00' }];
+      }
+      renderAll();
+    }
+
+    function updateShiftTime(dayIdx, shiftIdx, field, val) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      space.days[dayIdx].shifts[shiftIdx][field] = val;
+      renderAll();
+    }
+
+    function addShift(dayIdx) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      const day = space.days[dayIdx];
+      const last = day.shifts[day.shifts.length - 1];
+      if (!last) {
+        day.shifts.push({ openTime: '07:00', closeTime: '22:00' });
+      } else {
+        const lastOpenH = parseHour(last.openTime);
+        const lastCloseH = parseHour(last.closeTime);
+        if (lastCloseH >= 20 && lastCloseH - lastOpenH >= 6) {
+          const midClose = Math.min(lastOpenH + 4, lastCloseH - 3);
+          const nextOpen = Math.min(midClose + 2, 22);
+          const nextClose = Math.max(nextOpen + 2, lastCloseH);
+          last.closeTime = `${String(midClose).padStart(2, '0')}:00`;
+          day.shifts.push({
+            openTime: `${String(nextOpen).padStart(2, '0')}:00`,
+            closeTime: `${String(nextClose).padStart(2, '0')}:00`
+          });
+        } else {
+          const nextOpen = Math.min(23, lastCloseH + 2);
+          const nextClose = Math.min(24, nextOpen + 3);
+          day.shifts.push({
+            openTime: `${String(nextOpen).padStart(2, '0')}:00`,
+            closeTime: `${String(nextClose).padStart(2, '0')}:00`
+          });
+        }
+      }
+      renderAll();
+    }
+
+    function removeShift(dayIdx, shiftIdx) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      if (space.days[dayIdx].shifts.length <= 1) return;
+      space.days[dayIdx].shifts.splice(shiftIdx, 1);
+      renderAll();
+    }
+
+    function copyDayToWeekdays(sourceIdx) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      const src = space.days[sourceIdx];
+      for (let i = 0; i < 5; i++) {
+        space.days[i] = {
+          ...space.days[i],
+          isOpen: src.isOpen,
+          shifts: src.shifts.map((s) => ({ ...s }))
+        };
+      }
+      showToast(`📋 Horario de ${src.name} replicado a Lunes–Viernes`);
+      renderAll();
+    }
+
+    function applyPreset(type) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      space.days = space.days.map((d, idx) => {
+        if (type === 'full') {
+          return { ...d, isOpen: true, shifts: [{ openTime: '07:00', closeTime: '22:00' }] };
+        }
+        if (type === 'night') {
+          return { ...d, isOpen: true, shifts: [{ openTime: '06:00', closeTime: '23:00' }] };
+        }
+        if (type === 'split') {
+          return {
+            ...d,
+            isOpen: true,
+            shifts: [
+              { openTime: '07:00', closeTime: '12:00' },
+              { openTime: '15:00', closeTime: '22:00' }
+            ]
+          };
+        }
+        if (type === 'weekdays') {
+          if (idx < 5) return { ...d, isOpen: true, shifts: [{ openTime: '07:00', closeTime: '22:00' }] };
+          if (idx === 5) return { ...d, isOpen: true, shifts: [{ openTime: '08:00', closeTime: '14:00' }] };
+          return { ...d, isOpen: false, shifts: [] };
+        }
+        return d;
+      });
+      showToast('⚡ Plantilla aplicada a los 7 días de la cancha');
+      renderAll();
+    }
+
+    function cloneFromSpace(sourceId) {
+      if (!sourceId) return;
+      const source = SPACES_DATA.find((s) => s.id === sourceId);
+      const target = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      if (source && target) {
+        target.days = source.days.map((d) => ({
+          ...d,
+          shifts: d.shifts.map((s) => ({ ...s }))
+        }));
+        showToast(`📥 Horario copiado desde "${source.name}"`);
+        renderAll();
+      }
+    }
+
+    function saveSchedule(enableSpace) {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      if (enableSpace) {
+        space.status = 'ENABLED';
+        space.isNew = false;
+        showToast(`🚀 Horario guardado y "${space.name}" habilitada para reservas`);
+      } else {
+        showToast(`💾 Horario de "${space.name}" guardado correctamente`);
+      }
+      renderAll();
+    }
+
+    function toggleNewSpaceDemo() {
+      const space = SPACES_DATA.find((s) => s.id === selectedSpaceId);
+      space.status = space.status === 'DISABLED' ? 'ENABLED' : 'DISABLED';
+      renderAll();
+    }
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => {
+        el.style.display = 'none';
+      }, 3400);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.getElementById('theme-toggle').textContent = next === 'dark' ? '☀️' : '🌙';
+    }
+
+    function renderAll() {
+      renderSpaceList();
+      renderHeroAndClone();
+      renderWeekRows();
+      renderSlotsPreview();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
+
